@@ -28,7 +28,7 @@ class MangerFragment : Fragment() {
         _binding = FragmentMangerBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
-        val textView: TextView = binding.textDashboard
+        val textView: TextView = binding.textManger
         mangerViewModel.text.observe(viewLifecycleOwner) {
             textView.text = it
         }

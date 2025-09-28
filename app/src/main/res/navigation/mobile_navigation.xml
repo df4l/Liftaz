@@ -8,7 +8,7 @@
     <fragment
         android:id="@+id/navigation_pousser"
         android:name="com.df4l.liftaz.ui.pousser.PousserFragment"
-        android:label="@string/title_home"
+        android:label="@string/title_pousser"
         tools:layout="@layout/fragment_pousser" />
 
     <fragment
