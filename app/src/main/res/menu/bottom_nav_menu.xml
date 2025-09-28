@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/navigation_pousser"
+        android:icon="@drawable/ic_pousser_black_24dp"
+        android:title="@string/title_pousser" />
+
+    <item
+        android:id="@+id/navigation_dashboard"
+        android:icon="@drawable/ic_manger_black_24dp"
+        android:title="@string/title_manger" />
+
+    <item
+        android:id="@+id/navigation_notifications"
+        android:icon="@drawable/ic_statistics_black_24dp"
+        android:title="@string/title_stats" />
+
+</menu>

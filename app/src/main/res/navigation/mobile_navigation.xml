@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mobile_navigation"
+    app:startDestination="@+id/navigation_pousser">
+
+    <fragment
+        android:id="@+id/navigation_pousser"
+        android:name="com.df4l.liftaz.ui.pousser.PousserFragment"
+        android:label="@string/title_home"
+        tools:layout="@layout/fragment_pousser" />
+
+    <fragment
+        android:id="@+id/navigation_dashboard"
+        android:name="com.df4l.liftaz.ui.manger.MangerFragment"
+        android:label="@string/title_manger"
+        tools:layout="@layout/fragment_manger" />
+
+    <fragment
+        android:id="@+id/navigation_notifications"
+        android:name="com.df4l.liftaz.ui.stats.StatsFragment"
+        android:label="@string/title_stats"
+        tools:layout="@layout/fragment_stats" />
+</navigation>
