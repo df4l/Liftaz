@@ -9,5 +9,6 @@ data class Exercice (
     val id: Int = 0,
     var nom: String,
     var idMuscleCible: Int,
+    var poidsDuCorps: Boolean,
     var notes: String
     )
