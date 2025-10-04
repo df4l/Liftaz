@@ -7,17 +7,28 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 
 @Database(entities = [
+    //Pousser
     Muscle::class,
     Exercice::class,
     Seance::class,
     ExerciceSeance::class,
     SeanceHistorique::class,
     Serie::class,
-    Elastique::class
+    Elastique::class,
+    //Manger
+    Aliment::class,
+    Diete::class,
+    DieteElements::class,
+    Recette::class,
+    RecetteAliments::class,
+    Repas::class,
+    RepasElements::class
+    //Stats
                      ], version = 1, exportSchema = false)
 @TypeConverters(DateConverter::class)
 abstract class AppDatabase : RoomDatabase() {
 
+    //Pousser
     abstract fun elastiqueDao(): ElastiqueDao
     abstract fun exerciceDao(): ExerciceDao
     abstract fun exerciceSeanceDao(): ExerciceSeanceDao
@@ -25,6 +36,17 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun seanceDao(): SeanceDao
     abstract fun seanceHistoriqueDao(): SeanceHistoriqueDao
     abstract fun serieDao(): SerieDao
+
+    //Manger
+    abstract fun alimentDao(): AlimentDao
+    abstract fun dieteDao(): DieteDao
+    abstract fun dieteElementsDao(): DieteElementsDao
+    abstract fun recetteDao(): RecetteDao
+    abstract fun recetteAlimentsDao(): RecetteAlimentsDao
+    abstract fun repasDao(): RepasDao
+    abstract fun RepasElementsDao(): RepasElementsDao
+
+    //Stats
 
     companion object {
         @Volatile

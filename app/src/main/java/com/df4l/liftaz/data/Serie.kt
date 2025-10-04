@@ -1,16 +1,15 @@
 package com.df4l.liftaz.data
 
 import androidx.room.Entity
-import androidx.room.PrimaryKey
-
-@Entity(tableName = "series")
+@Entity(
+    tableName = "series",
+    primaryKeys = ["idSeanceHistorique", "idExercice", "numeroSerie"]
+)
 data class Serie (
-    @PrimaryKey(autoGenerate = true)
-    val id: Int = 0,
     val idSeanceHistorique: Int,
     val idExercice: Int,
-    val index: Int,
-    val poids: Int,
-    val nombreReps: Int,
+    val numeroSerie: Int,
+    val poids: Float,
+    val nombreReps: Float,
     val elastiqueBitMask: Int
     )
