@@ -3,4 +3,7 @@
     <string name="title_pousser">Pousser</string>
     <string name="title_manger">Manger</string>
     <string name="title_stats">Stats</string>
+    <string name="signe_plus">+</string>
+    <string name="ajouter_un_exercice">Ajouter un exercice</string>
+    <string name="cr_er_une_s_ance">Créer une séance</string>
 </resources>
