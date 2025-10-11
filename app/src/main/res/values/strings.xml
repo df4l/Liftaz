@@ -6,4 +6,8 @@
     <string name="signe_plus">+</string>
     <string name="ajouter_un_exercice">Ajouter un exercice</string>
     <string name="cr_er_une_s_ance">Créer une séance</string>
+    <string name="notes_hint">Notes éventuelles</string>
+    <string name="muscle_concerned">Muscle concerné</string>
+    <string name="nom_de_l_exercice">Nom de l\'exercice</string>
+    <string name="exercice_au_poids_du_corps">Exercice au poids du corps</string>
 </resources>

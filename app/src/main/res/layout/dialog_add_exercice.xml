@@ -9,14 +9,35 @@
         android:id="@+id/editTextExerciseName"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Nom de l'exercice"
+        android:hint="@string/nom_de_l_exercice"
         android:inputType="textCapWords" />
 
-    <EditText
-        android:id="@+id/editTextExerciseDescription"
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/muscle_concerned"
+        android:layout_marginTop="12dp"
+        android:textStyle="bold"/>
+
+    <Spinner
+        android:id="@+id/spinnerCategory"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Description"
+        android:layout_marginTop="6dp"
+        android:spinnerMode="dropdown" />
+
+    <CheckBox
+        android:id="@+id/checkBoxPDC"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/exercice_au_poids_du_corps"
+        android:layout_marginTop="12dp" />
+
+    <EditText
+        android:id="@+id/editTextExerciseNotes"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/notes_hint"
         android:layout_marginTop="10dp"
         android:inputType="textMultiLine"
         android:minLines="2" />
