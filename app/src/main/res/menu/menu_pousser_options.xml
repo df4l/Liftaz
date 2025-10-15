@@ -5,6 +5,6 @@
         android:title="@string/ajouter_un_exercice" />
 
     <item
-        android:id="@+id/action_add_series"
+        android:id="@+id/action_create_seance"
         android:title="@string/cr_er_une_s_ance" />
 </menu>

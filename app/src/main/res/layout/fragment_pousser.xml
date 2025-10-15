@@ -25,5 +25,4 @@
         app:backgroundTint="@android:color/white"
 />
 
-
 </androidx.constraintlayout.widget.ConstraintLayout>

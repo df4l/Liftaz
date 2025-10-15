@@ -10,7 +10,6 @@ import android.widget.ArrayAdapter
 import android.widget.CheckBox
 import android.widget.PopupMenu
 import android.widget.Spinner
-import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.df4l.liftaz.R
@@ -19,10 +18,11 @@ import com.df4l.liftaz.data.MuscleDao
 import com.df4l.liftaz.databinding.FragmentPousserBinding
 import com.google.android.material.snackbar.Snackbar
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.df4l.liftaz.data.Exercice
 import com.df4l.liftaz.data.ExerciceDao
 import com.df4l.liftaz.data.Muscle
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 class PousserFragment : Fragment() {
@@ -87,9 +87,8 @@ class PousserFragment : Fragment() {
                     showAddExerciseDialog()
                     true
                 }
-                R.id.action_add_series -> {
+                R.id.action_create_seance -> {
                     //Snackbar.make(anchor, "Création d'une séance", Snackbar.LENGTH_SHORT).show()
-                    showExercisesListDialog(anchor)
                     true
                 }
                 else -> false
@@ -97,35 +96,6 @@ class PousserFragment : Fragment() {
         }
 
         popup.show()
-    }
-
-    private fun showExercisesListDialog(anchor: View) {
-        lifecycleScope.launch {
-            // 🔹 Récupérer tous les exercices depuis la BDD
-            val exercices = exerciceDao.getAllExercices()
-
-            if (exerciceDao.count() == 0) {
-                Snackbar.make(anchor, "Aucun exercice créé pour le moment", Snackbar.LENGTH_SHORT).show()
-                return@launch
-            }
-
-            // 2️⃣ Récupérer tous les muscles pour pouvoir afficher leur nom
-            val muscles = muscleDao.getAllMuscles()
-
-            // 3️⃣ Créer la liste de chaînes
-            val exercicesStrings = exercices.map { ex ->
-                val type = if (ex.poidsDuCorps) "PDC" else "PO"
-                val muscleName = muscles.find { it.id == ex.idMuscleCible }?.nom ?: "Muscle inconnu"
-                "${ex.nom} ($muscleName) - $type"
-            }
-
-            // 4️⃣ Afficher le dialog
-            val builder = AlertDialog.Builder(requireContext())
-            builder.setTitle("Exercices créés")
-            builder.setItems(exercicesStrings.toTypedArray(), null)
-            builder.setPositiveButton("Fermer") { dialog, _ -> dialog.dismiss() }
-            builder.show()
-        }
     }
 
     private fun showAddExerciseDialog() {

@@ -35,20 +35,23 @@
             android:hint="Séries"/>
 
         <EditText
-            android:id="@+id/editReps"
+            android:id="@+id/editMinReps"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
             android:inputType="number"
-            android:hint="Répétitions"
+            android:hint="Réps min"
+            android:layout_marginStart="8dp"/>
+
+        <EditText
+            android:id="@+id/editMaxReps"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:inputType="number"
+            android:hint="Réps max"
             android:layout_marginStart="8dp"/>
 
     </LinearLayout>
 
-    <EditText
-        android:id="@+id/editNotes"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Notes"
-        android:layout_marginTop="6dp"/>
 </LinearLayout>
