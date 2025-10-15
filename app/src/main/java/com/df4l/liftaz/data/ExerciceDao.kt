@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.Flow
 interface ExerciceDao {
 
     @Query("SELECT * FROM exercices ORDER BY nom ASC")
-    fun getAllExercices(): Flow<List<Exercice>>
+    suspend fun getAllExercices(): List<Exercice>
 
     @Query("SELECT * FROM exercices WHERE id = :id")
     fun getItem(id: Int): Flow<Exercice>
@@ -25,4 +25,7 @@ interface ExerciceDao {
 
     @Delete
     suspend fun delete(exercice: Exercice)
+
+    @Query("SELECT COUNT(*) FROM exercices")
+    suspend fun count(): Int
 }
