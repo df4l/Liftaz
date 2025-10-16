@@ -18,6 +18,7 @@ import com.df4l.liftaz.data.MuscleDao
 import com.df4l.liftaz.databinding.FragmentPousserBinding
 import com.google.android.material.snackbar.Snackbar
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.df4l.liftaz.data.Exercice
@@ -89,6 +90,7 @@ class PousserFragment : Fragment() {
                 }
                 R.id.action_create_seance -> {
                     //Snackbar.make(anchor, "Création d'une séance", Snackbar.LENGTH_SHORT).show()
+                    createNewSeanceView()
                     true
                 }
                 else -> false
@@ -96,6 +98,12 @@ class PousserFragment : Fragment() {
         }
 
         popup.show()
+    }
+
+    private fun createNewSeanceView()
+    {
+        val navController = findNavController()
+        navController.navigate(R.id.action_pousserFragment_to_createSeanceFragment)
     }
 
     private fun showAddExerciseDialog() {

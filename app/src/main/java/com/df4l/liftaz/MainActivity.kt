@@ -1,6 +1,7 @@
 package com.df4l.liftaz
 
 import android.os.Bundle
+import android.view.View
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
@@ -29,6 +30,14 @@ class MainActivity : AppCompatActivity() {
                 R.id.navigation_pousser, R.id.navigation_dashboard, R.id.navigation_notifications
             )
         )
+
+        navController.addOnDestinationChangedListener { _, destination, _ ->
+            when (destination.id) {
+                R.id.navigation_creationseance -> navView.visibility = View.GONE
+                else -> navView.visibility = View.VISIBLE
+            }
+        }
+
         //setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
     }

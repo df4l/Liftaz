@@ -4,15 +4,65 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="ui.pousser.creationSeance.CreationSeanceFragment">
+    tools:context=".ui.pousser.creationSeance.CreationSeanceFragment">
 
+    <!-- Champ de texte pour le nom de la séance -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/textInputLayoutNom"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="Nom de la séance"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginVertical="42dp">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/editTextNom"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textCapSentences" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- RecyclerView pour les exercices -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:paddingBottom="100dp"
+        app:layout_constraintTop_toBottomOf="@id/textInputLayoutNom"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Bouton "Annuler" flottant -->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/btnAnnuler"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:contentDescription="Annuler"
+        android:src="@android:drawable/ic_menu_close_clear_cancel"
+        app:tint="@color/red"
+        app:backgroundTint="@color/white"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginBottom="32dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginEnd="16dp" />
+
+    <!-- Bouton "Confirmer" flottant -->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/btnConfirmer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:contentDescription="Confirmer"
+        android:src="@android:drawable/ic_menu_save"
+        app:tint="@android:color/holo_green_light"
+        app:backgroundTint="@android:color/white"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginBottom="32dp"
+        app:layout_constraintEnd_toStartOf="@id/btnAnnuler"
+        android:layout_marginEnd="8dp" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
