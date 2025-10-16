@@ -25,6 +25,21 @@
             android:inputType="textCapSentences" />
     </com.google.android.material.textfield.TextInputLayout>
 
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab_add_exercice"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:contentDescription="@string/signe_plus"
+        app:srcCompat="@android:drawable/ic_input_add"
+        app:layout_anchorGravity="bottom|end"
+        android:layout_gravity="bottom|end"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginBottom="32dp"
+        app:layout_constraintEnd_toStartOf="@id/btnConfirmer"
+        android:layout_marginEnd="8dp"
+        app:backgroundTint="@android:color/white"
+        />
+
     <!-- RecyclerView pour les exercices -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
@@ -36,20 +51,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- Bouton "Annuler" flottant -->
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/btnAnnuler"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:contentDescription="Annuler"
-        android:src="@android:drawable/ic_menu_close_clear_cancel"
-        app:tint="@color/red"
-        app:backgroundTint="@color/white"
-        app:layout_constraintBottom_toBottomOf="parent"
-        android:layout_marginBottom="32dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginEnd="16dp" />
-
     <!-- Bouton "Confirmer" flottant -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/btnConfirmer"
@@ -57,12 +58,12 @@
         android:layout_height="wrap_content"
         android:contentDescription="Confirmer"
         android:src="@android:drawable/ic_menu_save"
-        app:tint="@android:color/holo_green_light"
+        app:tint="@android:color/holo_green_dark"
         app:backgroundTint="@android:color/white"
         app:layout_constraintBottom_toBottomOf="parent"
         android:layout_marginBottom="32dp"
-        app:layout_constraintEnd_toStartOf="@id/btnAnnuler"
-        android:layout_marginEnd="8dp" />
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginEnd="16dp"/>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

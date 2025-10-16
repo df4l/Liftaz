@@ -2,44 +2,74 @@ package com.df4l.liftaz.ui.pousser.creationSeance
 
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import android.widget.PopupMenu
 import androidx.fragment.app.Fragment
-import androidx.navigation.NavController
-import androidx.navigation.fragment.findNavController
+import androidx.lifecycle.lifecycleScope
 import com.df4l.liftaz.R
+import com.df4l.liftaz.data.AppDatabase
+import com.df4l.liftaz.data.ExerciceDao
+import com.df4l.liftaz.data.MuscleDao
 import com.df4l.liftaz.databinding.FragmentCreationseanceBinding
-import com.google.android.material.bottomnavigation.BottomNavigationView
-import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.example.myapp.ui.dialogs.CreateExerciceDialog
 
 class CreationSeanceFragment : Fragment() {
 
     private var _binding: FragmentCreationseanceBinding? = null
     private val binding get() = _binding!!
 
-    private lateinit var navController: NavController
-    private lateinit var bottomNav: BottomNavigationView
-
-    private lateinit var btnAnnuler: FloatingActionButton
+    private lateinit var database: AppDatabase
+    private lateinit var muscleDao: MuscleDao
+    private lateinit var exerciceDao: ExerciceDao
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-
         _binding = FragmentCreationseanceBinding.inflate(inflater, container, false)
+
+        database = AppDatabase.getDatabase(requireContext())
+        muscleDao = database.muscleDao()
+        exerciceDao = database.exerciceDao()
+
+        binding.fabAddExercice.setOnClickListener { view ->
+            showFabMenu(view)
+        }
+
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+    }
 
-        btnAnnuler = view.findViewById(R.id.btnAnnuler)
+    private fun showFabMenu(anchor: View) {
+        val popup = PopupMenu(requireContext(), anchor)
+        popup.menuInflater.inflate(R.menu.menu_creationseance_options, popup.menu)
 
-        btnAnnuler.setOnClickListener {
-            // Revenir en arrière proprement
-            findNavController().navigateUp()
+        popup.setOnMenuItemClickListener { item: MenuItem ->
+            when (item.itemId) {
+                R.id.action_add_exercice -> {
+
+                    true
+                }
+                R.id.action_create_exercice -> {
+                    CreateExerciceDialog(
+                        context = requireContext(),
+                        lifecycleScope = lifecycleScope,
+                        exerciceDao = exerciceDao,
+                        muscleDao = muscleDao,
+                        parentView = requireView()
+                    ).show()
+                    true
+                }
+                else -> false
+            }
         }
+
+        popup.show()
     }
 
     override fun onDestroyView() {
