@@ -7,5 +7,6 @@ import androidx.room.PrimaryKey
 data class Muscle (
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
-    val nom: String
+    val nom: String,
+    val nomImage: String
 )

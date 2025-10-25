@@ -46,19 +46,19 @@ class PousserFragment : Fragment() {
         lifecycleScope.launch {
             if (muscleDao.count() == 0) {
                 val defaultMuscles = listOf(
-                    Muscle(nom = "Dos"),
-                    Muscle(nom = "Épaules"),
-                    Muscle(nom = "Biceps"),
-                    Muscle(nom = "Fessiers"),
-                    Muscle(nom = "Triceps"),
-                    Muscle(nom = "Avant-bras"),
-                    Muscle(nom = "Quadriceps"),
-                    Muscle(nom = "Ischio-jambiers"),
-                    Muscle(nom = "Mollets"),
-                    Muscle(nom = "Abdominaux"),
-                    Muscle(nom = "Cou"),
-                    Muscle(nom = "Trapèzes"),
-                    Muscle(nom = "Pectoraux")
+                    Muscle(nom = "Dos", nomImage = "dos"),
+                    Muscle(nom = "Épaules", nomImage = "epaules"),
+                    Muscle(nom = "Biceps", nomImage = "biceps"),
+                    Muscle(nom = "Fessiers", nomImage = "cou"),
+                    Muscle(nom = "Triceps", nomImage="triceps"),
+                    Muscle(nom = "Avant-bras", nomImage = "avantbras"),
+                    Muscle(nom = "Quadriceps", nomImage = "quadriceps"),
+                    Muscle(nom = "Ischio-jambiers", nomImage = "ischiojambiers"),
+                    Muscle(nom = "Mollets", nomImage = "mollets"),
+                    Muscle(nom = "Abdominaux", nomImage = "abdominaux"),
+                    Muscle(nom = "Cou", nomImage = "cou"),
+                    Muscle(nom = "Trapèzes", nomImage="trapezes"),
+                    Muscle(nom = "Pectoraux", nomImage="pectoraux")
                 )
                 defaultMuscles.forEach { muscleDao.insert(it) }
             }
