@@ -23,7 +23,11 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="textCapSentences" />
+
+        <include android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp"
+            layout="@layout/add_exercice_to_seance" />
     </com.google.android.material.textfield.TextInputLayout>
+
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab_add_exercice"

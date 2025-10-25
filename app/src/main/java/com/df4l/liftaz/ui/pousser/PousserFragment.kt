@@ -57,7 +57,8 @@ class PousserFragment : Fragment() {
                     Muscle(nom = "Mollets"),
                     Muscle(nom = "Abdominaux"),
                     Muscle(nom = "Cou"),
-                    Muscle(nom = "Trapèzes")
+                    Muscle(nom = "Trapèzes"),
+                    Muscle(nom = "Pectoraux")
                 )
                 defaultMuscles.forEach { muscleDao.insert(it) }
             }

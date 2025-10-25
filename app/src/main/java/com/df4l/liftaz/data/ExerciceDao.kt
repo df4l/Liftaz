@@ -28,4 +28,7 @@ interface ExerciceDao {
 
     @Query("SELECT COUNT(*) FROM exercices")
     suspend fun count(): Int
+
+    @Query("SELECT * FROM exercices WHERE idMuscleCible = :id")
+    fun getExercicesByMuscle(id: Int): List<Exercice>
 }
