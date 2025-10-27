@@ -1,4 +1,4 @@
-package com.df4l.liftaz.ui.pousser.creationSeance
+package com.df4l.liftaz.pousser.creationSeance
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -16,8 +16,7 @@ import com.df4l.liftaz.data.AppDatabase
 import com.df4l.liftaz.data.ExerciceDao
 import com.df4l.liftaz.data.MuscleDao
 import com.df4l.liftaz.databinding.FragmentCreationseanceBinding
-import com.example.myapp.ui.dialogs.CreateExerciceDialog
-import com.example.myapp.ui.dialogs.ShowExercicesListDialog
+import com.df4l.liftaz.pousser.creationExercice.CreateExerciceDialog
 import com.google.android.material.snackbar.Snackbar
 
 class CreationSeanceFragment : Fragment() {

@@ -1,4 +1,4 @@
-package com.df4l.liftaz.ui.stats
+package com.df4l.liftaz.manger
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -7,11 +7,11 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import com.df4l.liftaz.databinding.FragmentStatsBinding
+import com.df4l.liftaz.databinding.FragmentMangerBinding
 
-class StatsFragment : Fragment() {
+class MangerFragment : Fragment() {
 
-    private var _binding: FragmentStatsBinding? = null
+    private var _binding: FragmentMangerBinding? = null
 
     // This property is only valid between onCreateView and
     // onDestroyView.
@@ -22,14 +22,14 @@ class StatsFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        val statsViewModel =
-            ViewModelProvider(this).get(StatsViewModel::class.java)
+        val mangerViewModel =
+            ViewModelProvider(this).get(MangerViewModel::class.java)
 
-        _binding = FragmentStatsBinding.inflate(inflater, container, false)
+        _binding = FragmentMangerBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
-        val textView: TextView = binding.textStats
-        statsViewModel.text.observe(viewLifecycleOwner) {
+        val textView: TextView = binding.textManger
+        mangerViewModel.text.observe(viewLifecycleOwner) {
             textView.text = it
         }
         return root

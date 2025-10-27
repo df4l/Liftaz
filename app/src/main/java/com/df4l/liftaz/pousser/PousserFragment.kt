@@ -1,4 +1,4 @@
-package com.df4l.liftaz.ui.pousser
+package com.df4l.liftaz.pousser
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -15,7 +15,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.df4l.liftaz.data.ExerciceDao
 import com.df4l.liftaz.data.Muscle
-import com.example.myapp.ui.dialogs.CreateExerciceDialog
+import com.df4l.liftaz.pousser.creationExercice.CreateExerciceDialog
 import kotlinx.coroutines.launch
 
 class PousserFragment : Fragment() {
@@ -49,7 +49,7 @@ class PousserFragment : Fragment() {
                     Muscle(nom = "Dos", nomImage = "dos"),
                     Muscle(nom = "Épaules", nomImage = "epaules"),
                     Muscle(nom = "Biceps", nomImage = "biceps"),
-                    Muscle(nom = "Fessiers", nomImage = "cou"),
+                    Muscle(nom = "Fessiers", nomImage = "fessiers"),
                     Muscle(nom = "Triceps", nomImage="triceps"),
                     Muscle(nom = "Avant-bras", nomImage = "avantbras"),
                     Muscle(nom = "Quadriceps", nomImage = "quadriceps"),

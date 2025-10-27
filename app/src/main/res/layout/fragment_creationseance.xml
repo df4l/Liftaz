@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.pousser.creationSeance.CreationSeanceFragment">
+    tools:context=".pousser.creationSeance.CreationSeanceFragment">
 
     <!-- Champ de texte pour le nom de la séance -->
     <com.google.android.material.textfield.TextInputLayout

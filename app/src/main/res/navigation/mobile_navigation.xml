@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/navigation_pousser"
-        android:name="com.df4l.liftaz.ui.pousser.PousserFragment"
+        android:name="com.df4l.liftaz.pousser.PousserFragment"
         android:label="@string/title_pousser"
         tools:layout="@layout/fragment_pousser">
     <action
@@ -17,20 +17,20 @@
 
     <fragment
         android:id="@+id/navigation_creationseance"
-        android:name="com.df4l.liftaz.ui.pousser.creationSeance.CreationSeanceFragment"
+        android:name="com.df4l.liftaz.pousser.creationSeance.CreationSeanceFragment"
         android:label="Création d'une séance"
         tools:layout="@layout/fragment_creationseance"
         />
 
     <fragment
         android:id="@+id/navigation_dashboard"
-        android:name="com.df4l.liftaz.ui.manger.MangerFragment"
+        android:name="com.df4l.liftaz.manger.MangerFragment"
         android:label="@string/title_manger"
         tools:layout="@layout/fragment_manger" />
 
     <fragment
         android:id="@+id/navigation_notifications"
-        android:name="com.df4l.liftaz.ui.stats.StatsFragment"
+        android:name="com.df4l.liftaz.stats.StatsFragment"
         android:label="@string/title_stats"
         tools:layout="@layout/fragment_stats" />
 </navigation>

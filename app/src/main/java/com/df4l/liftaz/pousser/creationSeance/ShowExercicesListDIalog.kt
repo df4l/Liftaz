@@ -1,5 +1,6 @@
-package com.example.myapp.ui.dialogs
+package com.df4l.liftaz.pousser.creationSeance
 
+import com.df4l.liftaz.pousser.musclesListe.MuscleListAdapter
 import android.content.Context
 import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.LifecycleCoroutineScope
@@ -40,15 +41,18 @@ class ShowExercicesListDialog(
 
             val musclesNames = musclesAvecExos.map { it.nom }.toTypedArray()
 
+            val adapter = MuscleListAdapter(context, musclesAvecExos)
+
             AlertDialog.Builder(context)
                 .setTitle("Choisir un muscle")
-                .setItems(musclesNames) { dialog, which ->
+                .setAdapter(adapter) { dialog, which ->
                     val selectedMuscle = musclesAvecExos[which]
                     dialog.dismiss()
                     showExercisesForMuscle(selectedMuscle.id, selectedMuscle.nom, exercices)
                 }
                 .setNegativeButton("Annuler") { d, _ -> d.dismiss() }
                 .show()
+
         }
     }
 

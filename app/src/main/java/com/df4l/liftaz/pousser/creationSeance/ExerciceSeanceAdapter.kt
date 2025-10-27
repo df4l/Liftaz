@@ -1,4 +1,4 @@
-package com.df4l.liftaz.ui.pousser.creationSeance
+package com.df4l.liftaz.pousser.creationSeance
 
 import android.view.LayoutInflater
 import android.view.View

@@ -1,8 +1,8 @@
-package com.example.myapp.ui.dialogs
+package com.df4l.liftaz.pousser.creationExercice
 
 import android.content.Context
 import android.view.LayoutInflater
-import android.widget.ArrayAdapter
+import android.view.View
 import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.Spinner
@@ -13,6 +13,7 @@ import com.df4l.liftaz.data.ExerciceDao
 import com.google.android.material.snackbar.Snackbar
 import com.df4l.liftaz.R
 import com.df4l.liftaz.data.MuscleDao
+import com.df4l.liftaz.pousser.musclesListe.SpinnerMuscleAdapter
 import kotlinx.coroutines.launch
 
 class CreateExerciceDialog(
@@ -20,7 +21,7 @@ class CreateExerciceDialog(
     private val lifecycleScope: LifecycleCoroutineScope,
     private val exerciceDao: ExerciceDao,
     private val muscleDao: MuscleDao,
-    private val parentView: android.view.View
+    private val parentView: View
 ) {
     fun show() {
         val dialogView = LayoutInflater.from(context)
@@ -42,19 +43,16 @@ class CreateExerciceDialog(
 
         lifecycleScope.launch {
             val muscles = muscleDao.getAllMuscles()
-            val adapter = ArrayAdapter(
-                context,
-                android.R.layout.simple_spinner_item,
-                muscles.map { it.nom }
-            )
-            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+
+            // 🧩 Utilisation du nouvel adapter
+            val adapter = SpinnerMuscleAdapter(context, muscles)
             spinnerCategory.adapter = adapter
 
             dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
                 val name = editName.text.toString().trim()
                 val description = editNotes.text.toString().trim()
-                val selectedMuscleName = spinnerCategory.selectedItem?.toString()
-                val selectedMuscle = muscles.find { it.nom == selectedMuscleName }
+                val selectedPosition = spinnerCategory.selectedItemPosition
+                val selectedMuscle = muscles.getOrNull(selectedPosition)
                 val isPDC = checkBoxPDC.isChecked
 
                 if (name.isEmpty()) {
@@ -72,6 +70,7 @@ class CreateExerciceDialog(
                 dialog.dismiss()
             }
         }
+
     }
 
     private fun addExercise(name: String, idMuscleCible: Int, exercicePdC: Boolean, notes: String) {

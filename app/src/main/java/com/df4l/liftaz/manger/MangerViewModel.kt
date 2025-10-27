@@ -1,4 +1,4 @@
-package com.df4l.liftaz.ui.manger
+package com.df4l.liftaz.manger
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData

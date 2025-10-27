@@ -10,4 +10,5 @@
     <string name="muscle_concerned">Muscle concerné</string>
     <string name="nom_de_l_exercice">Nom de l\'exercice</string>
     <string name="exercice_au_poids_du_corps">Exercice au poids du corps</string>
+    <string name="muscle_icon">Icône du muscle</string>
 </resources>
