@@ -6,27 +6,45 @@
     android:padding="12dp"
     android:background="?attr/selectableItemBackground">
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:padding="12dp"
-    android:background="?attr/selectableItemBackground">
+    <!-- En-tête : nom + muscle + bouton supprimer -->
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
 
-    <TextView
-        android:id="@+id/textExerciceName"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Exercice"
-        android:textStyle="bold"
-        android:textSize="16sp"/>
+        <LinearLayout
+            android:id="@+id/textContainer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/textExerciceMuscle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Muscle"/>
+            <TextView
+                android:id="@+id/textExerciceName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Exercice"
+                android:textStyle="bold"
+                android:textSize="16sp"/>
 
+            <TextView
+                android:id="@+id/textExerciceMuscle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Muscle"/>
+        </LinearLayout>
+
+        <!-- Petite croix à droite -->
+        <ImageButton
+            android:id="@+id/btnDeleteExercice"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@android:drawable/ic_menu_close_clear_cancel"
+            android:contentDescription="@string/supprimer_exercice" />
+    </RelativeLayout>
+
+    <!-- Ligne des inputs -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -58,11 +76,6 @@
             android:inputType="number"
             android:hint="Réps max"
             android:layout_marginStart="8dp"/>
-
     </LinearLayout>
-
-</LinearLayout>
-
-    <include
-        layout="@layout/add_exercice_to_seance" />
+    <include layout="@layout/add_exercice_to_seance" />
 </LinearLayout>

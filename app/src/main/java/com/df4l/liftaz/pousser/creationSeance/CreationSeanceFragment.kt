@@ -2,11 +2,9 @@ package com.df4l.liftaz.pousser.creationSeance
 
 import android.os.Bundle
 import android.view.LayoutInflater
-import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
-import android.widget.PopupMenu
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -14,10 +12,13 @@ import androidx.recyclerview.widget.RecyclerView
 import com.df4l.liftaz.R
 import com.df4l.liftaz.data.AppDatabase
 import com.df4l.liftaz.data.ExerciceDao
+import com.df4l.liftaz.data.Muscle
 import com.df4l.liftaz.data.MuscleDao
 import com.df4l.liftaz.databinding.FragmentCreationseanceBinding
 import com.df4l.liftaz.pousser.creationExercice.CreateExerciceDialog
 import com.google.android.material.snackbar.Snackbar
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.launch
 
 class CreationSeanceFragment : Fragment() {
 
@@ -44,7 +45,13 @@ class CreationSeanceFragment : Fragment() {
         exerciceDao = database.exerciceDao()
 
         binding.fabAddExercice.setOnClickListener { view ->
-            showFabMenu(view)
+            CreateExerciceDialog(
+                context = requireContext(),
+                lifecycleScope = lifecycleScope,
+                exerciceDao = exerciceDao,
+                muscleDao = muscleDao,
+                parentView = requireView()
+            ).show()
         }
 
         return binding.root
@@ -56,70 +63,44 @@ class CreationSeanceFragment : Fragment() {
         val btnAddExercice: ImageButton = view.findViewById(R.id.btnAddExercice)
 
         btnAddExercice.setOnClickListener {
-            ShowExercicesListDialog(
-                context = requireContext(),
-                lifecycleScope = viewLifecycleOwner.lifecycleScope,
-                exerciceDao = exerciceDao,
-                muscleDao = muscleDao,
-                parentView = requireView()
-            ) {
-                    exercice ->
-                // 👉 Tu récupères ici directement l'exercice choisi
-                // Tu peux ouvrir une autre vue, afficher des détails, lancer une édition, etc.
-                Snackbar.make(requireView(), "Exercice sélectionné : ${exercice.nom}", Snackbar.LENGTH_LONG).show()
-            }.show()
+            addExerciceToSeance(0)
         }
 
         recyclerView = binding.recyclerView
         recyclerView.layoutManager = LinearLayoutManager(context)
 
-        exerciceSeanceList.add(ExerciceSeanceUi(1, "Développé-couché", "Pectoraux",4,8,12))
+        //exerciceSeanceList.add( ExerciceSeanceUi(4, "Développé-couché", "Pectoraux",4,8,12))
+        //exerciceSeanceList.add(0, ExerciceSeanceUi(3, "Soulevé de terre", "Quoicoubeh",4,8,12))
 
-        exerciceSeanceAdapter = ExerciceSeanceAdapter(exerciceSeanceList)
+        exerciceSeanceAdapter = ExerciceSeanceAdapter(exerciceSeanceList) { position ->
+            addExerciceToSeance(position)
+        }
         recyclerView.adapter = exerciceSeanceAdapter
 
-    }
-
-    private fun showFabMenu(anchor: View) {
-        val popup = PopupMenu(requireContext(), anchor)
-        popup.menuInflater.inflate(R.menu.menu_creationseance_options, popup.menu)
-
-        popup.setOnMenuItemClickListener { item: MenuItem ->
-            when (item.itemId) {
-                R.id.action_add_exercice -> {
-                    ShowExercicesListDialog(
-                        context = requireContext(),
-                        lifecycleScope = viewLifecycleOwner.lifecycleScope,
-                        exerciceDao = exerciceDao,
-                        muscleDao = muscleDao,
-                        parentView = requireView()
-                    ) {
-                            exercice ->
-                        // 👉 Tu récupères ici directement l'exercice choisi
-                        // Tu peux ouvrir une autre vue, afficher des détails, lancer une édition, etc.
-                        Snackbar.make(requireView(), "Exercice sélectionné : ${exercice.nom}", Snackbar.LENGTH_LONG).show()
-                    }.show()
-                    true
-                }
-                R.id.action_create_exercice -> {
-                    CreateExerciceDialog(
-                        context = requireContext(),
-                        lifecycleScope = lifecycleScope,
-                        exerciceDao = exerciceDao,
-                        muscleDao = muscleDao,
-                        parentView = requireView()
-                    ).show()
-                    true
-                }
-                else -> false
-            }
-        }
-
-        popup.show()
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    private fun addExerciceToSeance(position: Int) {
+        ShowExercicesListDialog(
+            context = requireContext(),
+            lifecycleScope = viewLifecycleOwner.lifecycleScope,
+            exerciceDao = exerciceDao,
+            muscleDao = muscleDao,
+            parentView = requireView()
+        ) {
+            exercice ->
+            viewLifecycleOwner.lifecycleScope.launch {
+                val muscleFlow: Flow<Muscle> = muscleDao.getMuscle(exercice.idMuscleCible)
+                muscleFlow.collect { muscle ->
+                    exerciceSeanceList.add(position, ExerciceSeanceUi(exercice.id, exercice.nom, muscle.nom))
+                    exerciceSeanceAdapter.notifyItemInserted(position)
+
+                }
+            }
+        }.show()
     }
 }

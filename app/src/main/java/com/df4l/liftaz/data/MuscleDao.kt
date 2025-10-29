@@ -6,6 +6,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface MuscleDao {
@@ -23,4 +24,7 @@ interface MuscleDao {
 
     @Query("SELECT * FROM muscles ORDER BY nom ASC")
     suspend fun getAllMuscles(): List<Muscle>
+
+    @Query("SELECT * FROM muscles WHERE id = :id")
+    fun getMuscle(id: Int): Flow<Muscle>
 }
