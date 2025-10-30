@@ -30,5 +30,5 @@ interface ExerciceDao {
     suspend fun count(): Int
 
     @Query("SELECT * FROM exercices WHERE idMuscleCible = :id")
-    fun getExercicesByMuscle(id: Int): List<Exercice>
+    suspend fun getExercicesByMuscle(id: Int): List<Exercice>
 }

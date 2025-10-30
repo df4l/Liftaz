@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
-        android:id="@+id/action_add_exercice"
-        android:title="@string/ajouter_un_exercice" />
+        android:id="@+id/action_exercices"
+        android:title="Exercices..." />
 
     <item
         android:id="@+id/action_create_seance"

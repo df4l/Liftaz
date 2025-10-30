@@ -12,12 +12,10 @@ import androidx.recyclerview.widget.RecyclerView
 import com.df4l.liftaz.R
 import com.df4l.liftaz.data.AppDatabase
 import com.df4l.liftaz.data.ExerciceDao
-import com.df4l.liftaz.data.Muscle
 import com.df4l.liftaz.data.MuscleDao
 import com.df4l.liftaz.databinding.FragmentCreationseanceBinding
-import com.df4l.liftaz.pousser.creationExercice.CreateExerciceDialog
-import com.google.android.material.snackbar.Snackbar
-import kotlinx.coroutines.flow.Flow
+import com.df4l.liftaz.pousser.exercices.creationExercice.CreateExerciceDialog
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 class CreationSeanceFragment : Fragment() {
@@ -94,12 +92,9 @@ class CreationSeanceFragment : Fragment() {
         ) {
             exercice ->
             viewLifecycleOwner.lifecycleScope.launch {
-                val muscleFlow: Flow<Muscle> = muscleDao.getMuscle(exercice.idMuscleCible)
-                muscleFlow.collect { muscle ->
-                    exerciceSeanceList.add(position, ExerciceSeanceUi(exercice.id, exercice.nom, muscle.nom))
-                    exerciceSeanceAdapter.notifyItemInserted(position)
-
-                }
+                val muscle = muscleDao.getMuscle(exercice.idMuscleCible).first()
+                exerciceSeanceList.add(position, ExerciceSeanceUi(exercice.id, exercice.nom, muscle.nom))
+                exerciceSeanceAdapter.notifyItemInserted(position)
             }
         }.show()
     }

@@ -15,7 +15,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.df4l.liftaz.data.ExerciceDao
 import com.df4l.liftaz.data.Muscle
-import com.df4l.liftaz.pousser.creationExercice.CreateExerciceDialog
+import com.df4l.liftaz.pousser.exercices.creationExercice.CreateExerciceDialog
 import kotlinx.coroutines.launch
 
 class PousserFragment : Fragment() {
@@ -77,14 +77,8 @@ class PousserFragment : Fragment() {
 
         popup.setOnMenuItemClickListener { item: MenuItem ->
             when (item.itemId) {
-                R.id.action_add_exercice -> {
-                    CreateExerciceDialog(
-                        context = requireContext(),
-                        lifecycleScope = lifecycleScope,
-                        exerciceDao = exerciceDao,
-                        muscleDao = muscleDao,
-                        parentView = requireView()
-                    ).show()
+                R.id.action_exercices -> {
+                    goToExercicesView()
                     true
                 }
                 R.id.action_create_seance -> {
@@ -98,11 +92,18 @@ class PousserFragment : Fragment() {
         popup.show()
     }
 
+    private fun goToExercicesView()
+    {
+        val navController = findNavController()
+        navController.navigate(R.id.action_pousserFragment_to_exercicesFragment)
+    }
+
     private fun createNewSeanceView()
     {
         val navController = findNavController()
-        navController.navigate(R.id.action_pousserFragment_to_createSeanceFragment)
+        navController.navigate(R.id.action_pousserFragment_to_creationSeanceFragment)
     }
+
 
     override fun onDestroyView() {
         super.onDestroyView()

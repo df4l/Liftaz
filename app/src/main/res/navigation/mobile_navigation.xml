@@ -10,10 +10,20 @@
         android:name="com.df4l.liftaz.pousser.PousserFragment"
         android:label="@string/title_pousser"
         tools:layout="@layout/fragment_pousser">
-    <action
-        android:id="@+id/action_pousserFragment_to_createSeanceFragment"
-        app:destination="@id/navigation_creationseance" />
+        <action
+            android:id="@+id/action_pousserFragment_to_exercicesFragment"
+            app:destination="@id/navigation_exercices" />
+        <action
+            android:id="@+id/action_pousserFragment_to_creationSeanceFragment"
+            app:destination="@id/navigation_creationseance" />
     </fragment>
+
+    <fragment
+        android:id="@+id/navigation_exercices"
+        android:name="com.df4l.liftaz.pousser.exercices.exercicesMenu.ExercicesFragment"
+        android:label="Exercices"
+        tools:layout="@layout/fragment_exercices"
+        />
 
     <fragment
         android:id="@+id/navigation_creationseance"
@@ -23,13 +33,13 @@
         />
 
     <fragment
-        android:id="@+id/navigation_dashboard"
+        android:id="@+id/navigation_manger"
         android:name="com.df4l.liftaz.manger.MangerFragment"
         android:label="@string/title_manger"
         tools:layout="@layout/fragment_manger" />
 
     <fragment
-        android:id="@+id/navigation_notifications"
+        android:id="@+id/navigation_stats"
         android:name="com.df4l.liftaz.stats.StatsFragment"
         android:label="@string/title_stats"
         tools:layout="@layout/fragment_stats" />

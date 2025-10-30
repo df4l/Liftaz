@@ -24,11 +24,14 @@ class MainActivity : AppCompatActivity() {
 
         val navController = findNavController(R.id.nav_host_fragment_activity_main)
 
+        val fragmentsAvecNav = listOf(
+            R.id.navigation_pousser,
+            R.id.navigation_manger,
+            R.id.navigation_stats
+        )
+
         navController.addOnDestinationChangedListener { _, destination, _ ->
-            when (destination.id) {
-                R.id.navigation_creationseance -> navView.visibility = View.GONE
-                else -> navView.visibility = View.VISIBLE
-            }
+            navView.visibility = if (destination.id !in fragmentsAvecNav) View.GONE else View.VISIBLE
         }
 
         navView.setupWithNavController(navController)

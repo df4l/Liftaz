@@ -1,4 +1,4 @@
-package com.df4l.liftaz.pousser.creationExercice
+package com.df4l.liftaz.pousser.exercices.creationExercice
 
 import android.content.Context
 import android.view.LayoutInflater

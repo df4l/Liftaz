@@ -6,9 +6,9 @@ import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.TextView
+import androidx.core.widget.doAfterTextChanged
 import androidx.recyclerview.widget.RecyclerView
 import com.df4l.liftaz.R
-import com.df4l.liftaz.pousser.creationExercice.CreateExerciceDialog
 
 class ExerciceSeanceAdapter(
     private val exercices: MutableList<ExerciceSeanceUi>,
@@ -40,6 +40,18 @@ class ExerciceSeanceAdapter(
         holder.minReps.setText(item.minReps.toString())
         holder.maxReps.setText(item.maxReps.toString())
 
+        holder.series.doAfterTextChanged {
+            item.series = it.toString().toIntOrNull() ?: 0
+        }
+
+        holder.minReps.doAfterTextChanged {
+            item.minReps = it.toString().toIntOrNull() ?: 0
+        }
+
+        holder.maxReps.doAfterTextChanged {
+            item.maxReps = it.toString().toIntOrNull() ?: 0
+        }
+
         holder.buttonAddExercice.setOnClickListener {
             onAddClick(position+1)
         }
@@ -47,6 +59,7 @@ class ExerciceSeanceAdapter(
         holder.btnDelete.setOnClickListener {
             exercices.removeAt(position)
             notifyItemRemoved(position)
+            notifyItemRangeChanged(position, exercices.size)
         }
     }
 
