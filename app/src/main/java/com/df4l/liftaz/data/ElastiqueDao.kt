@@ -4,11 +4,15 @@ import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
+import androidx.room.Query
 import androidx.room.Update
 
 @Dao
 interface ElastiqueDao {
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    @Query("SELECT * FROM elastiques ORDER BY valeurBitmask ASC")
+    suspend fun getAll(): List<Elastique>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(elastique: Elastique)
 
     @Update
@@ -16,4 +20,7 @@ interface ElastiqueDao {
 
     @Delete
     suspend fun delete(elastique: Elastique)
+
+    @Query("DELETE FROM elastiques")
+    suspend fun deleteAll()
 }

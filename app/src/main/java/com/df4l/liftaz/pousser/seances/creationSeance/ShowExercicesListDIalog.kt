@@ -1,6 +1,6 @@
-package com.df4l.liftaz.pousser.creationSeance
+package com.df4l.liftaz.pousser.seances.creationSeance
 
-import com.df4l.liftaz.pousser.musclesListe.MuscleListAdapter
+import com.df4l.liftaz.pousser.muscles.musclesListe.MuscleListAdapter
 import android.content.Context
 import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.LifecycleCoroutineScope

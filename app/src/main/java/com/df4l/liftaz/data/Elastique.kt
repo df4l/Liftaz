@@ -8,5 +8,8 @@ data class Elastique (
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
     val couleur: Int,
-    val valeurBitmask: Int
+    val valeurBitmask: Int,
+    val label: String,
+    val resistanceMinKg: Int,
+    val resistanceMaxKg: Int
 )

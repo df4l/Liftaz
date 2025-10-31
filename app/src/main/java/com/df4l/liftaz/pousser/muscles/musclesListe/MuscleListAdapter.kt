@@ -1,4 +1,4 @@
-package com.df4l.liftaz.pousser.musclesListe
+package com.df4l.liftaz.pousser.muscles.musclesListe
 
 import android.content.Context
 import android.view.LayoutInflater
