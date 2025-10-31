@@ -3,6 +3,7 @@ package com.df4l.liftaz.pousser.exercices.exercicesMenu
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
@@ -11,7 +12,8 @@ import com.df4l.liftaz.data.Exercice
 import com.df4l.liftaz.data.Muscle
 
 class ExercicesAdapter(
-    private val data: List<Pair<Muscle, List<Exercice>>>
+    private val data: List<Pair<Muscle, List<Exercice>>>,
+    private val onDeleteExercice: (Exercice) -> Unit
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private val items = mutableListOf<Any>()
@@ -33,7 +35,7 @@ class ExercicesAdapter(
             MuscleViewHolder(view)
         } else {
             val view = inflater.inflate(R.layout.item_exercice, parent, false)
-            ExerciceViewHolder(view)
+            ExerciceViewHolder(view, onDeleteExercice)
         }
     }
 
@@ -48,31 +50,26 @@ class ExercicesAdapter(
     class MuscleViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val nomMuscle = itemView.findViewById<TextView>(R.id.nomMuscle)
         private val iconMuscle = itemView.findViewById<ImageView>(R.id.iconMuscle)
-
         fun bind(muscle: Muscle) {
             nomMuscle.text = muscle.nom
-
-            // Charger dynamiquement l'image depuis res/drawable/${muscle.nomImage}.png
             val context = itemView.context
-            val resId = context.resources.getIdentifier(
-                muscle.nomImage.lowercase(),
-                "drawable",
-                context.packageName
-            )
-
-            if (resId != 0) {
-                iconMuscle.setImageResource(resId)
-            } else {
-                // Optionnel : image par défaut si manquante
-                //iconMuscle.setImageResource(R.drawable.ic_muscle_default)
-            }
+            val resId = context.resources.getIdentifier(muscle.nomImage, "drawable", context.packageName)
+            if (resId != 0) iconMuscle.setImageResource(resId)
         }
     }
 
-    class ExerciceViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    class ExerciceViewHolder(
+        itemView: View,
+        private val onDeleteExercice: (Exercice) -> Unit
+    ) : RecyclerView.ViewHolder(itemView) {
+
         private val nomExercice = itemView.findViewById<TextView>(R.id.nomExercice)
+        private val btnDelete = itemView.findViewById<ImageButton>(R.id.btnDeleteExercice)
+
         fun bind(exercice: Exercice) {
             nomExercice.text = exercice.nom
+            btnDelete.setOnClickListener { onDeleteExercice(exercice) }
         }
     }
 }
+

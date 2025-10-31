@@ -22,7 +22,7 @@ class ExerciceSeanceAdapter(
         val minReps = view.findViewById<EditText>(R.id.editMinReps)
         val maxReps = view.findViewById<EditText>(R.id.editMaxReps)
         val buttonAddExercice = view.findViewById<ImageButton>(R.id.btnAddExercice)
-        val btnDelete: ImageButton = view.findViewById(R.id.btnDeleteExercice)
+        val btnDelete: ImageButton = view.findViewById(R.id.btnRemoveExercice)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ExerciceViewHolder {

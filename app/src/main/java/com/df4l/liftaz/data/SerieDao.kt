@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
+import androidx.room.Query
 import androidx.room.Update
 
 @Dao
@@ -16,4 +17,7 @@ interface SerieDao {
 
     @Delete
     suspend fun delete(serie: Serie)
+
+    @Query("DELETE FROM series WHERE idExercice = :idExercice")
+    suspend fun deleteByExercice(idExercice: Int)
 }

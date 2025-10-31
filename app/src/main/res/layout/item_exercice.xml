@@ -1,13 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="48dp"
+    android:layout_height="56dp"
     android:orientation="horizontal"
     android:gravity="center_vertical"
-    android:padding="8dp">
+    android:paddingHorizontal="12dp"
+    android:background="?attr/selectableItemBackground">
+
     <TextView
         android:id="@+id/nomExercice"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:padding="8dp"/>
+        android:layout_weight="1"
+        android:textSize="18sp"
+        android:textColor="@android:color/black"
+        android:ellipsize="end"
+        android:singleLine="true" />
+
+    <ImageButton
+        android:id="@+id/btnDeleteExercice"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:src="@android:drawable/ic_menu_close_clear_cancel"
+        android:contentDescription="@string/supprimer_exercice" />
+
 </LinearLayout>

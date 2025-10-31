@@ -34,7 +34,7 @@
 
         <!-- Petite croix à droite -->
         <ImageButton
-            android:id="@+id/btnDeleteExercice"
+            android:id="@+id/btnRemoveExercice"
             android:layout_width="24dp"
             android:layout_height="24dp"
             android:layout_alignParentEnd="true"
