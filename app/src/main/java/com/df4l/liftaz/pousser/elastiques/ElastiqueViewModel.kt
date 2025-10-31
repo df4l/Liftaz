@@ -30,6 +30,14 @@ class ElastiqueViewModel(private val dao: ElastiqueDao) : ViewModel() {
         }
     }
 
+    // Ajout : insertion multiple en une fois
+    fun insertAll(elastiques: List<Elastique>) {
+        viewModelScope.launch {
+            dao.insertAll(elastiques)
+            loadElastiques()
+        }
+    }
+
     fun updateBitmasks(newList: List<Elastique>) {
         viewModelScope.launch {
             newList.forEachIndexed { index, e ->
@@ -46,4 +54,7 @@ class ElastiqueViewModel(private val dao: ElastiqueDao) : ViewModel() {
             loadElastiques()
         }
     }
+
+    // Optionnel : expose une méthode pour connaître le count (utilisable depuis le fragment)
+    suspend fun countSync(): Int = dao.count()
 }

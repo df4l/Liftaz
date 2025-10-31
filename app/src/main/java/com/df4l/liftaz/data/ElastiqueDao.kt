@@ -15,6 +15,10 @@ interface ElastiqueDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(elastique: Elastique)
 
+    // Ajout : insertion multiple (liste)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAll(elastiques: List<Elastique>)
+
     @Update
     suspend fun update(elastique: Elastique)
 
@@ -23,4 +27,8 @@ interface ElastiqueDao {
 
     @Query("DELETE FROM elastiques")
     suspend fun deleteAll()
+
+    // Ajout : nombre d'éléments
+    @Query("SELECT COUNT(*) FROM elastiques")
+    suspend fun count(): Int
 }

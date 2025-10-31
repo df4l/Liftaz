@@ -18,6 +18,7 @@ class ElastiqueAdapter(
         val colorView: View = view.findViewById(R.id.colorView)
         val labelText: TextView = view.findViewById(R.id.labelText)
         val resistanceText: TextView = view.findViewById(R.id.resistanceText)
+        val deleteButton: View = view.findViewById(R.id.deleteButton)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ElastiqueViewHolder {
@@ -30,23 +31,18 @@ class ElastiqueAdapter(
         val elastique = elastiques[position]
         holder.colorView.setBackgroundColor(elastique.couleur)
         holder.labelText.text = elastique.label
-        holder.resistanceText.text =
-            "${elastique.resistanceMinKg}–${elastique.resistanceMaxKg} kg"
+        holder.resistanceText.text = "${elastique.resistanceMinKg}–${elastique.resistanceMaxKg} kg"
 
-        holder.itemView.setOnLongClickListener {
+        holder.deleteButton.setOnClickListener {
             onDelete(elastique)
-            true
         }
     }
 
     override fun getItemCount(): Int = elastiques.size
 
-    fun swapItems(from: Int, to: Int) {
-        val temp = elastiques[from]
-        elastiques[from] = elastiques[to]
-        elastiques[to] = temp
-        notifyItemMoved(from, to)
+    fun updateList(newList: List<Elastique>) {
+        elastiques.clear()
+        elastiques.addAll(newList)
+        notifyDataSetChanged()
     }
-
-    fun getList(): List<Elastique> = elastiques
 }

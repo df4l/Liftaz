@@ -1,9 +1,14 @@
 package com.df4l.liftaz.pousser.elastiques
 
+import android.app.AlertDialog
+import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
+import android.widget.EditText
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
@@ -14,8 +19,10 @@ import androidx.recyclerview.widget.RecyclerView
 import com.df4l.liftaz.R
 import com.df4l.liftaz.data.AppDatabase
 import com.df4l.liftaz.data.Elastique
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class ElastiquesFragment : Fragment() {
 
@@ -34,57 +41,122 @@ class ElastiquesFragment : Fragment() {
         viewModel = ViewModelProvider(this, factory)[ElastiqueViewModel::class.java]
 
         val recycler = view.findViewById<RecyclerView>(R.id.recyclerElastiques)
-        recycler.layoutManager = LinearLayoutManager(requireContext())
+        val addButton = view.findViewById<View>(R.id.addButton)
 
+        recycler.layoutManager = LinearLayoutManager(requireContext())
         adapter = ElastiqueAdapter(mutableListOf()) { elastique ->
             viewModel.delete(elastique)
         }
-
         recycler.adapter = adapter
 
-        // Gestion du drag & drop
-        val touchHelper = ItemTouchHelper(object :
-            ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP or ItemTouchHelper.DOWN, 0) {
-            override fun onMove(
-                recyclerView: RecyclerView,
-                viewHolder: RecyclerView.ViewHolder,
-                target: RecyclerView.ViewHolder
-            ): Boolean {
-                val from = viewHolder.adapterPosition
-                val to = target.adapterPosition
-                adapter.swapItems(from, to)
-                return true
+        // 1) Vérifier la DB directement (IO) et n'insérer que si vide
+        viewLifecycleOwner.lifecycleScope.launch {
+            // passe en IO pour les accès DB
+            val count = withContext(Dispatchers.IO) {
+                dao.count()
             }
+            if (count == 0) {
+                // préparer la liste de test puis insérer en bloc
+                val colors = listOf(
+                    0xFFE57373.toInt(), 0xFF64B5F6.toInt(),
+                    0xFFFFD54F.toInt(), 0xFF81C784.toInt()
+                )
 
-            override fun clearView(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder) {
-                super.clearView(recyclerView, viewHolder)
-                viewModel.updateBitmasks(adapter.getList())
+                val testElastiques = colors.mapIndexed { index, color ->
+                    Elastique(
+                        couleur = color,
+                        valeurBitmask = 1 shl index,
+                        label = listOf("Rouge", "Bleu", "Jaune", "Vert")[index],
+                        resistanceMinKg = 5 + index * 5,
+                        resistanceMaxKg = 15 + index * 5
+                    )
+                }
+                // insertion en une seule opération (évite plusieurs émissions intermédiaires)
+                viewModel.insertAll(testElastiques)
             }
+        }
 
-            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {}
-        })
-
-        touchHelper.attachToRecyclerView(recycler)
-
-        // Observation du flux d’élastiques
+        // 2) Observer la liste (UI)
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.elastiques.collectLatest { list ->
-                adapter = ElastiqueAdapter(list.toMutableList()) { elastique ->
-                    viewModel.delete(elastique)
-                }
-                recycler.adapter = adapter
-
-                if (list.isEmpty()) populateTestElastiques()
+                adapter.updateList(list)
             }
+        }
+
+        addButton.setOnClickListener {
+            showAddDialog()
         }
     }
 
+
+
+    private fun showAddDialog() {
+        val dialogView = LayoutInflater.from(requireContext())
+            .inflate(R.layout.dialog_add_elastique, null)
+        val nameInput = dialogView.findViewById<EditText>(R.id.nameInput)
+        val minInput = dialogView.findViewById<EditText>(R.id.minInput)
+        val maxInput = dialogView.findViewById<EditText>(R.id.maxInput)
+        val colorPreview = dialogView.findViewById<View>(R.id.colorPreview)
+        val selectColorButton = dialogView.findViewById<Button>(R.id.selectColorButton)
+
+        var selectedColor = Color.rgb((50..255).random(), (50..255).random(), (50..255).random())
+        colorPreview.setBackgroundColor(selectedColor)
+
+        selectColorButton.setOnClickListener {
+            // Utilisation du ColorPicker d'Android natif (API 29+) ou une simple alternative
+            val colorPicker = ColorPickerDialog(requireContext(), selectedColor) { color ->
+                selectedColor = color
+                colorPreview.setBackgroundColor(color)
+            }
+            colorPicker.show()
+        }
+
+        val dialog = AlertDialog.Builder(requireContext())
+            .setTitle("Nouvel élastique")
+            .setView(dialogView)
+            .setPositiveButton("Ajouter", null) // on override ensuite
+            .setNegativeButton("Annuler", null)
+            .create()
+
+        dialog.setOnShowListener {
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+                val label = nameInput.text.toString().trim()
+                val min = minInput.text.toString().toIntOrNull()
+                val max = maxInput.text.toString().toIntOrNull()
+
+                when {
+                    label.isEmpty() -> {
+                        nameInput.error = "Nom obligatoire"
+                    }
+                    min == null || max == null -> {
+                        Toast.makeText(requireContext(), "Entrez des valeurs valides", Toast.LENGTH_SHORT).show()
+                    }
+                    min >= max -> {
+                        Toast.makeText(requireContext(), "La résistance minimale doit être inférieure à la maximale", Toast.LENGTH_SHORT).show()
+                    }
+                    else -> {
+                        val elastique = Elastique(
+                            couleur = selectedColor,
+                            valeurBitmask = 1 shl (viewModel.elastiques.value.size),
+                            label = label,
+                            resistanceMinKg = min,
+                            resistanceMaxKg = max
+                        )
+                        viewModel.insert(elastique)
+                        dialog.dismiss()
+                    }
+                }
+            }
+        }
+
+        dialog.show()
+    }
+
+
     private fun populateTestElastiques() {
         val colors = listOf(
-            0xFFE57373.toInt(), // Rouge
-            0xFF64B5F6.toInt(), // Bleu
-            0xFFFFD54F.toInt(), // Jaune
-            0xFF81C784.toInt()  // Vert
+            0xFFE57373.toInt(), 0xFF64B5F6.toInt(),
+            0xFFFFD54F.toInt(), 0xFF81C784.toInt()
         )
 
         val testElastiques = colors.mapIndexed { index, color ->
@@ -100,3 +172,4 @@ class ElastiquesFragment : Fragment() {
         testElastiques.forEach { viewModel.insert(it) }
     }
 }
+
