@@ -35,18 +35,15 @@
 
         <View
             android:id="@+id/colorPreview"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:layout_marginEnd="8dp"
-            android:background="#FF0000"
-            android:backgroundTintMode="src_in"
-            android:backgroundTint="#FF0000" />
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@android:color/darker_gray"
+            android:layout_marginEnd="8dp" />
 
         <Button
             android:id="@+id/selectColorButton"
-            android:text="Choisir la couleur"
+            android:text="Choisir une couleur"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
     </LinearLayout>
 </LinearLayout>
-

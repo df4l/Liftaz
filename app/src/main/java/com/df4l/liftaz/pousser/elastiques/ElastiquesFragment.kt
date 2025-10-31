@@ -55,7 +55,7 @@ class ElastiquesFragment : Fragment() {
             val count = withContext(Dispatchers.IO) {
                 dao.count()
             }
-            if (count == 0) {
+            if (count == 0 && false) {
                 // préparer la liste de test puis insérer en bloc
                 val colors = listOf(
                     0xFFE57373.toInt(), 0xFF64B5F6.toInt(),
@@ -103,18 +103,21 @@ class ElastiquesFragment : Fragment() {
         colorPreview.setBackgroundColor(selectedColor)
 
         selectColorButton.setOnClickListener {
-            // Utilisation du ColorPicker d'Android natif (API 29+) ou une simple alternative
-            val colorPicker = ColorPickerDialog(requireContext(), selectedColor) { color ->
-                selectedColor = color
-                colorPreview.setBackgroundColor(color)
-            }
-            colorPicker.show()
+            val picker = yuku.ambilwarna.AmbilWarnaDialog(requireContext(), selectedColor,
+                object : yuku.ambilwarna.AmbilWarnaDialog.OnAmbilWarnaListener {
+                    override fun onCancel(dialog: yuku.ambilwarna.AmbilWarnaDialog) {}
+                    override fun onOk(dialog: yuku.ambilwarna.AmbilWarnaDialog, color: Int) {
+                        selectedColor = color
+                        colorPreview.setBackgroundColor(color)
+                    }
+                })
+            picker.show()
         }
 
         val dialog = AlertDialog.Builder(requireContext())
             .setTitle("Nouvel élastique")
             .setView(dialogView)
-            .setPositiveButton("Ajouter", null) // on override ensuite
+            .setPositiveButton("Ajouter", null)
             .setNegativeButton("Annuler", null)
             .create()
 
@@ -150,26 +153,6 @@ class ElastiquesFragment : Fragment() {
         }
 
         dialog.show()
-    }
-
-
-    private fun populateTestElastiques() {
-        val colors = listOf(
-            0xFFE57373.toInt(), 0xFF64B5F6.toInt(),
-            0xFFFFD54F.toInt(), 0xFF81C784.toInt()
-        )
-
-        val testElastiques = colors.mapIndexed { index, color ->
-            Elastique(
-                couleur = color,
-                valeurBitmask = 1 shl index,
-                label = listOf("Rouge", "Bleu", "Jaune", "Vert")[index],
-                resistanceMinKg = 5 + index * 5,
-                resistanceMaxKg = 15 + index * 5
-            )
-        }
-
-        testElastiques.forEach { viewModel.insert(it) }
     }
 }
 

@@ -43,6 +43,7 @@ dependencies {
     val room_version = "2.8.0"
     implementation("androidx.room:room-runtime:${room_version}")
     implementation("androidx.room:room-ktx:${room_version}")
+    implementation(libs.ambilwarna)
     ksp("androidx.room:room-compiler:$room_version")
 
     implementation(libs.androidx.core.ktx)
