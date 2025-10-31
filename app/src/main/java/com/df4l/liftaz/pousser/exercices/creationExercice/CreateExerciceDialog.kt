@@ -21,7 +21,8 @@ class CreateExerciceDialog(
     private val lifecycleScope: LifecycleCoroutineScope,
     private val exerciceDao: ExerciceDao,
     private val muscleDao: MuscleDao,
-    private val parentView: View
+    private val parentView: View,
+    private val onExerciseAdded: (() -> Unit)? = null
 ) {
     fun show() {
         val dialogView = LayoutInflater.from(context)
@@ -84,6 +85,7 @@ class CreateExerciceDialog(
         lifecycleScope.launch {
             exerciceDao.insert(exercice)
             Snackbar.make(parentView, "Exercice ajouté : $name", Snackbar.LENGTH_LONG).show()
+            onExerciseAdded?.invoke()
         }
     }
 }

@@ -49,7 +49,9 @@ class ExercicesFragment : Fragment(R.layout.fragment_exercices) {
                 exerciceDao = exerciceDao,
                 muscleDao = muscleDao,
                 parentView = requireView()
-            ).show()
+            ) {
+                viewModel.reloadData()
+            }.show()
         }
     }
 }

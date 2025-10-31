@@ -3,6 +3,7 @@ package com.df4l.liftaz.pousser.exercices.exercicesMenu
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.df4l.liftaz.R
@@ -46,8 +47,25 @@ class ExercicesAdapter(
 
     class MuscleViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val nomMuscle = itemView.findViewById<TextView>(R.id.nomMuscle)
+        private val iconMuscle = itemView.findViewById<ImageView>(R.id.iconMuscle)
+
         fun bind(muscle: Muscle) {
             nomMuscle.text = muscle.nom
+
+            // Charger dynamiquement l'image depuis res/drawable/${muscle.nomImage}.png
+            val context = itemView.context
+            val resId = context.resources.getIdentifier(
+                muscle.nomImage.lowercase(),
+                "drawable",
+                context.packageName
+            )
+
+            if (resId != 0) {
+                iconMuscle.setImageResource(resId)
+            } else {
+                // Optionnel : image par défaut si manquante
+                //iconMuscle.setImageResource(R.drawable.ic_muscle_default)
+            }
         }
     }
 
