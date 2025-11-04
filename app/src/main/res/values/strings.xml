@@ -12,4 +12,6 @@
     <string name="exercice_au_poids_du_corps">Exercice au poids du corps</string>
     <string name="muscle_icon">Icône du muscle</string>
     <string name="supprimer_exercice">Retirer un exercice</string>
+    <string name="resistance_range">%1$d–%2$d kg</string>
+    <string name="exercice_entry">%1$s - %2$s</string>
 </resources>

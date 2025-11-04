@@ -31,7 +31,12 @@ class ElastiqueAdapter(
         val elastique = elastiques[position]
         holder.colorView.setBackgroundColor(elastique.couleur)
         holder.labelText.text = elastique.label
-        holder.resistanceText.text = "${elastique.resistanceMinKg}–${elastique.resistanceMaxKg} kg"
+        holder.resistanceText.text =
+            holder.itemView.context.getString(
+                R.string.resistance_range,
+                elastique.resistanceMinKg,
+                elastique.resistanceMaxKg
+            )
 
         holder.deleteButton.setOnClickListener {
             onDelete(elastique)

@@ -15,7 +15,7 @@ class ExerciceSeanceAdapter(
     private val onAddClick: (position: Int) -> Unit
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
-    inner class AvecPoidsViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+    inner class AvecFonteViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val nom = view.findViewById<TextView>(R.id.textExerciceName)
         val muscle = view.findViewById<TextView>(R.id.textExerciceMuscle)
         val series = view.findViewById<EditText>(R.id.editSeries)
@@ -47,7 +47,7 @@ class ExerciceSeanceAdapter(
         return if (viewType == 0) { // Avec poids
             val view = LayoutInflater.from(parent.context)
                 .inflate(R.layout.item_exercice_avec_fonte, parent, false)
-            AvecPoidsViewHolder(view)
+            AvecFonteViewHolder(view)
         } else { // Poids du corps
             val view = LayoutInflater.from(parent.context)
                 .inflate(R.layout.item_exercice_poids_du_corps, parent, false)
@@ -59,7 +59,7 @@ class ExerciceSeanceAdapter(
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (val item = exercices[position]) {
             is ExerciceSeanceUi.AvecFonte -> {
-                val h = holder as AvecPoidsViewHolder
+                val h = holder as AvecFonteViewHolder
                 h.nom.text = item.nom
                 h.muscle.text = item.muscle
                 h.series.setText(item.series.toString())

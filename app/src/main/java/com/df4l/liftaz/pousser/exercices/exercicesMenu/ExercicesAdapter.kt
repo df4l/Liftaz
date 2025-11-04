@@ -67,7 +67,8 @@ class ExercicesAdapter(
         private val btnDelete = itemView.findViewById<ImageButton>(R.id.btnDeleteExercice)
 
         fun bind(exercice: Exercice) {
-            nomExercice.text = exercice.nom
+            val type = if (exercice.poidsDuCorps) "PdC" else "Fonte"
+            nomExercice.text = itemView.context.getString(R.string.exercice_entry, exercice.nom, type)
             btnDelete.setOnClickListener { onDeleteExercice(exercice) }
         }
     }
