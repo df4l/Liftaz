@@ -89,13 +89,28 @@ class CreationSeanceFragment : Fragment() {
             exerciceDao = exerciceDao,
             muscleDao = muscleDao,
             parentView = requireView()
-        ) {
-            exercice ->
+        ) { exercice ->
             viewLifecycleOwner.lifecycleScope.launch {
                 val muscle = muscleDao.getMuscle(exercice.idMuscleCible).first()
-                exerciceSeanceList.add(position, ExerciceSeanceUi(exercice.id, exercice.nom, muscle.nom))
+
+                val nouvelExercice = if (exercice.poidsDuCorps) {
+                    ExerciceSeanceUi.PoidsDuCorps(
+                        idExercice = exercice.id,
+                        nom = exercice.nom,
+                        muscle = muscle.nom,
+                    )
+                } else {
+                    ExerciceSeanceUi.AvecFonte(
+                        idExercice = exercice.id,
+                        nom = exercice.nom,
+                        muscle = muscle.nom,
+                    )
+                }
+
+                exerciceSeanceList.add(position, nouvelExercice)
                 exerciceSeanceAdapter.notifyItemInserted(position)
             }
         }.show()
     }
+
 }

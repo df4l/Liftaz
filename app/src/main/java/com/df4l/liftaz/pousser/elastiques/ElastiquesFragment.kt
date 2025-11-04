@@ -10,10 +10,8 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.df4l.liftaz.R
@@ -41,7 +39,7 @@ class ElastiquesFragment : Fragment() {
         viewModel = ViewModelProvider(this, factory)[ElastiqueViewModel::class.java]
 
         val recycler = view.findViewById<RecyclerView>(R.id.recyclerElastiques)
-        val addButton = view.findViewById<View>(R.id.addButton)
+        val addButton = view.findViewById<View>(R.id.addElastiqueButton)
 
         recycler.layoutManager = LinearLayoutManager(requireContext())
         adapter = ElastiqueAdapter(mutableListOf()) { elastique ->
