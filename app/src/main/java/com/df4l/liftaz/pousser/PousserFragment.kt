@@ -95,7 +95,7 @@ class PousserFragment : Fragment() {
     private fun goToExercicesView()
     {
         val navController = findNavController()
-        navController.navigate(R.id.action_pousserFragment_to_elastiquesFragment)
+        navController.navigate(R.id.action_pousserFragment_to_exercicesFragment)
     }
 
     private fun createNewSeanceView()

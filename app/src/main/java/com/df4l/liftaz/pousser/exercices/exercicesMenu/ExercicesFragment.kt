@@ -2,10 +2,13 @@ package com.df4l.liftaz.pousser.exercices.exercicesMenu
 
 import android.app.AlertDialog
 import android.os.Bundle
+import android.view.MenuItem
 import android.view.View
+import android.widget.PopupMenu
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.df4l.liftaz.R
@@ -73,16 +76,38 @@ class ExercicesFragment : Fragment(R.layout.fragment_exercices) {
         }
 
         fab.setOnClickListener {
-            CreateExerciceDialog(
-                context = requireContext(),
-                lifecycleScope = lifecycleScope,
-                exerciceDao = exerciceDao,
-                muscleDao = muscleDao,
-                parentView = requireView()
-            ) {
-                viewModel.reloadData()
-            }.show()
+            showFabMenu(fab)
         }
+    }
+
+    private fun showFabMenu(anchor: View) {
+        val popup = PopupMenu(requireContext(), anchor)
+        popup.menuInflater.inflate(R.menu.menu_exercices_options, popup.menu)
+
+        popup.setOnMenuItemClickListener { item: MenuItem ->
+            when (item.itemId) {
+                R.id.action_add_exercice -> {
+                    CreateExerciceDialog(
+                        context = requireContext(),
+                        lifecycleScope = lifecycleScope,
+                        exerciceDao = exerciceDao,
+                        muscleDao = muscleDao,
+                        parentView = requireView()
+                    ) {
+                        viewModel.reloadData()
+                    }.show()
+                    true
+                }
+                R.id.action_elastiques -> {
+                    val navController = findNavController()
+                    navController.navigate(R.id.action_exercicesFragment_to_elastiquesFragment)
+                    true
+                }
+                else -> false
+            }
+        }
+
+        popup.show()
     }
 
     private suspend fun supprimerExerciceComplet(exercice: Exercice) {
