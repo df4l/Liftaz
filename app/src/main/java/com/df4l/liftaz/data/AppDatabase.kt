@@ -25,7 +25,7 @@ import androidx.room.TypeConverters
     RepasElements::class
     //Stats
                      ], version = 1, exportSchema = false)
-@TypeConverters(DateConverter::class)
+@TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
 
     //Pousser
