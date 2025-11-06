@@ -1,6 +1,7 @@
 package com.df4l.liftaz.pousser.seances.creationSeance
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -8,6 +9,7 @@ import android.widget.ImageButton
 import android.widget.LinearLayout
 import android.widget.RadioGroup
 import android.widget.TextView
+import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.fragment.app.Fragment
@@ -17,7 +19,12 @@ import androidx.recyclerview.widget.RecyclerView
 import com.df4l.liftaz.R
 import com.df4l.liftaz.data.AppDatabase
 import com.df4l.liftaz.data.ExerciceDao
+import com.df4l.liftaz.data.ExerciceSeance
+import com.df4l.liftaz.data.ExerciceSeanceDao
 import com.df4l.liftaz.data.MuscleDao
+import com.df4l.liftaz.data.Seance
+import com.df4l.liftaz.data.SeanceDao
+import com.df4l.liftaz.data.TypeFrequence
 import com.df4l.liftaz.databinding.FragmentCreationseanceBinding
 import com.df4l.liftaz.pousser.exercices.creationExercice.CreateExerciceDialog
 import com.google.android.material.chip.ChipGroup
@@ -36,6 +43,8 @@ class CreationSeanceFragment : Fragment() {
     private lateinit var database: AppDatabase
     private lateinit var muscleDao: MuscleDao
     private lateinit var exerciceDao: ExerciceDao
+    private lateinit var seanceDao: SeanceDao
+    private lateinit var exerciceSeanceDao: ExerciceSeanceDao
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var exerciceSeanceAdapter: ExerciceSeanceAdapter
@@ -51,6 +60,8 @@ class CreationSeanceFragment : Fragment() {
         database = AppDatabase.getDatabase(requireContext())
         muscleDao = database.muscleDao()
         exerciceDao = database.exerciceDao()
+        seanceDao = database.seanceDao()
+        exerciceSeanceDao = database.exerciceSeanceDao()
 
         binding.fabAddExercice.setOnClickListener { view ->
             CreateExerciceDialog(
@@ -60,6 +71,10 @@ class CreationSeanceFragment : Fragment() {
                 muscleDao = muscleDao,
                 parentView = requireView()
             ).show()
+        }
+
+        binding.btnSauvegarderSeance.setOnClickListener {
+            sauvegarderSeance()
         }
 
         return binding.root
@@ -129,6 +144,91 @@ class CreationSeanceFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    private fun sauvegarderSeance() {
+        val nomSeance = binding.editNomSeance.text.toString().trim()
+        if (nomSeance.isBlank()) {
+            binding.editNomSeance.error = "Nom requis"
+            return
+        }
+
+        if (exerciceSeanceList.isEmpty()) {
+            Toast.makeText(requireContext(), "Ajoute au moins un exercice à la séance.", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val typeFrequence: TypeFrequence
+        var joursSemaine: List<Int>? = null
+        var intervalle: Int? = null
+
+        when (binding.radioGroupFrequence.checkedRadioButtonId) {
+            R.id.radioJoursSemaine -> {
+                typeFrequence = TypeFrequence.JOURS_SEMAINE
+
+                val selected = binding.chipGroupJours.checkedChipIds
+                joursSemaine = selected.map { chipId ->
+                    val index = binding.chipGroupJours.indexOfChild(binding.chipGroupJours.findViewById(chipId))
+                    index // Lundi = 0, etc.
+                }
+            }
+
+            R.id.radioIntervalle -> {
+                typeFrequence = TypeFrequence.INTERVALLE
+                intervalle = binding.sliderIntervalle.value.toInt()
+            }
+
+            else -> return
+        }
+
+        val dateAjout = java.sql.Date.valueOf(LocalDate.now().toString())
+
+        lifecycleScope.launch {
+            val idSeance = seanceDao.insert(
+                Seance(
+                    nom = nomSeance,
+                    typeFrequence = typeFrequence,
+                    joursSemaine = joursSemaine,
+                    intervalleJours = intervalle,
+                    dateAjout = dateAjout
+                )
+            ).toInt()
+
+            exerciceSeanceList.forEachIndexed { index, exUi ->
+                when (exUi) {
+                    is ExerciceSeanceUi.AvecFonte -> {
+                        exerciceSeanceDao.insert(
+                            ExerciceSeance(
+                                idSeance = idSeance,
+                                idExercice = exUi.idExercice,
+                                indexOrdre = index,
+                                nbSeries = exUi.series,
+                                minReps = exUi.minReps,
+                                maxReps = exUi.maxReps
+                            )
+                        )
+                    }
+
+                    is ExerciceSeanceUi.PoidsDuCorps -> {
+                        exerciceSeanceDao.insert(
+                            ExerciceSeance(
+                                idSeance = idSeance,
+                                idExercice = exUi.idExercice,
+                                indexOrdre = index,
+                                nbSeries = exUi.series,
+                                minReps = exUi.reps,
+                                maxReps = exUi.reps
+                            )
+                        )
+                    }
+                }
+            }
+
+            requireActivity().runOnUiThread {
+                Toast.makeText(requireContext(), "Séance sauvegardée ✅", Toast.LENGTH_SHORT).show()
+                requireActivity().onBackPressedDispatcher.onBackPressed()
+            }
+        }
     }
 
     private fun addExerciceToSeance(position: Int) {

@@ -15,12 +15,13 @@ object Converters {
     }
 
     @TypeConverter
-    fun fromList(value: List<Int>?): String? {
-        return value?.joinToString(",")
+    fun fromList(list: List<Int>?): String? {
+        return list?.joinToString(",")
     }
 
     @TypeConverter
-    fun toList(value: String?): List<Int>? {
-        return value?.split(",")?.map { it.toInt() }
+    fun toList(data: String?): List<Int>? {
+        if (data.isNullOrBlank()) return null
+        return data.split(",").map { it.toInt() }
     }
 }
