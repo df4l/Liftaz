@@ -1,4 +1,4 @@
-package com.df4l.liftaz.pousser.seances.creationSeance
+package com.df4l.liftaz.soulever.seances.creationSeance
 
 import android.os.Bundle
 import android.util.Log
@@ -26,7 +26,7 @@ import com.df4l.liftaz.data.Seance
 import com.df4l.liftaz.data.SeanceDao
 import com.df4l.liftaz.data.TypeFrequence
 import com.df4l.liftaz.databinding.FragmentCreationseanceBinding
-import com.df4l.liftaz.pousser.exercices.creationExercice.CreateExerciceDialog
+import com.df4l.liftaz.soulever.exercices.creationExercice.CreateExerciceDialog
 import com.google.android.material.chip.ChipGroup
 import com.google.android.material.slider.Slider
 import kotlinx.coroutines.flow.first

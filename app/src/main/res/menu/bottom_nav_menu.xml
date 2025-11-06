@@ -2,9 +2,9 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
-        android:id="@+id/navigation_pousser"
-        android:icon="@drawable/ic_pousser_black_24dp"
-        android:title="@string/title_pousser" />
+        android:id="@+id/navigation_soulever"
+        android:icon="@drawable/ic_soulever_black_24dp"
+        android:title="@string/title_soulever" />
 
     <item
         android:id="@+id/navigation_manger"

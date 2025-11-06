@@ -3,24 +3,24 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/mobile_navigation"
-    app:startDestination="@+id/navigation_pousser">
+    app:startDestination="@+id/navigation_soulever">
 
     <fragment
-        android:id="@+id/navigation_pousser"
-        android:name="com.df4l.liftaz.pousser.PousserFragment"
-        android:label="@string/title_pousser"
-        tools:layout="@layout/fragment_pousser">
+        android:id="@+id/navigation_soulever"
+        android:name="com.df4l.liftaz.soulever.SouleverFragment"
+        android:label="@string/title_soulever"
+        tools:layout="@layout/fragment_soulever">
         <action
-            android:id="@+id/action_pousserFragment_to_exercicesFragment"
+            android:id="@+id/action_souleverFragment_to_exercicesFragment"
             app:destination="@id/navigation_exercices" />
         <action
-            android:id="@+id/action_pousserFragment_to_creationSeanceFragment"
+            android:id="@+id/action_souleverFragment_to_creationSeanceFragment"
             app:destination="@id/navigation_creationseance" />
     </fragment>
 
     <fragment
         android:id="@+id/navigation_exercices"
-        android:name="com.df4l.liftaz.pousser.exercices.exercicesMenu.ExercicesFragment"
+        android:name="com.df4l.liftaz.soulever.exercices.exercicesMenu.ExercicesFragment"
         android:label="Exercices"
         tools:layout="@layout/fragment_exercices">
     <action
@@ -30,14 +30,14 @@
 
     <fragment
         android:id="@+id/navigation_elastiques"
-        android:name="com.df4l.liftaz.pousser.elastiques.ElastiquesFragment"
+        android:name="com.df4l.liftaz.soulever.elastiques.ElastiquesFragment"
         android:label="Exercices"
         tools:layout="@layout/fragment_elastiques"
         />
 
     <fragment
         android:id="@+id/navigation_creationseance"
-        android:name="com.df4l.liftaz.pousser.seances.creationSeance.CreationSeanceFragment"
+        android:name="com.df4l.liftaz.soulever.seances.creationSeance.CreationSeanceFragment"
         android:label="Création d'une séance"
         tools:layout="@layout/fragment_creationseance"
         />

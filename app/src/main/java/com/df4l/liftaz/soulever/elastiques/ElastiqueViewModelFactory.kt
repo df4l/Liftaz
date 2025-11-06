@@ -1,4 +1,4 @@
-package com.df4l.liftaz.pousser.elastiques
+package com.df4l.liftaz.soulever.elastiques
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider

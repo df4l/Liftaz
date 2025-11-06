@@ -1,4 +1,4 @@
-package com.df4l.liftaz.pousser.exercices.exercicesMenu
+package com.df4l.liftaz.soulever.exercices.exercicesMenu
 
 import android.view.LayoutInflater
 import android.view.View

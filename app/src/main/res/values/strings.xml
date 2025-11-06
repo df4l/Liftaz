@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">Liftaz</string>
-    <string name="title_pousser">Pousser</string>
+    <string name="title_soulever">Soulever</string>
     <string name="title_manger">Manger</string>
     <string name="title_stats">Stats</string>
     <string name="signe_plus">+</string>

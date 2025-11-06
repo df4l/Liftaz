@@ -25,7 +25,7 @@ class MainActivity : AppCompatActivity() {
         val navController = findNavController(R.id.nav_host_fragment_activity_main)
 
         val fragmentsAvecNav = listOf(
-            R.id.navigation_pousser,
+            R.id.navigation_soulever,
             R.id.navigation_manger,
             R.id.navigation_stats
         )

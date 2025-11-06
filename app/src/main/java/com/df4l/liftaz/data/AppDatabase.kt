@@ -7,7 +7,7 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 
 @Database(entities = [
-    //Pousser
+    //Soulever
     Muscle::class,
     Exercice::class,
     Seance::class,
@@ -28,7 +28,7 @@ import androidx.room.TypeConverters
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
 
-    //Pousser
+    //Soulever
     abstract fun elastiqueDao(): ElastiqueDao
     abstract fun exerciceDao(): ExerciceDao
     abstract fun exerciceSeanceDao(): ExerciceSeanceDao

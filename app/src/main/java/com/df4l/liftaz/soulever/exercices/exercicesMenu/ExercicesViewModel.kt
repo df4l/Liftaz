@@ -1,4 +1,4 @@
-package com.df4l.liftaz.pousser.exercices.exercicesMenu
+package com.df4l.liftaz.soulever.exercices.exercicesMenu
 
 import android.util.Log
 import androidx.lifecycle.LiveData

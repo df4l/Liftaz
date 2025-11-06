@@ -1,4 +1,4 @@
-package com.df4l.liftaz.pousser.exercices.exercicesMenu
+package com.df4l.liftaz.soulever.exercices.exercicesMenu
 
 import android.app.AlertDialog
 import android.os.Bundle
@@ -18,7 +18,7 @@ import com.df4l.liftaz.data.ExerciceDao
 import com.df4l.liftaz.data.ExerciceSeanceDao
 import com.df4l.liftaz.data.MuscleDao
 import com.df4l.liftaz.data.SerieDao
-import com.df4l.liftaz.pousser.exercices.creationExercice.CreateExerciceDialog
+import com.df4l.liftaz.soulever.exercices.creationExercice.CreateExerciceDialog
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

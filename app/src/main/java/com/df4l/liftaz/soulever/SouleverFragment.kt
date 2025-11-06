@@ -1,4 +1,4 @@
-package com.df4l.liftaz.pousser
+package com.df4l.liftaz.soulever
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -12,18 +12,16 @@ import androidx.lifecycle.ViewModelProvider
 import com.df4l.liftaz.R
 import com.df4l.liftaz.data.AppDatabase
 import com.df4l.liftaz.data.MuscleDao
-import com.df4l.liftaz.databinding.FragmentPousserBinding
+import com.df4l.liftaz.databinding.FragmentSouleverBinding
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.df4l.liftaz.data.ExerciceDao
 import com.df4l.liftaz.data.Muscle
-import com.df4l.liftaz.manger.MangerViewModel
-import com.df4l.liftaz.pousser.exercices.creationExercice.CreateExerciceDialog
 import kotlinx.coroutines.launch
 
-class PousserFragment : Fragment() {
+class SouleverFragment : Fragment() {
 
-    private var _binding: FragmentPousserBinding? = null
+    private var _binding: FragmentSouleverBinding? = null
 
     // This property is only valid between onCreateView and
     // onDestroyView.
@@ -39,7 +37,7 @@ class PousserFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
 
-        _binding = FragmentPousserBinding.inflate(inflater, container, false)
+        _binding = FragmentSouleverBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
         database = AppDatabase.getDatabase(requireContext())
@@ -67,9 +65,9 @@ class PousserFragment : Fragment() {
             }
         }
 
-        val pousserViewModel = ViewModelProvider(this).get(PousserViewModel::class.java)
-        val textView: TextView = binding.textPousser
-        pousserViewModel.text.observe(viewLifecycleOwner) {
+        val souleverViewModel = ViewModelProvider(this).get(SouleverViewModel::class.java)
+        val textView: TextView = binding.textSoulever
+        souleverViewModel.text.observe(viewLifecycleOwner) {
             textView.text = it
         }
 
@@ -82,7 +80,7 @@ class PousserFragment : Fragment() {
 
     private fun showFabMenu(anchor: View) {
         val popup = PopupMenu(requireContext(), anchor)
-        popup.menuInflater.inflate(R.menu.menu_pousser_options, popup.menu)
+        popup.menuInflater.inflate(R.menu.menu_soulever_options, popup.menu)
 
         popup.setOnMenuItemClickListener { item: MenuItem ->
             when (item.itemId) {
@@ -104,13 +102,13 @@ class PousserFragment : Fragment() {
     private fun goToExercicesView()
     {
         val navController = findNavController()
-        navController.navigate(R.id.action_pousserFragment_to_exercicesFragment)
+        navController.navigate(R.id.action_souleverFragment_to_exercicesFragment)
     }
 
     private fun createNewSeanceView()
     {
         val navController = findNavController()
-        navController.navigate(R.id.action_pousserFragment_to_creationSeanceFragment)
+        navController.navigate(R.id.action_souleverFragment_to_creationSeanceFragment)
     }
 
 
