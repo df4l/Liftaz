@@ -7,7 +7,7 @@ import androidx.lifecycle.ViewModel
 class PousserViewModel : ViewModel() {
 
     private val _text = MutableLiveData<String>().apply {
-        value = "This is home Fragment"
+        value = "Y'a littéralement rien pour l'instant"
     }
     val text: LiveData<String> = _text
 }

@@ -6,7 +6,9 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.PopupMenu
+import android.widget.TextView
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import com.df4l.liftaz.R
 import com.df4l.liftaz.data.AppDatabase
 import com.df4l.liftaz.data.MuscleDao
@@ -15,6 +17,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.df4l.liftaz.data.ExerciceDao
 import com.df4l.liftaz.data.Muscle
+import com.df4l.liftaz.manger.MangerViewModel
 import com.df4l.liftaz.pousser.exercices.creationExercice.CreateExerciceDialog
 import kotlinx.coroutines.launch
 
@@ -62,6 +65,12 @@ class PousserFragment : Fragment() {
                 )
                 defaultMuscles.forEach { muscleDao.insert(it) }
             }
+        }
+
+        val pousserViewModel = ViewModelProvider(this).get(PousserViewModel::class.java)
+        val textView: TextView = binding.textPousser
+        pousserViewModel.text.observe(viewLifecycleOwner) {
+            textView.text = it
         }
 
         binding.fabAdd.setOnClickListener { view ->
