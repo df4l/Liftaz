@@ -1,6 +1,7 @@
 package com.df4l.liftaz.soulever.seances.creationSeance
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -173,6 +174,9 @@ class CreationSeanceFragment : Fragment() {
                         maxReps = it.maxReps
                     )
                 }
+
+                Log.d("DEBUG_SEANCE", "Exercice ${ex.nom} series=${it.nbSeries} min=${it.minReps} max=${it.maxReps}")
+
             }
 
             exerciceSeanceAdapter.notifyDataSetChanged()
@@ -268,6 +272,11 @@ class CreationSeanceFragment : Fragment() {
             exerciceSeanceList.forEachIndexed { index, exUi ->
                 when (exUi) {
                     is ExerciceSeanceUi.AvecFonte -> {
+                        Log.d(
+                            "DEBUG_SAUVEGARDE",
+                            "AvecFonte idExercice=${exUi.idExercice}, series=${exUi.series}, minReps=${exUi.minReps}, maxReps=${exUi.maxReps}"
+                        )
+
                         exerciceSeanceDao.insert(
                             ExerciceSeance(
                                 idSeance = idSeance,
@@ -281,6 +290,11 @@ class CreationSeanceFragment : Fragment() {
                     }
 
                     is ExerciceSeanceUi.PoidsDuCorps -> {
+                        Log.d(
+                            "DEBUG_SAUVEGARDE",
+                            "PoidsDuCorps idExercice=${exUi.idExercice}, series=${exUi.series}, reps=${exUi.reps}"
+                        )
+
                         exerciceSeanceDao.insert(
                             ExerciceSeance(
                                 idSeance = idSeance,

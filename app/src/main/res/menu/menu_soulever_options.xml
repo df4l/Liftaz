@@ -6,5 +6,5 @@
 
     <item
         android:id="@+id/action_create_seance"
-        android:title="@string/cr_er_une_s_ance" />
+        android:title="Séances..." />
 </menu>

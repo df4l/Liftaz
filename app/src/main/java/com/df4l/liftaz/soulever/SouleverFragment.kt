@@ -106,11 +106,14 @@ class SouleverFragment : Fragment() {
             }
 
             TypeFrequence.INTERVALLE -> {
+                val dateAjout = seance.dateAjout.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
+
                 val daysSince = ChronoUnit.DAYS.between(
-                    seance.dateAjout.toInstant().atZone(ZoneId.systemDefault()).toLocalDate(),
+                    dateAjout,
                     today
                 ).toInt()
-                daysSince % (seance.intervalleJours ?: 1) == 0
+
+                daysSince % (seance.intervalleJours ?: 1) == 0 && today != dateAjout
             }
         }
     }
@@ -188,7 +191,7 @@ class SouleverFragment : Fragment() {
     private fun createNewSeanceView()
     {
         val navController = findNavController()
-        navController.navigate(R.id.action_souleverFragment_to_creationSeanceFragment)
+        navController.navigate(R.id.action_souleverFragment_to_seancesFragment)
     }
 
 
