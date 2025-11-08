@@ -1,6 +1,7 @@
 package com.df4l.liftaz.soulever
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
@@ -15,9 +16,16 @@ import com.df4l.liftaz.data.MuscleDao
 import com.df4l.liftaz.databinding.FragmentSouleverBinding
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.df4l.liftaz.data.ExerciceDao
 import com.df4l.liftaz.data.Muscle
+import com.df4l.liftaz.data.Seance
+import com.df4l.liftaz.data.SeanceDao
+import com.df4l.liftaz.data.TypeFrequence
 import kotlinx.coroutines.launch
+import java.time.LocalDate
+import java.time.ZoneId
+import java.time.temporal.ChronoUnit
 
 class SouleverFragment : Fragment() {
 
@@ -30,6 +38,10 @@ class SouleverFragment : Fragment() {
     private lateinit var database: AppDatabase
     private lateinit var muscleDao: MuscleDao
     private lateinit var exerciceDao: ExerciceDao
+    private lateinit var seanceDao: SeanceDao
+
+    var seanceDuJour: Seance? = null
+        private set
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -43,6 +55,7 @@ class SouleverFragment : Fragment() {
         database = AppDatabase.getDatabase(requireContext())
         muscleDao = database.muscleDao()
         exerciceDao = database.exerciceDao()
+        seanceDao = database.seanceDao()
 
         lifecycleScope.launch {
             if (muscleDao.count() == 0) {
@@ -65,17 +78,84 @@ class SouleverFragment : Fragment() {
             }
         }
 
-        val souleverViewModel = ViewModelProvider(this).get(SouleverViewModel::class.java)
-        val textView: TextView = binding.textSoulever
-        souleverViewModel.text.observe(viewLifecycleOwner) {
-            textView.text = it
+        lifecycleScope.launch {
+            val seances = seanceDao.getAllSeances()
+
+            seanceDuJour = seances.firstOrNull { seance ->
+                evaluateSeanceForToday(seance)
+            }
+            updateUI()
         }
+
 
         binding.fabAdd.setOnClickListener { view ->
             showFabMenu(view)
         }
 
         return root
+    }
+
+    private fun evaluateSeanceForToday(seance: Seance): Boolean
+    {
+        val today = LocalDate.now()
+
+        return when (seance.typeFrequence) {
+            TypeFrequence.JOURS_SEMAINE -> {
+                val todayIndex = today.dayOfWeek.value
+                seance.joursSemaine?.contains(todayIndex) == true
+            }
+
+            TypeFrequence.INTERVALLE -> {
+                val daysSince = ChronoUnit.DAYS.between(
+                    seance.dateAjout.toInstant().atZone(ZoneId.systemDefault()).toLocalDate(),
+                    today
+                ).toInt()
+                daysSince % (seance.intervalleJours ?: 1) == 0
+            }
+        }
+    }
+
+    private fun updateUI() {
+        if (seanceDuJour == null) {
+            binding.SeanceTodayContainer.visibility = View.GONE
+            binding.NoSeanceTodayContainer.visibility = View.VISIBLE
+        } else {
+            binding.SeanceTodayContainer.visibility = View.VISIBLE
+            binding.NoSeanceTodayContainer.visibility = View.GONE
+
+            // Afficher le nom
+            binding.textNomSeance.text = seanceDuJour!!.nom
+
+            // RÉCUPÉRER LES EXERCICES LIÉS À LA SÉANCE
+            lifecycleScope.launch {
+                val exercicesSeance = database.exerciceSeanceDao().getExercicesForSeance(seanceDuJour!!.id)
+
+                val previewItems = exercicesSeance.map { se ->
+                    val exercice = exerciceDao.getExerciceById(se.idExercice)
+                    val muscleName = muscleDao.getNomMuscleById(exercice.idMuscleCible)
+
+                    val repsText = if (exercice.poidsDuCorps) {
+                        // Ex : 4 x 12
+                        "${se.nbSeries} x ${se.minReps}"
+                    } else {
+                        // Ex : 4 x 8-12
+                        "${se.nbSeries} x ${se.minReps}-${se.maxReps}"
+                    }
+
+                    ExercicePreviewItem(
+                        nomExercice = exercice.nom,
+                        nomMuscle = muscleName,
+                        texteSeriesEtReps = repsText
+                    )
+                }
+
+
+                binding.recyclerPreviewExercices.layoutManager = LinearLayoutManager(requireContext())
+                binding.recyclerPreviewExercices.adapter = PreviewExerciceAdapter(previewItems)
+            }
+
+        }
+
     }
 
     private fun showFabMenu(anchor: View) {

@@ -26,4 +26,7 @@ interface ExerciceSeanceDao {
 
     @Query("UPDATE exercices_seance SET indexOrdre = indexOrdre - 1 WHERE idSeance = :idSeance AND indexOrdre > :indexSupprime")
     suspend fun reordonnerApresSuppression(idSeance: Int, indexSupprime: Int)
+
+    @Query("SELECT * FROM exercices_seance WHERE idSeance = :idSeance ORDER BY indexOrdre")
+    suspend fun getExercicesForSeance(idSeance: Int): List<ExerciceSeance>
 }

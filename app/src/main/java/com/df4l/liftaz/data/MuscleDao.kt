@@ -27,4 +27,8 @@ interface MuscleDao {
 
     @Query("SELECT * FROM muscles WHERE id = :id")
     fun getMuscle(id: Int): Flow<Muscle>
+
+    @Query("SELECT nom FROM muscles WHERE id = :id LIMIT 1")
+    suspend fun getNomMuscleById(id: Int): String
+
 }

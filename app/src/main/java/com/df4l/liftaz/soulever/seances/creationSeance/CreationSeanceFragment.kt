@@ -1,7 +1,6 @@
 package com.df4l.liftaz.soulever.seances.creationSeance
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,8 +9,6 @@ import android.widget.LinearLayout
 import android.widget.RadioGroup
 import android.widget.TextView
 import android.widget.Toast
-import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.constraintlayout.widget.ConstraintSet
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -169,7 +166,7 @@ class CreationSeanceFragment : Fragment() {
                 val selected = binding.chipGroupJours.checkedChipIds
                 joursSemaine = selected.map { chipId ->
                     val index = binding.chipGroupJours.indexOfChild(binding.chipGroupJours.findViewById(chipId))
-                    index // Lundi = 0, etc.
+                    index + 1 // Lundi = 1, Mardi = 2...
                 }
             }
 

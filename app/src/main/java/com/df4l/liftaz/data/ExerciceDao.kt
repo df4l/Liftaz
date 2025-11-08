@@ -31,4 +31,7 @@ interface ExerciceDao {
 
     @Query("SELECT * FROM exercices WHERE idMuscleCible = :id")
     suspend fun getExercicesByMuscle(id: Int): List<Exercice>
+
+    @Query("SELECT * FROM exercices WHERE id = :id LIMIT 1")
+    suspend fun getExerciceById(id: Int): Exercice
 }
