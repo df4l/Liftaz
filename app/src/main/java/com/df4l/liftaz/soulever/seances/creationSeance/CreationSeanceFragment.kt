@@ -24,6 +24,7 @@ import com.df4l.liftaz.data.SeanceDao
 import com.df4l.liftaz.data.TypeFrequence
 import com.df4l.liftaz.databinding.FragmentCreationseanceBinding
 import com.df4l.liftaz.soulever.exercices.creationExercice.CreateExerciceDialog
+import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
 import com.google.android.material.slider.Slider
 import kotlinx.coroutines.flow.first
@@ -45,6 +46,8 @@ class CreationSeanceFragment : Fragment() {
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var exerciceSeanceAdapter: ExerciceSeanceAdapter
+
+    private var idSeanceModif: Int? = null
 
     private val exerciceSeanceList = mutableListOf<ExerciceSeanceUi>()
 
@@ -115,14 +118,67 @@ class CreationSeanceFragment : Fragment() {
         recyclerView = binding.recyclerView
         recyclerView.layoutManager = LinearLayoutManager(context)
 
-
-
         exerciceSeanceAdapter = ExerciceSeanceAdapter(exerciceSeanceList) { position ->
             addExerciceToSeance(position)
         }
         recyclerView.adapter = exerciceSeanceAdapter
 
+        idSeanceModif = arguments?.getInt("idSeance")
+
+        if (idSeanceModif != null) {
+            chargerSeanceExistante(idSeanceModif!!)
+        }
+
     }
+
+    private fun chargerSeanceExistante(id: Int) {
+        lifecycleScope.launch {
+            val seance = seanceDao.getSeance(id)
+            val exercicesSeance = exerciceSeanceDao.getExercicesForSeance(id)
+
+            binding.editNomSeance.setText(seance.nom)
+
+            // fréquence
+            if (seance.typeFrequence == TypeFrequence.JOURS_SEMAINE) {
+                binding.radioJoursSemaine.isChecked = true
+                seance.joursSemaine?.forEach { jourIndex ->
+                    (binding.chipGroupJours.getChildAt(jourIndex - 1) as Chip).isChecked = true
+                }
+            } else {
+                binding.radioIntervalle.isChecked = true
+                binding.sliderIntervalle.value = seance.intervalleJours?.toFloat() ?: 1f
+            }
+
+            // exercices
+            exerciceSeanceList.clear()
+            exercicesSeance.forEach {
+                val ex = exerciceDao.getExerciceById(it.idExercice)
+                val muscle = muscleDao.getMuscle(ex.idMuscleCible).first()
+
+                if (ex.poidsDuCorps) {
+                    exerciceSeanceList += ExerciceSeanceUi.PoidsDuCorps(
+                        idExercice = ex.id,
+                        nom = ex.nom,
+                        muscle = muscle.nom,
+                        series = it.nbSeries,
+                        reps = it.minReps
+                    )
+                } else {
+                    exerciceSeanceList += ExerciceSeanceUi.AvecFonte(
+                        idExercice = ex.id,
+                        nom = ex.nom,
+                        muscle = muscle.nom,
+                        series = it.nbSeries,
+                        minReps = it.minReps,
+                        maxReps = it.maxReps
+                    )
+                }
+            }
+
+            exerciceSeanceAdapter.notifyDataSetChanged()
+        }
+    }
+
 
     private fun updateNextDates(interval: Int, textView: TextView, textView2: TextView) {
         val today = LocalDate.now()
@@ -181,15 +237,33 @@ class CreationSeanceFragment : Fragment() {
         val dateAjout = java.sql.Date.valueOf(LocalDate.now().toString())
 
         lifecycleScope.launch {
-            val idSeance = seanceDao.insert(
-                Seance(
-                    nom = nomSeance,
-                    typeFrequence = typeFrequence,
-                    joursSemaine = joursSemaine,
-                    intervalleJours = intervalle,
-                    dateAjout = dateAjout
+            val idSeance = idSeanceModif?.also { id ->
+                seanceDao.update(
+                    Seance(
+                        id = id,
+                        nom = nomSeance,
+                        typeFrequence = typeFrequence,
+                        joursSemaine = joursSemaine,
+                        intervalleJours = intervalle,
+                        dateAjout = seanceDao.getSeance(id).dateAjout
+                    )
                 )
-            ).toInt()
+
+                // on supprime les anciens exercices
+                exerciceSeanceDao.deleteExercicesForSeance(id)
+
+            } ?: run {
+                // ✅ Sinon → ajout
+                seanceDao.insert(
+                    Seance(
+                        nom = nomSeance,
+                        typeFrequence = typeFrequence,
+                        joursSemaine = joursSemaine,
+                        intervalleJours = intervalle,
+                        dateAjout = dateAjout
+                    )
+                ).toInt()
+            }
 
             exerciceSeanceList.forEachIndexed { index, exUi ->
                 when (exUi) {
@@ -222,7 +296,8 @@ class CreationSeanceFragment : Fragment() {
             }
 
             requireActivity().runOnUiThread {
-                Toast.makeText(requireContext(), "Séance sauvegardée ✅", Toast.LENGTH_SHORT).show()
+                val msg = if (idSeanceModif != null) "Séance modifiée ✅" else "Séance sauvegardée ✅"
+                Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show()
                 requireActivity().onBackPressedDispatcher.onBackPressed()
             }
         }

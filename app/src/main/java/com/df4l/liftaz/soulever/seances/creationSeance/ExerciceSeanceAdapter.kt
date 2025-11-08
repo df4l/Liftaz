@@ -66,9 +66,9 @@ class ExerciceSeanceAdapter(
                 h.minReps.setText(item.minReps.toString())
                 h.maxReps.setText(item.maxReps.toString())
 
-                h.series.doAfterTextChanged { item.series = it.toString().toIntOrNull() ?: 0 }
-                h.minReps.doAfterTextChanged { item.minReps = it.toString().toIntOrNull() ?: 0 }
-                h.maxReps.doAfterTextChanged { item.maxReps = it.toString().toIntOrNull() ?: 0 }
+                h.series.setText(item.series.takeIf { it != 0 }?.toString() ?: "")
+                h.minReps.setText(item.minReps.takeIf { it != 0 }?.toString() ?: "")
+                h.maxReps.setText(item.maxReps.takeIf { it != 0 }?.toString() ?: "")
 
                 h.btnDelete.setOnClickListener {
                     exercices.removeAt(position)
@@ -89,8 +89,8 @@ class ExerciceSeanceAdapter(
                 h.series.setText(item.series.toString())
                 h.reps.setText(item.reps.toString())
 
-                h.series.doAfterTextChanged { item.series = it.toString().toIntOrNull() ?: 0 }
-                h.reps.doAfterTextChanged { item.reps = it.toString().toIntOrNull() ?: 0 }
+                h.series.setText(item.series.takeIf { it != 0 }?.toString() ?: "")
+                h.reps.setText(item.reps.takeIf { it != 0 }?.toString() ?: "")
 
                 h.btnDelete.setOnClickListener {
                     exercices.removeAt(position)

@@ -25,4 +25,12 @@ interface SeanceDao {
 
     @Query("SELECT * FROM seances")
     suspend fun getAllSeances(): List<Seance>
+
+    @Query("SELECT * FROM seances WHERE id = :id LIMIT 1")
+    suspend fun getSeance(id: Int): Seance
+
+    @Transaction
+    @Query("SELECT * FROM seances")
+    suspend fun getSeancesAvecExercices(): List<SeanceAvecExercices>
+
 }

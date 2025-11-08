@@ -29,4 +29,7 @@ interface ExerciceSeanceDao {
 
     @Query("SELECT * FROM exercices_seance WHERE idSeance = :idSeance ORDER BY indexOrdre")
     suspend fun getExercicesForSeance(idSeance: Int): List<ExerciceSeance>
+
+    @Query("DELETE FROM exercices_seance WHERE idSeance = :idSeance")
+    suspend fun deleteExercicesForSeance(idSeance: Int)
 }
