@@ -16,6 +16,9 @@
         <action
             android:id="@+id/action_souleverFragment_to_seancesFragment"
             app:destination="@id/navigation_seances" />
+        <action
+            android:id="@+id/action_souleverFragment_to_entrainementFragment"
+            app:destination="@id/navigation_entrainement" />
     </fragment>
 
     <fragment
@@ -44,6 +47,13 @@
             android:id="@+id/action_seancesFragment_to_creationseanceFragment"
             app:destination="@id/navigation_creationseance" />
     </fragment>
+
+    <fragment
+        android:id="@+id/navigation_entrainement"
+        android:name="com.df4l.liftaz.soulever.seances.entrainement.EntrainementFragment"
+        android:label="Entrainement"
+        tools:layout="@layout/fragment_entrainement"
+        />
 
     <fragment
         android:id="@+id/navigation_creationseance"

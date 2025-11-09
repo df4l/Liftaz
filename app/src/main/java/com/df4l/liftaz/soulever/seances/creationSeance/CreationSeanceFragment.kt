@@ -128,6 +128,8 @@ class CreationSeanceFragment : Fragment() {
 
         if (idSeanceModif != null) {
             chargerSeanceExistante(idSeanceModif!!)
+
+            Log.d("DEBUG_SEANCE", "Edition de la séance à l'ID $idSeanceModif")
         }
 
     }

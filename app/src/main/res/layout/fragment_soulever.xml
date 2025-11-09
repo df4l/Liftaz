@@ -37,7 +37,7 @@
 
     <TextView
         android:id="@+id/text_soulever"
-        android:text="Y'a littéralement rien pour l'instant"
+        android:text="Pas de séance prévue aujourd'hui"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"

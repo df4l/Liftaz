@@ -121,11 +121,9 @@ class ExerciceSeanceAdapter(
                 h.seriesWatcher = h.series.doOnTextChanged { text, _, _, _ ->
                     val value = text.toString().toIntOrNull() ?: 0
                     item.series = value
-                    item.reps = value
                 }
                 h.repsWatcher = h.reps.doOnTextChanged { text, _, _, _ ->
                     val value = text.toString().toIntOrNull() ?: 0
-                    item.series = value
                     item.reps = value
                 }
 

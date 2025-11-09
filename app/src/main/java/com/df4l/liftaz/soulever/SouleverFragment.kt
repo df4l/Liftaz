@@ -1,15 +1,13 @@
 package com.df4l.liftaz.soulever
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.PopupMenu
-import android.widget.TextView
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
 import com.df4l.liftaz.R
 import com.df4l.liftaz.data.AppDatabase
 import com.df4l.liftaz.data.MuscleDao
@@ -122,6 +120,7 @@ class SouleverFragment : Fragment() {
         if (seanceDuJour == null) {
             binding.SeanceTodayContainer.visibility = View.GONE
             binding.NoSeanceTodayContainer.visibility = View.VISIBLE
+
         } else {
             binding.SeanceTodayContainer.visibility = View.VISIBLE
             binding.NoSeanceTodayContainer.visibility = View.GONE
@@ -152,9 +151,13 @@ class SouleverFragment : Fragment() {
                     )
                 }
 
-
                 binding.recyclerPreviewExercices.layoutManager = LinearLayoutManager(requireContext())
                 binding.recyclerPreviewExercices.adapter = PreviewExerciceAdapter(previewItems)
+            }
+
+            binding.btnStart.setOnClickListener {
+                val bundle = bundleOf("SEANCE_ID" to seanceDuJour!!.id)
+                findNavController().navigate(R.id.action_souleverFragment_to_entrainementFragment, bundle)
             }
 
         }
@@ -172,7 +175,7 @@ class SouleverFragment : Fragment() {
                     true
                 }
                 R.id.action_create_seance -> {
-                    createNewSeanceView()
+                    goToSeancesView()
                     true
                 }
                 else -> false
@@ -188,7 +191,7 @@ class SouleverFragment : Fragment() {
         navController.navigate(R.id.action_souleverFragment_to_exercicesFragment)
     }
 
-    private fun createNewSeanceView()
+    private fun goToSeancesView()
     {
         val navController = findNavController()
         navController.navigate(R.id.action_souleverFragment_to_seancesFragment)
