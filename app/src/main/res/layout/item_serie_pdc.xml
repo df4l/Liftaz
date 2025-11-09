@@ -7,7 +7,6 @@
     android:paddingVertical="6dp"
     android:paddingHorizontal="12dp">
 
-    <!-- Numéro de série -->
     <TextView
         android:id="@+id/textSerieNumber"
         android:layout_width="wrap_content"
@@ -17,7 +16,6 @@
         android:textSize="14sp"
         android:layout_marginEnd="16dp" />
 
-    <!-- Poids -->
     <EditText
         android:id="@+id/editReps"
         android:layout_width="0dp"
@@ -25,6 +23,12 @@
         android:layout_height="wrap_content"
         android:inputType="number"
         android:hint="Réps"/>
+
+    <com.df4l.liftaz.soulever.seances.deroulementSeance.AssistanceElastiqueView
+        android:id="@+id/viewElastiques"
+        android:layout_width="72dp"
+        android:layout_height="36dp"
+        android:layout_margin="8dp" />
 
     <CheckBox
         android:id="@+id/checkboxFlemme"

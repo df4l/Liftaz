@@ -4,11 +4,15 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.df4l.liftaz.data.Elastique
 import com.df4l.liftaz.data.ElastiqueDao
+import com.df4l.liftaz.data.SerieDao
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-class ElastiqueViewModel(private val dao: ElastiqueDao) : ViewModel() {
+class ElastiqueViewModel(
+    private val elastiqueDao: ElastiqueDao,
+    private val serieDao: SerieDao
+) : ViewModel() {
 
     private val _elastiques = MutableStateFlow<List<Elastique>>(emptyList())
     val elastiques: StateFlow<List<Elastique>> get() = _elastiques
@@ -17,23 +21,22 @@ class ElastiqueViewModel(private val dao: ElastiqueDao) : ViewModel() {
         loadElastiques()
     }
 
-    fun loadElastiques() {
+    private fun loadElastiques() {
         viewModelScope.launch {
-            _elastiques.value = dao.getAll()
+            _elastiques.value = elastiqueDao.getAll()
         }
     }
 
     fun insert(elastique: Elastique) {
         viewModelScope.launch {
-            dao.insert(elastique)
+            elastiqueDao.insert(elastique)
             loadElastiques()
         }
     }
 
-    // Ajout : insertion multiple en une fois
     fun insertAll(elastiques: List<Elastique>) {
         viewModelScope.launch {
-            dao.insertAll(elastiques)
+            elastiqueDao.insertAll(elastiques)
             loadElastiques()
         }
     }
@@ -41,20 +44,19 @@ class ElastiqueViewModel(private val dao: ElastiqueDao) : ViewModel() {
     fun updateBitmasks(newList: List<Elastique>) {
         viewModelScope.launch {
             newList.forEachIndexed { index, e ->
-                val updated = e.copy(valeurBitmask = 1 shl index)
-                dao.update(updated)
+                elastiqueDao.update(e.copy(valeurBitmask = 1 shl index))
             }
-            _elastiques.value = dao.getAll()
+            _elastiques.value = elastiqueDao.getAll()
         }
     }
 
     fun delete(elastique: Elastique) {
         viewModelScope.launch {
-            dao.delete(elastique)
-            loadElastiques()
+            elastiqueDao.deleteAndRecalculate(elastique, serieDao)
+            _elastiques.value = elastiqueDao.getAll()
         }
     }
 
-    // Optionnel : expose une méthode pour connaître le count (utilisable depuis le fragment)
-    suspend fun countSync(): Int = dao.count()
+    suspend fun countSync(): Int = elastiqueDao.count()
 }
+

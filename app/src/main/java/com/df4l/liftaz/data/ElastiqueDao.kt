@@ -5,18 +5,18 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Transaction
 import androidx.room.Update
 
 @Dao
 interface ElastiqueDao {
-    @Query("SELECT * FROM elastiques ORDER BY valeurBitmask ASC")
+    @Query("SELECT * FROM elastiques ORDER BY id")
     suspend fun getAll(): List<Elastique>
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert
     suspend fun insert(elastique: Elastique)
 
-    // Ajout : insertion multiple (liste)
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert
     suspend fun insertAll(elastiques: List<Elastique>)
 
     @Update
@@ -25,10 +25,42 @@ interface ElastiqueDao {
     @Delete
     suspend fun delete(elastique: Elastique)
 
-    @Query("DELETE FROM elastiques")
-    suspend fun deleteAll()
-
-    // Ajout : nombre d'éléments
     @Query("SELECT COUNT(*) FROM elastiques")
     suspend fun count(): Int
+
+    @Transaction
+    suspend fun deleteAndRecalculate(
+        elastiqueToDelete: Elastique,
+        serieDao: SerieDao
+    ) {
+        // 1️⃣ Supprimer l'élastique
+        delete(elastiqueToDelete)
+
+        // 2️⃣ Récupérer la liste restante triée
+        val remaining = getAll().sortedBy { it.id }
+
+        // 3️⃣ Recalculer les bitmasks des élastiques
+        remaining.forEachIndexed { index, e ->
+            update(e.copy(valeurBitmask = 1 shl index))
+        }
+
+        // 4️⃣ Recalculer les bitmasks dans Series
+        val allSeries = serieDao.getAll()
+        allSeries.forEach { serie ->
+            var newMask = 0
+            remaining.forEachIndexed { index, elastique ->
+                // Si le bit ancien est présent dans la série, on ajoute le nouveau bit
+                if ((serie.elastiqueBitMask and elastiqueToDelete.valeurBitmask) != elastiqueToDelete.valeurBitmask) {
+                    // Rien à faire ici, car on supprime seulement le bit de l'élastique supprimé
+                }
+                if ((serie.elastiqueBitMask and elastique.valeurBitmask) != 0) {
+                    newMask = newMask or (1 shl index)
+                }
+            }
+            if (newMask != serie.elastiqueBitMask) {
+                serieDao.update(serie.copy(elastiqueBitMask = newMask))
+            }
+        }
+    }
 }
+

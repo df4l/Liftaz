@@ -20,4 +20,7 @@ interface SerieDao {
 
     @Query("DELETE FROM series WHERE idExercice = :idExercice")
     suspend fun deleteByExercice(idExercice: Int)
+
+    @Query("SELECT * FROM series")
+    suspend fun getAll(): List<Serie>
 }

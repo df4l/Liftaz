@@ -34,8 +34,9 @@ class ElastiquesFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        val dao = AppDatabase.getDatabase(requireContext()).elastiqueDao()
-        val factory = ElastiqueViewModelFactory(dao)
+        val elastiqueDao = AppDatabase.getDatabase(requireContext()).elastiqueDao()
+        val serieDao = AppDatabase.getDatabase(requireContext()).serieDao()
+        val factory = ElastiqueViewModelFactory(elastiqueDao, serieDao)
         viewModel = ViewModelProvider(this, factory)[ElastiqueViewModel::class.java]
 
         val recycler = view.findViewById<RecyclerView>(R.id.recyclerElastiques)
@@ -51,7 +52,7 @@ class ElastiquesFragment : Fragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             // passe en IO pour les accès DB
             val count = withContext(Dispatchers.IO) {
-                dao.count()
+                elastiqueDao.count()
             }
             if (count == 0 && false) {
                 // préparer la liste de test puis insérer en bloc

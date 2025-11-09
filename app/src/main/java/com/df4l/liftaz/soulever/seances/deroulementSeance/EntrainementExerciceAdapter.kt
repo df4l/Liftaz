@@ -7,14 +7,22 @@ import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.df4l.liftaz.R
+import com.df4l.liftaz.data.Elastique
 
-class EntrainementExerciceAdapter : RecyclerView.Adapter<EntrainementExerciceAdapter.ExerciceViewHolder>() {
+class EntrainementExerciceAdapter(
+    private var elastiques: List<Elastique>
+) : RecyclerView.Adapter<EntrainementExerciceAdapter.ExerciceViewHolder>() {
 
     private val items = mutableListOf<ExerciceSeanceItem>()
 
     fun submitList(list: List<ExerciceSeanceItem>) {
         items.clear()
         items.addAll(list)
+        notifyDataSetChanged()
+    }
+
+    fun setElastiques(newList: List<Elastique>) {
+        elastiques = newList
         notifyDataSetChanged()
     }
 
@@ -27,7 +35,7 @@ class EntrainementExerciceAdapter : RecyclerView.Adapter<EntrainementExerciceAda
             textNom.text = item.exerciceName
             textMuscle.text = item.muscleName
             recyclerSeries.layoutManager = LinearLayoutManager(itemView.context)
-            recyclerSeries.adapter = SeriesAdapter(item.series)
+            recyclerSeries.adapter = SeriesAdapter(item.series, elastiques)
         }
     }
 

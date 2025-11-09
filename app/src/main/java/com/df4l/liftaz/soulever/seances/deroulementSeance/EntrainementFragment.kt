@@ -30,10 +30,20 @@ class EntrainementFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.fragment_entrainement, container, false)
+
         recyclerExercices = view.findViewById(R.id.recyclerEntrainement)
         recyclerExercices.layoutManager = LinearLayoutManager(requireContext())
-        exerciceAdapter = EntrainementExerciceAdapter()
+
+        exerciceAdapter = EntrainementExerciceAdapter(emptyList())
         recyclerExercices.adapter = exerciceAdapter
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            val db = AppDatabase.getDatabase(requireContext())
+            val elastiques = db.elastiqueDao().getAll() // suspend -> OK ici
+
+            exerciceAdapter.setElastiques(elastiques)
+        }
+
         return view
     }
 
@@ -60,7 +70,7 @@ class EntrainementFragment : Fragment() {
                 for (i in 1..exSeance.nbSeries) {
                     series.add(
                         if (exercice.poidsDuCorps)
-                            SerieUi.PoidsDuCorps(reps = exSeance.minReps, assistance = 0f, flemme = false)
+                            SerieUi.PoidsDuCorps(reps = exSeance.minReps, bitmaskElastiques = 0, flemme = false)
                         else
                             SerieUi.Fonte(poids = 0f, reps = exSeance.minReps, flemme = false)
                     )
