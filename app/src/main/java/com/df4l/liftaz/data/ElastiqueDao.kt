@@ -50,6 +50,8 @@ interface ElastiqueDao {
             var newMask = 0
             remaining.forEachIndexed { index, elastique ->
                 // Si le bit ancien est présent dans la série, on ajoute le nouveau bit
+                //TODO: Sans doute de la bêtise ce que j'ai fait ici présent
+                //TODO: Faudrait avertir plutôt l'utilisateur qu'il a déjà utilisé l'élastique dans une série auparavant, faire le check avant, bref
                 if ((serie.elastiqueBitMask and elastiqueToDelete.valeurBitmask) != elastiqueToDelete.valeurBitmask) {
                     // Rien à faire ici, car on supprime seulement le bit de l'élastique supprimé
                 }
