@@ -3,17 +3,24 @@ package com.df4l.liftaz.soulever.seances.entrainement
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.TextView
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.df4l.liftaz.R
 import com.df4l.liftaz.data.AppDatabase
+import com.df4l.liftaz.data.SeanceHistorique
+import com.df4l.liftaz.data.Serie
 import kotlinx.coroutines.launch
+import java.util.Date
 
 class EntrainementFragment : Fragment() {
 
@@ -50,7 +57,7 @@ class EntrainementFragment : Fragment() {
         recyclerExercices = view.findViewById(R.id.recyclerEntrainement)
         recyclerExercices.layoutManager = LinearLayoutManager(requireContext())
 
-        exerciceAdapter = EntrainementExerciceAdapter(emptyList())
+        exerciceAdapter = EntrainementExerciceAdapter(emptyList(), ::mettreAJourEtatBouton)
         recyclerExercices.adapter = exerciceAdapter
 
         viewLifecycleOwner.lifecycleScope.launch {
@@ -68,6 +75,43 @@ class EntrainementFragment : Fragment() {
 
         // Démarre le chronomètre
         handler.post(updateRunnable)
+
+        val btnStart = view.findViewById<Button>(R.id.btnStart)
+        btnStart.setOnClickListener {
+            sauvegarderSeance()
+        }
+        btnStart.isEnabled = false // grisé au début
+
+    }
+
+    private fun toutesLesSeriesRemplies(): Boolean {
+        val items = exerciceAdapter.getItems()
+
+        return items.all { item ->
+            item.series.all { serie ->
+                when (serie) {
+
+                    is SerieUi.Fonte -> {
+                        // Si flemme → OK
+                        if (serie.flemme) true
+                        else serie.reps > 0f && serie.poids > 0f
+                    }
+
+                    is SerieUi.PoidsDuCorps -> {
+                        // Si flemme → OK
+                        if (serie.flemme) true
+                        else serie.reps > 0f // le bitmask peut rester 0 si pas d'élastiques
+                    }
+
+                }
+            }
+        }
+    }
+
+
+    fun mettreAJourEtatBouton() {
+        val btnStart = view?.findViewById<Button>(R.id.btnStart) ?: return
+        btnStart.isEnabled = toutesLesSeriesRemplies()
     }
 
     override fun onDestroyView() {
@@ -92,9 +136,9 @@ class EntrainementFragment : Fragment() {
                 for (i in 1..exSeance.nbSeries) {
                     series.add(
                         if (exercice.poidsDuCorps)
-                            SerieUi.PoidsDuCorps(reps = exSeance.minReps, bitmaskElastiques = 0, flemme = false)
+                            SerieUi.PoidsDuCorps(reps = 0f, bitmaskElastiques = 0, flemme = false)
                         else
-                            SerieUi.Fonte(poids = 0f, reps = exSeance.minReps, flemme = false)
+                            SerieUi.Fonte(poids = 0f, reps = 0f, flemme = false)
                     )
                 }
 
@@ -110,5 +154,63 @@ class EntrainementFragment : Fragment() {
             exerciceAdapter.submitList(items)
         }
     }
+
+    private fun sauvegarderSeance() {
+        lifecycleScope.launch {
+            val db = AppDatabase.getDatabase(requireContext())
+
+            handler.removeCallbacks(updateRunnable)
+
+            val seanceHistorique = SeanceHistorique(
+                idSeance = seanceId,
+                date = Date(),
+                dureeSecondes = secondsPassed
+            )
+
+            val idSeanceHistorique = db.seanceHistoriqueDao().insert(seanceHistorique).toInt()
+
+            val items = exerciceAdapter.getItems()
+            val seriesToInsert = mutableListOf<Serie>()
+
+            for (item in items) {
+                val exercice = db.exerciceDao().getExerciceByName(item.exerciceName)
+                val idExercice = exercice.id
+
+                item.series.forEachIndexed { index, serieUi ->
+                    val numeroSerie = index + 1
+
+                    val serie = when (serieUi) {
+                        is SerieUi.Fonte -> Serie(
+                            idSeanceHistorique = idSeanceHistorique,
+                            idExercice = idExercice,
+                            numeroSerie = numeroSerie,
+                            poids = serieUi.poids,
+                            nombreReps = serieUi.reps,
+                            elastiqueBitMask = 0
+                        )
+                        is SerieUi.PoidsDuCorps -> Serie(
+                            idSeanceHistorique = idSeanceHistorique,
+                            idExercice = idExercice,
+                            numeroSerie = numeroSerie,
+                            poids = 0f,
+                            nombreReps = serieUi.reps,
+                            elastiqueBitMask = serieUi.bitmaskElastiques
+                        )
+                    }
+
+                    // 🔥 DEBUG LOG
+                    Log.d("SAVE_SERIE", "→ Exercice: ${item.exerciceName}, Série $numeroSerie, Poids=${serie.poids}, Reps=${serie.nombreReps}, Elastiques=${serie.elastiqueBitMask}")
+
+                    seriesToInsert.add(serie)
+                }
+            }
+
+            db.serieDao().insertAll(seriesToInsert)
+
+            Toast.makeText(requireContext(), "Séance enregistrée ✅", Toast.LENGTH_SHORT).show()
+            findNavController().popBackStack()
+        }
+    }
+
 }
 

@@ -17,23 +17,22 @@
         android:textSize="14sp"
         android:layout_marginEnd="16dp" />
 
-    <!-- Poids -->
-    <EditText
-        android:id="@+id/editReps"
-        android:layout_width="0dp"
-        android:layout_weight="1"
-        android:layout_height="wrap_content"
-        android:inputType="number"
-        android:hint="Réps"/>
-
     <EditText
         android:id="@+id/editPoids"
         android:layout_width="0dp"
         android:layout_weight="1"
         android:layout_height="wrap_content"
-        android:inputType="number"
+        android:inputType="numberDecimal"
         android:hint="Poids"
         android:layout_marginStart="8dp"/>
+
+    <EditText
+        android:id="@+id/editReps"
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:layout_height="wrap_content"
+        android:inputType="numberDecimal"
+        android:hint="Réps"/>
 
     <CheckBox
         android:id="@+id/checkboxFlemme"

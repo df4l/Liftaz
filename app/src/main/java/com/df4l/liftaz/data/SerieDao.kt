@@ -23,4 +23,7 @@ interface SerieDao {
 
     @Query("SELECT * FROM series")
     suspend fun getAll(): List<Serie>
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insertAll(series: List<Serie>)
 }

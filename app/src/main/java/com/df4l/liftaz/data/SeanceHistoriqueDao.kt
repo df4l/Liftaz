@@ -9,7 +9,7 @@ import androidx.room.Update
 @Dao
 interface SeanceHistoriqueDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insert(seanceHistorique: SeanceHistorique)
+    suspend fun insert(seanceHistorique: SeanceHistorique): Long
 
     @Update
     suspend fun update(seanceHistorique: SeanceHistorique)

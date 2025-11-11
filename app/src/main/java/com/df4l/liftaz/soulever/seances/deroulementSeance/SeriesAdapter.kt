@@ -19,10 +19,14 @@ import com.df4l.liftaz.data.Elastique
 import com.df4l.liftaz.soulever.seances.deroulementSeance.AssistanceElastiqueView
 import com.df4l.liftaz.soulever.seances.deroulementSeance.getCouleursForBitmask
 
-class SeriesAdapter(private val series: MutableList<SerieUi>, private val elastiques: List<Elastique>) :
+class SeriesAdapter(
+    private val series: MutableList<SerieUi>,
+    private val elastiques: List<Elastique>,
+    private val onSeriesChanged: () -> Unit // 👈 OBLIGATOIRE
+):
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
-    class FonteViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    inner class FonteViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
         private val textSerieNumber = itemView.findViewById<TextView>(R.id.textSerieNumber)
         private val editWeight = itemView.findViewById<EditText>(R.id.editPoids)
@@ -39,17 +43,26 @@ class SeriesAdapter(private val series: MutableList<SerieUi>, private val elasti
             // Update model when user edits values
             editWeight.addTextChangedListener {
                 serie.poids = it.toString().toFloatOrNull() ?: 0f
+                onSeriesChanged()
             }
             editReps.addTextChangedListener {
-                serie.reps = it.toString().toIntOrNull() ?: 0
+                serie.reps = it.toString().toFloatOrNull() ?: 0f
+                onSeriesChanged()
             }
             checkboxFlemme.setOnCheckedChangeListener { _, checked ->
                 serie.flemme = checked
+
+                editWeight.isEnabled = !checked
+                editReps.isEnabled = !checked
+
+                onSeriesChanged()
             }
+
+
         }
     }
 
-    class PoidsCorpsViewHolder(itemView: View, val elastiques: List<Elastique>) :
+    inner class PoidsCorpsViewHolder(itemView: View, val elastiques: List<Elastique>) :
         RecyclerView.ViewHolder(itemView) {
 
         private val textSerieNumber = itemView.findViewById<TextView>(R.id.textSerieNumber)
@@ -66,10 +79,16 @@ class SeriesAdapter(private val series: MutableList<SerieUi>, private val elasti
 
             // Met à jour les données
             editReps.addTextChangedListener {
-                serie.reps = it.toString().toIntOrNull() ?: 0
+                serie.reps = it.toString().toFloatOrNull() ?: 0f
+                onSeriesChanged()
+
             }
             checkboxFlemme.setOnCheckedChangeListener { _, checked ->
                 serie.flemme = checked
+
+                editReps.isEnabled = !checked
+
+                onSeriesChanged()
             }
 
             // Clique -> ouvre le dialogue multi sélection
@@ -159,6 +178,6 @@ class SeriesAdapter(private val series: MutableList<SerieUi>, private val elasti
 
 
 sealed class SerieUi {
-    data class Fonte(var poids: Float, var reps: Int, var flemme: Boolean) : SerieUi()
-    data class PoidsDuCorps(var reps: Int, var bitmaskElastiques: Int, var flemme: Boolean) : SerieUi()
+    data class Fonte(var poids: Float, var reps: Float, var flemme: Boolean) : SerieUi()
+    data class PoidsDuCorps(var reps: Float, var bitmaskElastiques: Int, var flemme: Boolean) : SerieUi()
 }
