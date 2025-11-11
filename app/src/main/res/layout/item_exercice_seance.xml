@@ -10,26 +10,26 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-    <LinearLayout
-        android:id="@+id/titreExerciceLayout"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
-
-        <TextView
-            android:id="@+id/textExerciceName"
+        <LinearLayout
+            android:id="@+id/titreExerciceLayout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Exercice"
-            android:textStyle="bold"
-            android:textSize="16sp"/>
+            android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/textExerciceMuscle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Muscle"/>
-    </LinearLayout>
+            <TextView
+                android:id="@+id/textExerciceName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Exercice"
+                android:textStyle="bold"
+                android:textSize="16sp"/>
+
+            <TextView
+                android:id="@+id/textExerciceMuscle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Muscle"/>
+        </LinearLayout>
 
     </RelativeLayout>
 
@@ -37,7 +37,7 @@
         android:id="@+id/seriesContainer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-         android:orientation="vertical">
+        android:orientation="vertical">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerSeries"

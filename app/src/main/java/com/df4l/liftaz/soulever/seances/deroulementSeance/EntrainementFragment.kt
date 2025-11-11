@@ -8,8 +8,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.CheckBox
+import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.view.children
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
@@ -84,29 +87,25 @@ class EntrainementFragment : Fragment() {
 
     }
 
-    private fun toutesLesSeriesRemplies(): Boolean {
-        val items = exerciceAdapter.getItems()
+    fun toutesLesSeriesRemplies(): Boolean {
+        return recyclerExercices.children.all { exoView ->
+            val recyclerSeries = exoView.findViewById<RecyclerView>(R.id.recyclerSeries)
+            recyclerSeries.children.all { serieView ->
+                val editReps = serieView.findViewById<EditText>(R.id.editReps)
+                val editPoids = serieView.findViewById<EditText?>(R.id.editPoids) // null pour PoidsDuCorps
+                val checkboxFlemme = serieView.findViewById<CheckBox>(R.id.checkboxFlemme)
 
-        return items.all { item ->
-            item.series.all { serie ->
-                when (serie) {
-
-                    is SerieUi.Fonte -> {
-                        // Si flemme → OK
-                        if (serie.flemme) true
-                        else serie.reps > 0f && serie.poids > 0f
-                    }
-
-                    is SerieUi.PoidsDuCorps -> {
-                        // Si flemme → OK
-                        if (serie.flemme) true
-                        else serie.reps > 0f // le bitmask peut rester 0 si pas d'élastiques
-                    }
-
+                if (checkboxFlemme.isChecked) true
+                else {
+                    val reps = editReps.text.toString().toFloatOrNull() ?: 0f
+                    val poids = editPoids?.text?.toString()?.toFloatOrNull() ?: 0f
+                    poids > 0f && reps > 0f
                 }
             }
         }
     }
+
+
 
 
     fun mettreAJourEtatBouton() {

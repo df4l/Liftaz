@@ -75,6 +75,8 @@ class SeriesAdapter(
         fun bind(serie: SerieUi.PoidsDuCorps, index: Int) {
 
             textSerieNumber.text = "Série $index"
+
+            editReps.setText("")
             editReps.setHint(serie.reps.toHint())
             //checkboxFlemme.isChecked = serie.flemme
             viewElastiques.couleurs = getCouleursForBitmask(elastiques, serie.bitmaskElastiques)
