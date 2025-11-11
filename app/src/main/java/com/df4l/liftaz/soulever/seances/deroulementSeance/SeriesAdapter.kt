@@ -26,6 +26,8 @@ class SeriesAdapter(
 ):
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
+    fun Float.toHint() = if (this == 0f) "" else this.toString()
+
     inner class FonteViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
         private val textSerieNumber = itemView.findViewById<TextView>(R.id.textSerieNumber)
@@ -36,8 +38,8 @@ class SeriesAdapter(
         fun bind(serie: SerieUi.Fonte, index: Int) {
             textSerieNumber.text = "Série $index"
 
-            //editWeight.setText(serie.poids.toString())
-            //editReps.setText(serie.reps.toString())
+            editWeight.setHint(serie.poids.toHint())
+            editReps.setHint(serie.reps.toHint())
             //checkboxFlemme.isChecked = serie.flemme
 
             // Update model when user edits values
@@ -73,9 +75,9 @@ class SeriesAdapter(
         fun bind(serie: SerieUi.PoidsDuCorps, index: Int) {
 
             textSerieNumber.text = "Série $index"
-            //editReps.setText(serie.reps.toString())
+            editReps.setHint(serie.reps.toHint())
             //checkboxFlemme.isChecked = serie.flemme
-            //viewElastiques.couleurs = getCouleursForBitmask(elastiques, serie.bitmaskElastiques)
+            viewElastiques.couleurs = getCouleursForBitmask(elastiques, serie.bitmaskElastiques)
 
             // Met à jour les données
             editReps.addTextChangedListener {

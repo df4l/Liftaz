@@ -26,4 +26,7 @@ interface SerieDao {
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertAll(series: List<Serie>)
+
+    @Query("SELECT * FROM series WHERE idSeanceHistorique = :idSeanceHistorique ORDER BY numeroSerie ASC")
+    suspend fun getSeriesForSeanceHistorique(idSeanceHistorique: Int): List<Serie>
 }

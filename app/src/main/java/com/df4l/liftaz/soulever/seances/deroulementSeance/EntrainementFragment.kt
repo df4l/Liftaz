@@ -121,9 +121,18 @@ class EntrainementFragment : Fragment() {
 
     private fun loadSeance() {
         lifecycleScope.launch {
-            val db = AppDatabase.getDatabase(requireContext()) // Remplace par ta méthode d'accès DB
+            val db = AppDatabase.getDatabase(requireContext())
+
             val seance = db.seanceDao().getSeance(seanceId)
             val exercicesSeance = db.exerciceSeanceDao().getExercicesForSeance(seanceId)
+
+            // ✅ On récupère la dernière séance si elle existe
+            val lastSeanceHistorique = db.seanceHistoriqueDao().getLastSeanceHistorique(seanceId)
+
+            // ✅ Et ses séries associées (si elle existe)
+            val lastSeries = lastSeanceHistorique?.let {
+                db.serieDao().getSeriesForSeanceHistorique(it.id)
+            }
 
             val items = mutableListOf<ExerciceSeanceItem>()
 
@@ -131,14 +140,25 @@ class EntrainementFragment : Fragment() {
                 val exercice = db.exerciceDao().getExerciceById(exSeance.idExercice)
                 val muscleNom = db.muscleDao().getNomMuscleById(exercice.idMuscleCible)
 
-                // Ici, on pourrait générer les séries par défaut pour l'affichage
                 val series = mutableListOf<SerieUi>()
+
                 for (i in 1..exSeance.nbSeries) {
+                    val previousSerie = lastSeries?.find { it.idExercice == exSeance.idExercice && it.numeroSerie == i }
+
                     series.add(
-                        if (exercice.poidsDuCorps)
-                            SerieUi.PoidsDuCorps(reps = 0f, bitmaskElastiques = 0, flemme = false)
-                        else
-                            SerieUi.Fonte(poids = 0f, reps = 0f, flemme = false)
+                        if (exercice.poidsDuCorps) {
+                            SerieUi.PoidsDuCorps(
+                                reps = previousSerie?.nombreReps ?: 0f,
+                                bitmaskElastiques = previousSerie?.elastiqueBitMask ?: 0,
+                                flemme = false
+                            )
+                        } else {
+                            SerieUi.Fonte(
+                                poids = previousSerie?.poids ?: 0f,
+                                reps = previousSerie?.nombreReps ?: 0f,
+                                flemme = false
+                            )
+                        }
                     )
                 }
 
