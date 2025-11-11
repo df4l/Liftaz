@@ -1,9 +1,12 @@
 package com.df4l.liftaz.soulever.seances.entrainement
 
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -15,13 +18,24 @@ import kotlinx.coroutines.launch
 class EntrainementFragment : Fragment() {
 
     private var seanceId: Int = 0
-
     private lateinit var recyclerExercices: RecyclerView
     private lateinit var exerciceAdapter: EntrainementExerciceAdapter
 
+    private lateinit var textChrono: TextView
+    private var secondsPassed = 0
+    private val handler = Handler(Looper.getMainLooper())
+    private val updateRunnable = object : Runnable {
+        override fun run() {
+            secondsPassed++
+            val minutes = secondsPassed / 60
+            val seconds = secondsPassed % 60
+            textChrono.text = String.format("%02d:%02d", minutes, seconds)
+            handler.postDelayed(this, 1000)
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // Récupération de l'ID de la séance passée en argument
         seanceId = arguments?.getInt("SEANCE_ID") ?: 0
     }
 
@@ -31,6 +45,8 @@ class EntrainementFragment : Fragment() {
     ): View? {
         val view = inflater.inflate(R.layout.fragment_entrainement, container, false)
 
+        textChrono = view.findViewById(R.id.textChrono)
+
         recyclerExercices = view.findViewById(R.id.recyclerEntrainement)
         recyclerExercices.layoutManager = LinearLayoutManager(requireContext())
 
@@ -39,8 +55,7 @@ class EntrainementFragment : Fragment() {
 
         viewLifecycleOwner.lifecycleScope.launch {
             val db = AppDatabase.getDatabase(requireContext())
-            val elastiques = db.elastiqueDao().getAll() // suspend -> OK ici
-
+            val elastiques = db.elastiqueDao().getAll()
             exerciceAdapter.setElastiques(elastiques)
         }
 
@@ -49,8 +64,15 @@ class EntrainementFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        // Chargement des données dès l'ouverture
         loadSeance()
+
+        // Démarre le chronomètre
+        handler.post(updateRunnable)
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        handler.removeCallbacks(updateRunnable) // Stop timer quand on quitte le fragment
     }
 
     private fun loadSeance() {
