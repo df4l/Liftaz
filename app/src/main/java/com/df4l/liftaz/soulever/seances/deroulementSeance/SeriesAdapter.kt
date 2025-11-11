@@ -1,13 +1,16 @@
 package com.df4l.liftaz.soulever.seances.entrainement
 
 import android.app.AlertDialog
+import android.graphics.drawable.GradientDrawable
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.CheckBox
+import android.widget.CheckedTextView
 import android.widget.EditText
+import android.widget.ListView
 import android.widget.TextView
 import androidx.core.widget.addTextChangedListener
 import androidx.recyclerview.widget.RecyclerView
@@ -71,27 +74,51 @@ class SeriesAdapter(private val series: MutableList<SerieUi>, private val elasti
 
             // Clique -> ouvre le dialogue multi sélection
             viewElastiques.setOnClickListener {
-                val items = elastiques.map { it.label }.toTypedArray()
-                val checked = elastiques.map { (it.valeurBitmask and serie.bitmaskElastiques) != 0 }.toBooleanArray()
+                // Adapter custom pour afficher les couleurs
+                val adapter = object : ArrayAdapter<Elastique>(
+                    itemView.context,
+                    android.R.layout.simple_list_item_multiple_choice,
+                    elastiques
+                ) {
+                    override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
+                        val row = convertView ?: LayoutInflater.from(context)
+                            .inflate(android.R.layout.simple_list_item_multiple_choice, parent, false)
 
-                elastiques.forEach { e ->
-                    Log.d("ElastiqueDebug", "Élastique: ${e.label}, bitmask: ${e.valeurBitmask}")
+                        val checkBox = row.findViewById<CheckedTextView>(android.R.id.text1)
+
+                        // Texte vide, couleur de fond = couleur de l'élastique
+                        checkBox.text = ""
+                        checkBox.setBackgroundColor(elastiques[position].couleur)
+                        checkBox.isChecked = (elastiques[position].valeurBitmask and serie.bitmaskElastiques) != 0
+
+                        return row
+                    }
                 }
 
-                AlertDialog.Builder(itemView.context)
+                // Création du dialog
+                val dialog = AlertDialog.Builder(itemView.context)
                     .setTitle("Élastiques utilisés")
-                    .setMultiChoiceItems(items, checked) { _, indexClicked, isChecked ->
-                        val bit = elastiques[indexClicked].valeurBitmask
-                        serie.bitmaskElastiques = if (isChecked)
-                            serie.bitmaskElastiques or bit
-                        else
-                            serie.bitmaskElastiques and bit.inv()
-                    }
+                    .setAdapter(adapter, null) // On gère le click via ListView
                     .setPositiveButton("OK") { _, _ ->
+                        // Appliquer les couleurs sélectionnées à la vue
                         viewElastiques.couleurs = getCouleursForBitmask(elastiques, serie.bitmaskElastiques)
                     }
+                    .setNegativeButton("Annuler", null)
                     .show()
+
+                // Gestion du click sur les items
+                dialog.listView.choiceMode = ListView.CHOICE_MODE_MULTIPLE
+                dialog.listView.setOnItemClickListener { _, view, position, _ ->
+                    val bit = elastiques[position].valeurBitmask
+                    val checked = (view as CheckedTextView).isChecked
+
+                    serie.bitmaskElastiques = if (checked)
+                        serie.bitmaskElastiques or bit
+                    else
+                        serie.bitmaskElastiques and bit.inv()
+                }
             }
+
         }
     }
 

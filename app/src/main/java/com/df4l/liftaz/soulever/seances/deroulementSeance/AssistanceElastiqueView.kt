@@ -14,41 +14,65 @@ class AssistanceElastiqueView @JvmOverloads constructor(
     var couleurs: List<Int> = emptyList()
         set(value) {
             field = value
+            requestLayout()
             invalidate()
         }
 
-    private val bandPaint = Paint(Paint.ANTI_ALIAS_FLAG)
-    private val borderPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+    private val slashPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.STROKE
-        strokeWidth = 3f
-        color = 0xFF444444.toInt() // Bordure gris foncé
+        strokeWidth = 8f
+        strokeCap = Paint.Cap.ROUND
     }
-    private val emptyBackgroundPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        style = Paint.Style.FILL
-        color = 0xFFEFEFEF.toInt() // Fond gris clair quand aucune couleur
+
+    private val placeholderPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        color = 0xFF999999.toInt() // gris
+        textSize = 72f
+        textAlign = Paint.Align.CENTER
+    }
+
+    private val slashSize = 50f
+    private val spacing = 5f
+
+    // Même hauteur dans tous les cas
+    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+        val minWidth = (slashSize + spacing).toInt() // au moins l'espace du placeholder
+        val width = if (couleurs.isEmpty()) {
+            minWidth
+        } else {
+            (couleurs.size * (slashSize + spacing)).toInt()
+        }
+
+        val height = slashSize.toInt()
+        setMeasuredDimension(width, height)
     }
 
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
 
         if (couleurs.isEmpty()) {
-            // Aucun élastique -> fond gris
-            canvas.drawRect(0f, 0f, width.toFloat(), height.toFloat(), emptyBackgroundPaint)
-        } else {
-            val bandWidth = width.toFloat() / couleurs.size
-
-            couleurs.forEachIndexed { index, color ->
-                bandPaint.color = color
-                val left = index * bandWidth
-                val right = left + bandWidth
-                canvas.drawRect(left, 0f, right, height.toFloat(), bandPaint)
-            }
+            // PAS D'ÉLASTIQUE → afficher "/ ?"
+            val centerX = width / 2f
+            val centerY = (height / 2f) - ((placeholderPaint.descent() + placeholderPaint.ascent()) / 2)
+            canvas.drawText("/?", centerX, centerY, placeholderPaint)
+            return
         }
 
-        // Bordure
-        canvas.drawRect(0f, 0f, width.toFloat(), height.toFloat(), borderPaint)
+        // Sinon → dessiner les slashs
+        couleurs.forEachIndexed { index, color ->
+            slashPaint.color = color
+
+            val startX = index * (slashSize + spacing)
+            val startY = height.toFloat()
+            val endX = startX + slashSize
+            val endY = 0f
+
+            canvas.drawLine(startX, startY, endX, endY, slashPaint)
+        }
     }
 }
+
+
+
 
 
 
