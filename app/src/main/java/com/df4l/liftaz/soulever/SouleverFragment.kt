@@ -25,6 +25,7 @@ import com.df4l.liftaz.data.Muscle
 import com.df4l.liftaz.data.Seance
 import com.df4l.liftaz.data.SeanceAvecExercices
 import com.df4l.liftaz.data.SeanceDao
+import com.df4l.liftaz.data.SeanceHistoriqueDao
 import com.df4l.liftaz.data.TypeFrequence
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -43,6 +44,7 @@ class SouleverFragment : Fragment() {
     private lateinit var muscleDao: MuscleDao
     private lateinit var exerciceDao: ExerciceDao
     private lateinit var seanceDao: SeanceDao
+    private lateinit var seanceHistoriqueDao: SeanceHistoriqueDao
 
     var seanceDuJour: Seance? = null
         private set
@@ -60,6 +62,7 @@ class SouleverFragment : Fragment() {
         muscleDao = database.muscleDao()
         exerciceDao = database.exerciceDao()
         seanceDao = database.seanceDao()
+        seanceHistoriqueDao = database.seanceHistoriqueDao()
 
         lifecycleScope.launch {
             if (muscleDao.count() == 0) {
@@ -84,13 +87,26 @@ class SouleverFragment : Fragment() {
 
         lifecycleScope.launch {
             val seances = seanceDao.getAllSeances()
+            val today = LocalDate.now()
 
             seanceDuJour = seances.firstOrNull { seance ->
-                evaluateSeanceForToday(seance)
+                if (!evaluateSeanceForToday(seance)) return@firstOrNull false
+
+                val lastHistorique = seanceHistoriqueDao.getLastSeanceHistorique(seance.id)
+
+                if (lastHistorique != null) {
+                    val lastDate = lastHistorique.date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
+                    // Si la dernière séance est aujourd’hui, on ne l’affiche pas
+                    if (lastDate == today) {
+                        return@firstOrNull false
+                    }
+                }
+
+                true
             }
+
             updateUI()
         }
-
 
         binding.fabAdd.setOnClickListener { view ->
             showFabMenu(view)

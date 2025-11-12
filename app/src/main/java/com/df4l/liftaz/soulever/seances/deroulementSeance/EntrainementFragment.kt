@@ -95,17 +95,23 @@ class EntrainementFragment : Fragment() {
                 val editPoids = serieView.findViewById<EditText?>(R.id.editPoids) // null pour PoidsDuCorps
                 val checkboxFlemme = serieView.findViewById<CheckBox>(R.id.checkboxFlemme)
 
-                if (checkboxFlemme.isChecked) true
-                else {
+                if (checkboxFlemme.isChecked) {
+                    true
+                } else {
                     val reps = editReps.text.toString().toFloatOrNull() ?: 0f
-                    val poids = editPoids?.text?.toString()?.toFloatOrNull() ?: 0f
-                    poids > 0f && reps > 0f
+                    val poids = editPoids?.text?.toString()?.toFloatOrNull() // null si poids du corps
+
+                    if (editPoids == null) {
+                        // Poids du corps → seulement les reps comptent
+                        reps > 0f
+                    } else {
+                        // Exercice avec poids
+                        reps > 0f && (poids ?: 0f) > 0f
+                    }
                 }
             }
         }
     }
-
-
 
 
     fun mettreAJourEtatBouton() {
