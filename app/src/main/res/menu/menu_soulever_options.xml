@@ -5,8 +5,12 @@
         android:title="Exercices..." />
 
     <item
-        android:id="@+id/action_create_seance"
+        android:id="@+id/action_seances"
         android:title="Séances..." />
+
+    <item
+        android:id="@+id/action_programmes"
+        android:title="Programmes..." />
 
     <item
         android:id="@+id/action_motivationfioul"

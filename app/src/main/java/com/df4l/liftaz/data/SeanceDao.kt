@@ -33,4 +33,9 @@ interface SeanceDao {
     @Query("SELECT * FROM seances")
     suspend fun getSeancesAvecExercices(): List<SeanceAvecExercices>
 
+    @Query("UPDATE seances SET idProgramme = :programmeId WHERE id = :seanceId")
+    suspend fun updateProgrammeId(seanceId: Int, programmeId: Int)
+
+    @Query("UPDATE seances SET idProgramme = NULL WHERE idProgramme = :programmeId")
+    suspend fun clearProgrammeIdForProgramme(programmeId: Int)
 }

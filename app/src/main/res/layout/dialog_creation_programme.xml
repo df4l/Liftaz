@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="16dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <EditText
+            android:id="@+id/editNomProgramme"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Nom du programme"
+            android:inputType="textCapWords"
+            android:importantForAutofill="no"
+            android:maxLines="1" />
+
+        <EditText
+            android:id="@+id/editDescriptionProgramme"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Description (facultatif)"
+            android:inputType="textMultiLine"
+            android:minLines="2"
+            android:layout_marginTop="8dp" />
+
+        <TextView
+            android:id="@+id/textSeancesLabel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Sélectionne les séances à inclure :"
+            android:textStyle="bold"
+            android:layout_marginTop="12dp"
+            android:layout_marginBottom="6dp" />
+
+        <ListView
+            android:id="@+id/listViewSeances"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:divider="@android:color/darker_gray"
+            android:dividerHeight="1dp"
+            android:choiceMode="multipleChoice" />
+
+    </LinearLayout>
+</ScrollView>

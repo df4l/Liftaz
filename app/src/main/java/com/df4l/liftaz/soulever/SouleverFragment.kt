@@ -2,12 +2,10 @@ package com.df4l.liftaz.soulever
 
 import android.app.AlertDialog
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.PopupMenu
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
@@ -22,6 +20,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.df4l.liftaz.data.Exercice
 import com.df4l.liftaz.data.ExerciceDao
 import com.df4l.liftaz.data.Muscle
+import com.df4l.liftaz.data.ProgrammeDao
 import com.df4l.liftaz.data.Seance
 import com.df4l.liftaz.data.SeanceAvecExercices
 import com.df4l.liftaz.data.SeanceDao
@@ -46,6 +45,8 @@ class SouleverFragment : Fragment() {
     private lateinit var seanceDao: SeanceDao
     private lateinit var seanceHistoriqueDao: SeanceHistoriqueDao
 
+    private lateinit var programmeDao: ProgrammeDao
+
     var seanceDuJour: Seance? = null
         private set
 
@@ -63,6 +64,7 @@ class SouleverFragment : Fragment() {
         exerciceDao = database.exerciceDao()
         seanceDao = database.seanceDao()
         seanceHistoriqueDao = database.seanceHistoriqueDao()
+        programmeDao = database.programmeDao()
 
         lifecycleScope.launch {
             if (muscleDao.count() == 0) {
@@ -91,6 +93,22 @@ class SouleverFragment : Fragment() {
 
             seanceDuJour = seances.firstOrNull { seance ->
                 if (!evaluateSeanceForToday(seance)) return@firstOrNull false
+
+                val programmeActif = programmeDao.getProgrammeActif()
+
+                if(programmeActif != null)
+                {
+                    binding.textSoulever.setText("Pas de séance prévue aujourd'hui")
+                    if(seance.idProgramme != programmeActif?.id)
+                    {
+                        return@firstOrNull false
+                    }
+                }
+                else
+                {
+                    binding.textSoulever.setText("Pas de programme actif")
+                    return@firstOrNull false
+                }
 
                 val lastHistorique = seanceHistoriqueDao.getLastSeanceHistorique(seance.id)
 
@@ -242,8 +260,12 @@ class SouleverFragment : Fragment() {
                     goToExercicesView()
                     true
                 }
-                R.id.action_create_seance -> {
+                R.id.action_seances -> {
                     goToSeancesView()
+                    true
+                }
+                R.id.action_programmes -> {
+                    goToProgrammesView()
                     true
                 }
                 R.id.action_motivationfioul -> {
@@ -263,6 +285,11 @@ class SouleverFragment : Fragment() {
         navController.navigate(R.id.action_souleverFragment_to_motivationFioulFragment)
     }
 
+    private fun goToProgrammesView()
+    {
+        val navController = findNavController()
+        navController.navigate(R.id.action_souleverFragment_to_programmesFragment)
+    }
 
     private fun goToExercicesView()
     {

@@ -10,12 +10,13 @@ enum class TypeFrequence {
 }
 
 @Entity(tableName = "seances")
-data class Seance (
+data class Seance(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
     val nom: String,
     val typeFrequence: TypeFrequence,
-    val joursSemaine: List<Int>? = null,
-    val intervalleJours: Int? = null,
-    val dateAjout: Date
+    val joursSemaine: List<Int>?,
+    val intervalleJours: Int?,
+    val dateAjout: Date,
+    val idProgramme: Int? = null // ✅ référence directe au programme
 )

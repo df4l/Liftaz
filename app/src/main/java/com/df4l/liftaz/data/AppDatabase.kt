@@ -16,6 +16,7 @@ import androidx.room.TypeConverters
     Serie::class,
     Elastique::class,
     MotivationFioul::class,
+    Programme::class,
     //Manger
     Aliment::class,
     Diete::class,
@@ -38,6 +39,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun seanceHistoriqueDao(): SeanceHistoriqueDao
     abstract fun serieDao(): SerieDao
     abstract fun motivationFioulDao(): MotivationFioulDao
+    abstract fun programmeDao(): ProgrammeDao
 
     //Manger
     abstract fun alimentDao(): AlimentDao
