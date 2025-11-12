@@ -19,6 +19,9 @@
         <action
             android:id="@+id/action_souleverFragment_to_entrainementFragment"
             app:destination="@id/navigation_entrainement" />
+        <action
+            android:id="@+id/action_souleverFragment_to_motivationFioulFragment"
+            app:destination="@id/navigation_motivationfioul" />
     </fragment>
 
     <fragment
@@ -53,6 +56,13 @@
         android:name="com.df4l.liftaz.soulever.seances.entrainement.EntrainementFragment"
         android:label="Entrainement"
         tools:layout="@layout/fragment_entrainement"
+        />
+
+    <fragment
+        android:id="@+id/navigation_motivationfioul"
+        android:name="com.df4l.liftaz.soulever.fioul.FioulFragment"
+        android:label="Fioul de motivation"
+        tools:layout="@layout/fragment_motivationfioul"
         />
 
     <fragment

@@ -7,4 +7,8 @@
     <item
         android:id="@+id/action_create_seance"
         android:title="Séances..." />
+
+    <item
+        android:id="@+id/action_motivationfioul"
+        android:title="Fioul de motivation..." />
 </menu>

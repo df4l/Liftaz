@@ -14,4 +14,5 @@
     <string name="supprimer_exercice">Retirer un exercice</string>
     <string name="resistance_range">%1$d–%2$d kg</string>
     <string name="exercice_entry">%1$s - %2$s</string>
+    <string name="prompt_select_muscle">Associer un muscle</string>
 </resources>

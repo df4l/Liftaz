@@ -230,12 +230,23 @@ class SouleverFragment : Fragment() {
                     goToSeancesView()
                     true
                 }
+                R.id.action_motivationfioul -> {
+                    goToMotivationFioulView()
+                    true
+                }
                 else -> false
             }
         }
 
         popup.show()
     }
+
+    private fun goToMotivationFioulView()
+    {
+        val navController = findNavController()
+        navController.navigate(R.id.action_souleverFragment_to_motivationFioulFragment)
+    }
+
 
     private fun goToExercicesView()
     {
