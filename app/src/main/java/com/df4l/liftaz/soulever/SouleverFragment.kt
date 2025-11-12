@@ -1,10 +1,13 @@
 package com.df4l.liftaz.soulever
 
+import android.app.AlertDialog
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.PopupMenu
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
@@ -15,9 +18,12 @@ import com.df4l.liftaz.databinding.FragmentSouleverBinding
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.df4l.liftaz.data.Exercice
 import com.df4l.liftaz.data.ExerciceDao
 import com.df4l.liftaz.data.Muscle
 import com.df4l.liftaz.data.Seance
+import com.df4l.liftaz.data.SeanceAvecExercices
 import com.df4l.liftaz.data.SeanceDao
 import com.df4l.liftaz.data.TypeFrequence
 import kotlinx.coroutines.launch
@@ -89,6 +95,23 @@ class SouleverFragment : Fragment() {
         binding.fabAdd.setOnClickListener { view ->
             showFabMenu(view)
         }
+
+        val listener = View.OnClickListener {
+            lifecycleScope.launch {
+                val seances = seanceDao.getSeancesAvecExercices()
+
+                val musclesList = muscleDao.getAllMuscles()
+                val exercicesList = exerciceDao.getAllExercices()
+
+                val musclesMap = musclesList.associateBy({ it.id }, { it.nom })
+                val exerciceMap = exercicesList.associateBy { it.id }
+
+                showSeancePickerDialog(seances, musclesMap, exerciceMap)
+            }
+        }
+
+        binding.btnChooseSeance.setOnClickListener(listener)
+        binding.btnStartAnotherSeance.setOnClickListener(listener)
 
         return root
     }
@@ -163,6 +186,35 @@ class SouleverFragment : Fragment() {
         }
 
     }
+
+    private fun showSeancePickerDialog(
+        seances: List<SeanceAvecExercices>,
+        musclesMap: Map<Int, String>,
+        exerciceMap: Map<Int, Exercice>
+    ) {
+        val dialogView = layoutInflater.inflate(R.layout.dialog_seance_picker, null)
+        val recyclerView = dialogView.findViewById<RecyclerView>(R.id.recyclerSeances)
+
+        val dialog = AlertDialog.Builder(requireContext())
+            .setView(dialogView)
+            .setNegativeButton("Annuler", null)
+            .create()
+
+        recyclerView.layoutManager = LinearLayoutManager(requireContext())
+        recyclerView.adapter = SeancePickerAdapter(seances, musclesMap, exerciceMap) { seance ->
+            val bundle = bundleOf("SEANCE_ID" to seance.seance.id)
+
+            dialog.dismiss()
+
+            findNavController().navigate(
+                R.id.action_souleverFragment_to_entrainementFragment,
+                bundle
+            )
+        }
+
+        dialog.show()
+    }
+
 
     private fun showFabMenu(anchor: View) {
         val popup = PopupMenu(requireContext(), anchor)

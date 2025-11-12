@@ -54,22 +54,28 @@ class ElastiquesFragment : Fragment() {
             val count = withContext(Dispatchers.IO) {
                 elastiqueDao.count()
             }
-            if (count == 0 && false) {
+            if (count == 0) {
                 // préparer la liste de test puis insérer en bloc
                 val colors = listOf(
-                    0xFFE57373.toInt(), 0xFF64B5F6.toInt(),
-                    0xFFFFD54F.toInt(), 0xFF81C784.toInt()
+                    0xFFB03226.toInt(), // EXTRA LIGHT
+                    0xFF1E1E1E.toInt(), // LIGHT
+                    0xFF164DAA.toInt()  // MEDIUM
                 )
+
+                val labels = listOf("EXTRA LIGHT", "LIGHT", "MEDIUM")
+                val minKg = listOf(4, 7, 16)
+                val maxKg = listOf(12, 24, 36)
 
                 val testElastiques = colors.mapIndexed { index, color ->
                     Elastique(
                         couleur = color,
                         valeurBitmask = 1 shl index,
-                        label = listOf("Rouge", "Bleu", "Jaune", "Vert")[index],
-                        resistanceMinKg = 5 + index * 5,
-                        resistanceMaxKg = 15 + index * 5
+                        label = labels[index],
+                        resistanceMinKg = minKg[index],
+                        resistanceMaxKg = maxKg[index]
                     )
                 }
+
                 // insertion en une seule opération (évite plusieurs émissions intermédiaires)
                 viewModel.insertAll(testElastiques)
             }
