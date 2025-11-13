@@ -12,17 +12,20 @@ import android.widget.CheckedTextView
 import android.widget.EditText
 import android.widget.ListView
 import android.widget.TextView
+import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.core.widget.addTextChangedListener
 import androidx.recyclerview.widget.RecyclerView
 import com.df4l.liftaz.R
 import com.df4l.liftaz.data.Elastique
+import com.df4l.liftaz.soulever.fioul.RandomFioulDialog
 import com.df4l.liftaz.soulever.seances.deroulementSeance.AssistanceElastiqueView
 import com.df4l.liftaz.soulever.seances.deroulementSeance.getCouleursForBitmask
 
 class SeriesAdapter(
     private val series: MutableList<SerieUi>,
     private val elastiques: List<Elastique>,
-    private val onSeriesChanged: () -> Unit // 👈 OBLIGATOIRE
+    private val onSeriesChanged: () -> Unit,
+    private val onFlemmeTriggered : () -> Unit
 ):
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
@@ -34,6 +37,7 @@ class SeriesAdapter(
         private val editWeight = itemView.findViewById<EditText>(R.id.editPoids)
         private val editReps = itemView.findViewById<EditText>(R.id.editReps)
         private val checkboxFlemme = itemView.findViewById<CheckBox>(R.id.checkboxFlemme)
+        private var alreadyHadFlemme = 0
 
         fun bind(serie: SerieUi.Fonte, index: Int) {
             textSerieNumber.text = "Série $index"
@@ -52,17 +56,34 @@ class SeriesAdapter(
                 onSeriesChanged()
             }
             checkboxFlemme.setOnCheckedChangeListener { _, checked ->
-                serie.flemme = checked
+                if (checked && alreadyHadFlemme == 0) {
+                    // Annuler le check sans relancer le listener
+                    checkboxFlemme.setOnCheckedChangeListener(null)
+                    checkboxFlemme.isChecked = false
 
-                editWeight.isEnabled = !checked
-                editReps.isEnabled = !checked
+                    // Réassigner proprement le listener
+                    checkboxFlemme.setOnCheckedChangeListener { _, checkedInner ->
+                        handleFlemmeChecked(checkedInner, serie)
+                    }
 
-                onSeriesChanged()
+                    onFlemmeTriggered()
+
+                    alreadyHadFlemme = 1
+                } else {
+                handleFlemmeChecked(checked, serie)
+                }
             }
+        }
 
-
+        private fun handleFlemmeChecked(checked: Boolean, serie: SerieUi.Fonte) {
+            serie.flemme = checked
+            editWeight.isEnabled = !checked
+            editReps.isEnabled = !checked
+            onSeriesChanged()
         }
     }
+
+
 
     inner class PoidsCorpsViewHolder(itemView: View, val elastiques: List<Elastique>) :
         RecyclerView.ViewHolder(itemView) {

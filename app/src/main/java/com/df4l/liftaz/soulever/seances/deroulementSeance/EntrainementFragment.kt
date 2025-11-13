@@ -22,6 +22,7 @@ import com.df4l.liftaz.R
 import com.df4l.liftaz.data.AppDatabase
 import com.df4l.liftaz.data.SeanceHistorique
 import com.df4l.liftaz.data.Serie
+import com.df4l.liftaz.soulever.fioul.RandomFioulDialog
 import kotlinx.coroutines.launch
 import java.util.Date
 
@@ -60,7 +61,12 @@ class EntrainementFragment : Fragment() {
         recyclerExercices = view.findViewById(R.id.recyclerEntrainement)
         recyclerExercices.layoutManager = LinearLayoutManager(requireContext())
 
-        exerciceAdapter = EntrainementExerciceAdapter(emptyList(), ::mettreAJourEtatBouton)
+        exerciceAdapter = EntrainementExerciceAdapter(emptyList(), ::mettreAJourEtatBouton, onFlemmeTriggered = {
+            RandomFioulDialog.showRandomFioulDialog(
+                context = requireContext(),
+                scope = viewLifecycleOwner.lifecycleScope
+            )
+        })
         recyclerExercices.adapter = exerciceAdapter
 
         viewLifecycleOwner.lifecycleScope.launch {

@@ -10,7 +10,9 @@ import com.df4l.liftaz.R
 import com.df4l.liftaz.data.Elastique
 
 class EntrainementExerciceAdapter(
-    private var elastiques: List<Elastique>, private val onSeriesChanged: () -> Unit
+    private var elastiques: List<Elastique>,
+    private val onSeriesChanged: () -> Unit,
+    private val onFlemmeTriggered : () -> Unit
 ) : RecyclerView.Adapter<EntrainementExerciceAdapter.ExerciceViewHolder>() {
 
     private val items = mutableListOf<ExerciceSeanceItem>()
@@ -35,7 +37,7 @@ class EntrainementExerciceAdapter(
             textNom.text = item.exerciceName
             textMuscle.text = item.muscleName
             recyclerSeries.layoutManager = LinearLayoutManager(itemView.context)
-            recyclerSeries.adapter = SeriesAdapter(item.series, elastiques, onSeriesChanged)
+            recyclerSeries.adapter = SeriesAdapter(item.series, elastiques, onSeriesChanged, onFlemmeTriggered)
         }
     }
 
