@@ -44,15 +44,7 @@
                 android:visibility="gone"
                 android:textSize="12sp" />
 
-            <ImageButton
-                android:id="@+id/btnDeleteProgramme"
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                android:layout_marginStart="8dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:src="@android:drawable/ic_menu_close_clear_cancel"
-                android:contentDescription="Supprimer le programme"
- />
+
         </LinearLayout>
 
         <TextView
@@ -65,15 +57,32 @@
             android:layout_marginTop="4dp"
             android:maxLines="2"
             android:ellipsize="end" />
-
-        <TextView
-            android:id="@+id/textNbSeances"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="4 séances"
-            android:textSize="13sp"
-            android:textColor="?android:attr/textColorSecondary"
-            android:layout_marginTop="6dp" />
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginTop="6dp">
+
+            <TextView
+                android:id="@+id/textNbSeances"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="4 séances"
+                android:textSize="13sp"
+                android:textColor="?android:attr/textColorSecondary" />
+
+            <ImageButton
+                android:id="@+id/btnDeleteProgramme"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@android:drawable/ic_menu_close_clear_cancel"
+                android:contentDescription="Supprimer le programme" />
+
+        </LinearLayout>
+
     </LinearLayout>
 
 </com.google.android.material.card.MaterialCardView>

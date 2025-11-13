@@ -34,6 +34,9 @@ class ProgrammesFragment : Fragment() {
     ): View {
         val view = inflater.inflate(R.layout.fragment_programmes, container, false)
         recyclerView = view.findViewById(R.id.recyclerViewProgrammes)
+
+        textEmpty = view.findViewById(R.id.text_empty_programmes)
+
         val fab = view.findViewById<FloatingActionButton>(R.id.fab_add_programme)
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
 
@@ -84,6 +87,16 @@ class ProgrammesFragment : Fragment() {
                 }
             )
             recyclerView.adapter = adapter
+
+
+            if (programmes.isEmpty()) {
+                textEmpty.visibility = View.VISIBLE
+                recyclerView.visibility = View.GONE
+            } else {
+                textEmpty.visibility = View.GONE
+                recyclerView.visibility = View.VISIBLE
+            }
+
         }
     }
 }

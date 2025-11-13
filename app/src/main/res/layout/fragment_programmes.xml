@@ -9,7 +9,20 @@ android:layout_height="match_parent"
     android:id="@+id/recyclerViewProgrammes"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="8dp"/>
+    android:padding="8dp" android:fitsSystemWindows="true"/>
+
+    <TextView
+        android:id="@+id/text_empty_programmes"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Pas de programmes"
+        android:textAlignment="center"
+        android:textSize="20sp"
+        android:visibility="gone"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
 
 <com.google.android.material.floatingactionbutton.FloatingActionButton
     android:id="@+id/fab_add_programme"

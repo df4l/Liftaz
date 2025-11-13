@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import android.widget.Toast
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
@@ -30,6 +31,8 @@ class SeancesFragment : Fragment() {
     private lateinit var exerciceDao: ExerciceDao
     private lateinit var muscleDao: MuscleDao
 
+    private lateinit var textEmpty: TextView
+
     private lateinit var fab: FloatingActionButton
 
     override fun onCreateView(
@@ -54,6 +57,8 @@ class SeancesFragment : Fragment() {
         fab.setOnClickListener {
             findNavController().navigate(R.id.action_seancesFragment_to_creationseanceFragment)
         }
+
+        textEmpty = view.findViewById(R.id.text_empty_seances)
 
         return view
     }
@@ -97,8 +102,15 @@ class SeancesFragment : Fragment() {
                 }
             )
 
-
             recyclerView.adapter = adapter
+
+            if (seances.isEmpty()) {
+                textEmpty.visibility = View.VISIBLE
+                recyclerView.visibility = View.GONE
+            } else {
+                textEmpty.visibility = View.GONE
+                recyclerView.visibility = View.VISIBLE
+            }
         }
     }
 
