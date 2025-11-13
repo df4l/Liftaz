@@ -127,6 +127,19 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Date de départ">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/editDateDebut"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:focusable="false"
+                android:clickable="true"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
         <TextView
             android:id="@+id/IntervalleTexte"
             android:text="Séance à effectuer tous les 1 jours"
@@ -149,6 +162,7 @@
             android:layout_marginTop="8dp"
             android:textColor="@android:color/darker_gray"
             android:textSize="14sp"/>
+
     </LinearLayout>
 
 

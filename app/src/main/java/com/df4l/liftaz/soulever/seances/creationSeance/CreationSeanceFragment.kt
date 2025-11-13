@@ -1,6 +1,9 @@
 package com.df4l.liftaz.soulever.seances.creationSeance
 
+import android.app.DatePickerDialog
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -28,9 +31,11 @@ import com.df4l.liftaz.soulever.exercices.creationExercice.CreateExerciceDialog
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
 import com.google.android.material.slider.Slider
+import com.google.android.material.textfield.TextInputEditText
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.time.LocalDate
+import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
@@ -49,6 +54,7 @@ class CreationSeanceFragment : Fragment() {
     private lateinit var exerciceSeanceAdapter: ExerciceSeanceAdapter
 
     private var idSeanceModif: Int? = null
+    private var dateDebut: LocalDate? = null
 
     private val exerciceSeanceList = mutableListOf<ExerciceSeanceUi>()
 
@@ -116,6 +122,53 @@ class CreationSeanceFragment : Fragment() {
             updateNextDates(value.toInt(), textProchaines, intervalleTexte)
         }
 
+        binding.editDateDebut.setOnClickListener {
+            val today = LocalDate.now()
+            val dpd = DatePickerDialog(
+                requireContext(),
+                { _, year, month, dayOfMonth ->
+                    // ✅ LocalDate.of utilise bien (année, mois, jour)
+                    // month dans DatePickerDialog commence à 0 → on ajoute +1
+                    dateDebut = LocalDate.of(year, month + 1, dayOfMonth)
+
+                    // Mettre à jour le texte affiché
+                    val formatter = DateTimeFormatter.ofPattern("d MMMM yyyy", Locale.FRENCH)
+                    binding.editDateDebut.setText(dateDebut?.format(formatter))
+
+                    // Mettre à jour l'affichage des prochaines dates
+                    val interval = binding.sliderIntervalle.value.toInt()
+                    updateNextDates(interval, binding.textProchainesSeances, binding.IntervalleTexte, dateDebut)
+
+                    // ✅ Log pour vérifier la date choisie
+                    Log.d("DEBUG_DATE_PICKER", "Date choisie = $dateDebut")
+                },
+                today.year, today.monthValue - 1, today.dayOfMonth
+            )
+            dpd.show()
+        }
+
+        binding.editDateDebut.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                val formatter = DateTimeFormatter.ofPattern("d MMMM yyyy", Locale.FRENCH)
+                s?.toString()?.let { text ->
+                    try {
+                        dateDebut = LocalDate.parse(text, formatter)
+
+                        val interval = binding.sliderIntervalle.value.toInt()
+                        updateNextDates(interval, binding.textProchainesSeances, binding.IntervalleTexte, dateDebut)
+
+                        Log.d("DEBUG_EDITTEXT", "dateDebut = $dateDebut")
+                    } catch (e: Exception) {
+                        Log.e("DEBUG_EDITTEXT", "Impossible de parser la date : $text")
+                        dateDebut = null
+                    }
+                }
+            }
+            override fun afterTextChanged(s: Editable?) {}
+        })
+
+
         recyclerView = binding.recyclerView
         recyclerView.layoutManager = LinearLayoutManager(context)
 
@@ -150,6 +203,10 @@ class CreationSeanceFragment : Fragment() {
             } else {
                 binding.radioIntervalle.isChecked = true
                 binding.sliderIntervalle.value = seance.intervalleJours?.toFloat() ?: 1f
+
+                val dateLocal = seance.dateAjout.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
+                val formatter = DateTimeFormatter.ofPattern("d MMMM yyyy", Locale.FRENCH)
+                binding.editDateDebut.setText(dateLocal.format(formatter))
             }
 
             // exercices
@@ -186,18 +243,18 @@ class CreationSeanceFragment : Fragment() {
     }
 
 
-    private fun updateNextDates(interval: Int, textView: TextView, textView2: TextView) {
-        val today = LocalDate.now()
+    private fun updateNextDates(interval: Int, textView: TextView, textView2: TextView, startDate: LocalDate? = null) {
+        val start = startDate ?: LocalDate.now()
         val formatter = DateTimeFormatter.ofPattern("d MMMM", Locale.FRENCH)
+        val nextDates = List(3) { start.plusDays(((it + 1) * interval).toLong()) }
 
-        val nextDates = List(3) { today.plusDays(((it + 1) * interval).toLong()) }
-
-        val todayFormatted = today.format(formatter)
+        val startFormatted = start.format(formatter)
         val nextFormatted = nextDates.joinToString(", ") { it.format(formatter) }
 
-        textView.text = "À compter d’aujourd’hui ($todayFormatted), prochaines séances :\n$nextFormatted"
+        textView.text = "À compter du $startFormatted, prochaines séances :\n$nextFormatted"
         textView2.text = "Séance à effectuer tous les $interval jours"
     }
+
 
 
     override fun onDestroyView() {
@@ -240,10 +297,16 @@ class CreationSeanceFragment : Fragment() {
             else -> return
         }
 
-        val dateAjout = java.sql.Date.valueOf(LocalDate.now().toString())
+        val dateAjout = dateDebut ?: LocalDate.now()
+        val dateAjoutSql = java.sql.Date.valueOf(dateAjout.toString())
+
+        Log.d("DEBUG_SAUVEGARDE", "Date sauvegardée = $dateAjoutSql")
 
         lifecycleScope.launch {
             val idSeance = idSeanceModif?.also { id ->
+
+                val seanceExistante = seanceDao.getSeance(id)
+
                 seanceDao.update(
                     Seance(
                         id = id,
@@ -251,7 +314,8 @@ class CreationSeanceFragment : Fragment() {
                         typeFrequence = typeFrequence,
                         joursSemaine = joursSemaine,
                         intervalleJours = intervalle,
-                        dateAjout = seanceDao.getSeance(id).dateAjout
+                        dateAjout = dateAjoutSql,
+                        idProgramme = seanceExistante.idProgramme
                     )
                 )
 
@@ -266,7 +330,7 @@ class CreationSeanceFragment : Fragment() {
                         typeFrequence = typeFrequence,
                         joursSemaine = joursSemaine,
                         intervalleJours = intervalle,
-                        dateAjout = dateAjout
+                        dateAjout = dateAjoutSql
                     )
                 ).toInt()
             }

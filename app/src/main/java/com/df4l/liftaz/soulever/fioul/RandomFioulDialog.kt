@@ -8,6 +8,7 @@ import android.net.Uri
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
+import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
@@ -62,6 +63,9 @@ object RandomFioulDialog {
             val tvText = view.findViewById<TextView>(R.id.tvText)
             val ivMedia = view.findViewById<ImageView>(R.id.ivMedia)
             val playerView = view.findViewById<PlayerView>(R.id.playerView)
+
+            val btnRemoveFioul = view.findViewById<ImageButton>(R.id.btnRemoveFioul)
+            btnRemoveFioul.visibility = View.GONE
 
             tvTitle.text = randomFioul.title
             tvText.text = randomFioul.textContent ?: ""
