@@ -13,7 +13,8 @@ import com.df4l.liftaz.data.ProgrammeAvecSeances
 class ProgrammeAdapter(
     private var programmes: List<ProgrammeAvecSeances>,
     private val onActivate: (Programme) -> Unit,
-    private val onDelete: (Programme) -> Unit
+    private val onDelete: (Programme) -> Unit,
+    private val onModify: () -> Unit
 ) : RecyclerView.Adapter<ProgrammeAdapter.ProgrammeViewHolder>() {
 
     inner class ProgrammeViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -46,6 +47,15 @@ class ProgrammeAdapter(
         holder.btnDelete.setOnClickListener {
             onDelete(programme)
         }
+
+        holder.itemView.setOnLongClickListener {
+            ModifierProgrammeDialog(programme) {
+                // Rafraîchir la liste après modification
+                onModify()
+            }.show((holder.itemView.context as androidx.fragment.app.FragmentActivity).supportFragmentManager, "ModifierProgrammeDialog")
+            true
+        }
+
     }
 
     override fun getItemCount() = programmes.size

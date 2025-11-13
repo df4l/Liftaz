@@ -19,7 +19,8 @@ import com.df4l.liftaz.data.SeanceDao
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.coroutines.launch
 
-class ProgrammesFragment : Fragment() {
+
+class ProgrammesFragment : Fragment()  {
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: ProgrammeAdapter
@@ -84,6 +85,9 @@ class ProgrammesFragment : Fragment() {
                         }
                         .setNegativeButton("Non", null)
                         .show()
+                },
+                onModify = {
+                    loadProgrammes()
                 }
             )
             recyclerView.adapter = adapter
