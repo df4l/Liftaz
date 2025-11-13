@@ -167,7 +167,7 @@
 
 
     <include
-        layout="@layout/add_exercice_to_seance"
+        layout="@layout/bouton_plus"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/ajouterExerciceImport"

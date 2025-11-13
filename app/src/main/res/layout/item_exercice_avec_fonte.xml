@@ -77,5 +77,5 @@
             android:hint="Réps max"
             android:layout_marginStart="8dp"/>
     </LinearLayout>
-    <include layout="@layout/add_exercice_to_seance" />
+    <include layout="@layout/bouton_plus" />
 </LinearLayout>

@@ -19,7 +19,7 @@ import com.df4l.liftaz.R
 import com.df4l.liftaz.data.FioulType
 import com.df4l.liftaz.data.MotivationFioul
 import com.df4l.liftaz.data.Muscle
-import com.df4l.liftaz.soulever.muscles.musclesListe.MuscleListAdapter
+import com.df4l.liftaz.soulever.muscles.MuscleListAdapter
 import java.time.LocalDate
 import java.util.Date
 

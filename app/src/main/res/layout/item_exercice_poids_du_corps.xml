@@ -70,6 +70,6 @@
     </LinearLayout>
 
     <!-- Bouton d’ajout d’un exercice (optionnel) -->
-    <include layout="@layout/add_exercice_to_seance" />
+    <include layout="@layout/bouton_plus" />
 
 </LinearLayout>

@@ -24,7 +24,7 @@
         android:inputType="numberDecimal"
         android:hint="Réps"/>
 
-    <com.df4l.liftaz.soulever.seances.deroulementSeance.AssistanceElastiqueView
+    <com.df4l.liftaz.soulever.entrainement.AssistanceElastiqueView
         android:id="@+id/viewElastiques"
         android:layout_width="72dp"
         android:layout_height="36dp"

@@ -1,8 +1,6 @@
 package com.df4l.liftaz.soulever.seances.entrainement
 
 import android.app.AlertDialog
-import android.graphics.drawable.GradientDrawable
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,14 +10,12 @@ import android.widget.CheckedTextView
 import android.widget.EditText
 import android.widget.ListView
 import android.widget.TextView
-import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.core.widget.addTextChangedListener
 import androidx.recyclerview.widget.RecyclerView
 import com.df4l.liftaz.R
 import com.df4l.liftaz.data.Elastique
-import com.df4l.liftaz.soulever.fioul.RandomFioulDialog
-import com.df4l.liftaz.soulever.seances.deroulementSeance.AssistanceElastiqueView
-import com.df4l.liftaz.soulever.seances.deroulementSeance.getCouleursForBitmask
+import com.df4l.liftaz.soulever.entrainement.AssistanceElastiqueView
+import com.df4l.liftaz.soulever.entrainement.getCouleursForBitmask
 
 class SeriesAdapter(
     private val series: MutableList<SerieUi>,

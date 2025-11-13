@@ -1,4 +1,4 @@
-package com.df4l.liftaz.soulever.seances.deroulementSeance
+package com.df4l.liftaz.soulever.entrainement
 
 import android.content.Context
 import android.graphics.Canvas

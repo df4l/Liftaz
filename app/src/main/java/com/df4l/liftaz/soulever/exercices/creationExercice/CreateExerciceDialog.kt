@@ -13,7 +13,7 @@ import com.df4l.liftaz.data.ExerciceDao
 import com.google.android.material.snackbar.Snackbar
 import com.df4l.liftaz.R
 import com.df4l.liftaz.data.MuscleDao
-import com.df4l.liftaz.soulever.muscles.musclesListe.SpinnerMuscleAdapter
+import com.df4l.liftaz.soulever.muscles.SpinnerMuscleAdapter
 import kotlinx.coroutines.launch
 
 class CreateExerciceDialog(

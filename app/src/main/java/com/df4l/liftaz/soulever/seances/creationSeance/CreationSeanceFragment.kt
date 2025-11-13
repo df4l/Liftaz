@@ -31,7 +31,6 @@ import com.df4l.liftaz.soulever.exercices.creationExercice.CreateExerciceDialog
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
 import com.google.android.material.slider.Slider
-import com.google.android.material.textfield.TextInputEditText
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -90,7 +89,7 @@ class CreationSeanceFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val btnAddExercice: ImageButton = view.findViewById(R.id.btnAddExercice)
+        val btnAddExercice: ImageButton = view.findViewById(R.id.btnAddPlus)
 
         btnAddExercice.setOnClickListener {
             addExerciceToSeance(0)

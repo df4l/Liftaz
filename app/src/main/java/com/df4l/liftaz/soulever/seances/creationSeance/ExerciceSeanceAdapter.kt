@@ -7,8 +7,6 @@ import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.TextView
-import androidx.core.widget.addTextChangedListener
-import androidx.core.widget.doAfterTextChanged
 import androidx.core.widget.doOnTextChanged
 import androidx.recyclerview.widget.RecyclerView
 import com.df4l.liftaz.R
@@ -25,7 +23,7 @@ class ExerciceSeanceAdapter(
         val minReps = view.findViewById<EditText>(R.id.editMinReps)
         val maxReps = view.findViewById<EditText>(R.id.editMaxReps)
         val btnDelete: ImageButton = view.findViewById(R.id.btnRemoveExercice)
-        val buttonAddExercice: ImageButton = view.findViewById(R.id.btnAddExercice)
+        val buttonAddExercice: ImageButton = view.findViewById(R.id.btnAddPlus)
 
         // Watchers
         var seriesWatcher: TextWatcher? = null
@@ -39,7 +37,7 @@ class ExerciceSeanceAdapter(
         val series = view.findViewById<EditText>(R.id.editSeries)
         val reps = view.findViewById<EditText>(R.id.editReps)
         val btnDelete: ImageButton = view.findViewById(R.id.btnRemoveExercice)
-        val buttonAddExercice: ImageButton = view.findViewById(R.id.btnAddExercice)
+        val buttonAddExercice: ImageButton = view.findViewById(R.id.btnAddPlus)
 
         // Watchers
         var seriesWatcher: TextWatcher? = null
