@@ -15,11 +15,15 @@ import android.widget.Spinner
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
+import androidx.lifecycle.lifecycleScope
 import com.df4l.liftaz.R
+import com.df4l.liftaz.data.AppDatabase
 import com.df4l.liftaz.data.FioulType
 import com.df4l.liftaz.data.MotivationFioul
 import com.df4l.liftaz.data.Muscle
 import com.df4l.liftaz.soulever.muscles.MuscleListAdapter
+import com.df4l.liftaz.soulever.muscles.SpinnerMuscleAdapter
+import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.util.Date
 
@@ -34,23 +38,28 @@ class AddFioulMotivationDialog(
 
     private lateinit var btnImage: Button
     private lateinit var btnVideo: Button
+    private lateinit var spinnerMuscle: Spinner
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val builder = AlertDialog.Builder(requireContext())
-        val inflater = requireActivity().layoutInflater
-        val view = inflater.inflate(R.layout.dialog_add_fioul, null)
+        val view = requireActivity().layoutInflater.inflate(R.layout.dialog_add_fioul, null)
 
         val etTitle = view.findViewById<EditText>(R.id.etTitle)
         val etText = view.findViewById<EditText>(R.id.etText)
         btnImage = view.findViewById(R.id.btnImage)
         btnVideo = view.findViewById(R.id.btnVideo)
+        spinnerMuscle = view.findViewById(R.id.spinnerMuscle)
 
-        // Boutons image/vidéo
+        // Charger les muscles
+        loadMusclesIntoSpinner()
+
+        // Sélection image
         btnImage.setOnClickListener {
             selectedType = FioulType.IMAGE
             selectMedia("image/*")
         }
 
+        // Sélection vidéo
         btnVideo.setOnClickListener {
             selectedType = FioulType.VIDEO
             selectMedia("video/*")
@@ -61,22 +70,39 @@ class AddFioulMotivationDialog(
             .setPositiveButton("Enregistrer") { _, _ ->
                 title = etTitle.text.toString()
                 textContent = etText.text.toString()
-
                 val type = selectedType ?: FioulType.TEXTE
+
                 if (title.isNotEmpty()) {
+
+                    val selectedMuscle = spinnerMuscle.selectedItem as Muscle
+                    val muscleId = if (selectedMuscle.id == -1) null else selectedMuscle.id
+
                     val fuel = MotivationFioul(
                         title = title,
                         type = type,
                         contentUri = selectedUri?.toString(),
                         textContent = textContent.ifBlank { null },
-                        dateAdded = Date()
+                        dateAdded = Date(),
+                        muscleId = muscleId // ⭐ Ajout facultatif
                     )
+
                     onFioulAdded(fuel)
                 }
             }
             .setNegativeButton("Annuler") { dialog, _ -> dialog.dismiss() }
 
         return builder.create()
+    }
+
+    private fun loadMusclesIntoSpinner() {
+        val database = AppDatabase.getDatabase(requireContext())
+        val dao = database.muscleDao()
+
+        lifecycleScope.launch {
+            val muscles = dao.getAllMuscles()
+            val adapter = SpinnerMuscleAdapter(requireContext(), muscles, allowNone = true)
+            spinnerMuscle.adapter = adapter
+        }
     }
 
     private fun selectMedia(type: String) {
@@ -95,17 +121,18 @@ class AddFioulMotivationDialog(
                 result.data?.data?.let { uri ->
                     selectedUri = uri
 
-                    val contentResolver = requireContext().contentResolver
-                    val takeFlags = result.data?.flags?.and(
-                        Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
-                    ) ?: 0
                     try {
+                        val contentResolver = requireContext().contentResolver
+                        val takeFlags = result.data?.flags?.and(
+                            Intent.FLAG_GRANT_READ_URI_PERMISSION or
+                                    Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                        ) ?: 0
+
                         contentResolver.takePersistableUriPermission(uri, takeFlags)
-                    } catch (e: SecurityException) {
-                        Log.w("AddFioulDialog", "Permission persistante échouée : ${e.message}")
+                    } catch (e: Exception) {
+                        Log.w("AddFioulDialog", "Échec permission persistante : ${e.message}")
                     }
 
-                    // ✅ Confirmation visuelle
                     updateButtonColors()
                 }
             }
@@ -120,10 +147,12 @@ class AddFioulMotivationDialog(
                 btnImage.setBackgroundColor(green)
                 btnVideo.setBackgroundColor(gray)
             }
+
             FioulType.VIDEO -> {
                 btnVideo.setBackgroundColor(green)
                 btnImage.setBackgroundColor(gray)
             }
+
             else -> {
                 btnImage.setBackgroundColor(gray)
                 btnVideo.setBackgroundColor(gray)

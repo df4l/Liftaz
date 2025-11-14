@@ -45,7 +45,7 @@ object RandomFioulDialog {
 
             // Ici tu pourras faire : allFiouls.filter { it.muscleId == muscle.id }
             val fiouls = if (muscle != null) {
-                allFiouls // TODO: filtrer quand tu auras lié les muscles
+                allFiouls.filter { it.muscleId == muscle.id }
             } else allFiouls
 
             if (fiouls.isEmpty()) {

@@ -13,9 +13,10 @@ data class MotivationFioul(
     val type: FioulType,
     val contentUri: String?,
     val textContent: String?,
-    val dateAdded: Date
-)
+    val dateAdded: Date,
 
+    val muscleId: Int? = null   // ⭐ Facultatif
+)
 
 enum class FioulType {
     IMAGE,

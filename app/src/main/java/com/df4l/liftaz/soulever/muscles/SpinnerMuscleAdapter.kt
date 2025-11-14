@@ -12,8 +12,16 @@ import com.df4l.liftaz.data.Muscle
 
 class SpinnerMuscleAdapter(
     context: Context,
-    private val muscles: List<Muscle>
-) : ArrayAdapter<Muscle>(context, 0, muscles) {
+    muscles: List<Muscle>,
+    private val allowNone: Boolean = false
+) : ArrayAdapter<Muscle>(
+    context,
+    0,
+    if (allowNone)
+        listOf(Muscle(id = -1, nom = "— Aucun muscle —", nomImage = "")) + muscles
+    else
+        muscles
+) {
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
         return createView(position, convertView, parent)
@@ -27,18 +35,19 @@ class SpinnerMuscleAdapter(
         val view = convertView ?: LayoutInflater.from(context)
             .inflate(R.layout.item_spinner_muscle_with_icon, parent, false)
 
-        val muscle = muscles[position]
+        val muscle = getItem(position)!!
+
         val imageView = view.findViewById<ImageView>(R.id.imageMuscleIcon)
         val textView = view.findViewById<TextView>(R.id.textMuscleName)
 
         textView.text = muscle.nom
 
-        // 🔹 Charger l'image depuis nomImage
-        val resId = context.resources.getIdentifier(muscle.nomImage, "drawable", context.packageName)
-        if (resId != 0) {
-            imageView.setImageResource(resId)
+        if (muscle.id == -1 && allowNone) {
+            imageView.visibility = View.GONE
         } else {
-            //imageView.setImageResource(R.drawable.ic_default_muscle)
+            imageView.visibility = View.VISIBLE
+            val resId = context.resources.getIdentifier(muscle.nomImage, "drawable", context.packageName)
+            if (resId != 0) imageView.setImageResource(resId)
         }
 
         return view
