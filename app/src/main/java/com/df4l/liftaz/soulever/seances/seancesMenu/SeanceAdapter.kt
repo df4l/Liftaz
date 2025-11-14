@@ -4,6 +4,7 @@ import android.app.AlertDialog
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageButton
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.df4l.liftaz.R
@@ -24,6 +25,7 @@ class SeanceAdapter(
         val textFrequence: TextView = itemView.findViewById(R.id.textFrequence)
         val textNbExercices: TextView = itemView.findViewById(R.id.textNbExercices)
         val textMuscles: TextView = itemView.findViewById(R.id.textMuscles)
+        val boutonSupprimer: ImageButton = itemView.findViewById(R.id.btnDeleteSeance)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SeanceViewHolder {
@@ -62,7 +64,7 @@ class SeanceAdapter(
         }
 
         // Long click pour suppression
-        holder.itemView.setOnLongClickListener {
+        holder.boutonSupprimer.setOnClickListener {
             AlertDialog.Builder(holder.itemView.context)
                 .setTitle("Supprimer la séance ?")
                 .setMessage("Voulez-vous vraiment supprimer la séance \"${seance.nom}\" et tous ses exercices associés ?")

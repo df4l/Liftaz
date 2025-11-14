@@ -55,7 +55,6 @@ class ProgrammeAdapter(
             }.show((holder.itemView.context as androidx.fragment.app.FragmentActivity).supportFragmentManager, "ModifierProgrammeDialog")
             true
         }
-
     }
 
     override fun getItemCount() = programmes.size

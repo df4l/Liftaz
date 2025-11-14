@@ -1,54 +1,86 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="12dp"
-    android:orientation="vertical"
-    android:background="?attr/selectableItemBackground"
+    android:layout_marginVertical="6dp"
     android:clickable="true"
-    android:focusable="true">
+    android:foreground="?android:attr/selectableItemBackground"
+    app:cardElevation="4dp"
+    app:cardCornerRadius="16dp">
 
-    <!-- Nom et fréquence -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="vertical"
+        android:padding="16dp">
 
-        <TextView
-            android:id="@+id/textNomSeance"
-            android:text="Nom Séance"
-            android:textStyle="bold"
-            android:textSize="18sp"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="wrap_content"/>
+        <!-- Ligne du haut : nom + fréquence -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
 
-        <TextView
-            android:id="@+id/textFrequence"
-            android:text="Jours / Intervalle"
-            android:textSize="14sp"
-            android:textColor="#666"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            <TextView
+                android:id="@+id/textNomSeance"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Nom Séance"
+                android:textStyle="bold"
+                android:textSize="18sp" />
+
+            <TextView
+                android:id="@+id/textFrequence"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Jours / Intervalle"
+                android:textSize="14sp"
+                android:textColor="#666"/>
+        </LinearLayout>
+
+        <!-- Ligne des infos + croix -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginTop="6dp">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_weight="1">
+
+                <TextView
+                    android:id="@+id/textNbExercices"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="3 exercices"
+                    android:textSize="14sp"
+                    android:textColor="#444"/>
+
+                <TextView
+                    android:id="@+id/textMuscles"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Pecs, Dos, Jambes"
+                    android:textSize="14sp"
+                    android:textColor="#666"
+                    android:layout_marginTop="2dp"/>
+            </LinearLayout>
+
+            <ImageButton
+                android:id="@+id/btnDeleteSeance"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@android:drawable/ic_menu_close_clear_cancel"
+                android:contentDescription="Supprimer la séance" />
+        </LinearLayout>
+
     </LinearLayout>
 
-    <!-- Nombre d'exercices -->
-    <TextView
-        android:id="@+id/textNbExercices"
-        android:text="3 exercices"
-        android:textSize="14sp"
-        android:textColor="#444"
-        android:layout_marginTop="4dp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
-
-    <!-- Muscles engagés -->
-    <TextView
-        android:id="@+id/textMuscles"
-        android:text="Pecs, Dos, Jambes"
-        android:textSize="14sp"
-        android:textColor="#666"
-        android:layout_marginTop="2dp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
-</LinearLayout>
+</com.google.android.material.card.MaterialCardView>
