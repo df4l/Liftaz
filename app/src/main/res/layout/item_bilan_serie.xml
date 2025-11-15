@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+    android:paddingVertical="8dp"
+    android:paddingHorizontal="12dp">
+
+    <!-- Numéro de série -->
+    <TextView
+        android:id="@+id/textSerieNumber"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Série 1"
+        android:textStyle="bold"
+        android:textSize="16sp"
+        android:layout_marginEnd="20dp" />
+
+    <!-- Bloc ancien + nouveau -->
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/textAncien"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Ancien : 4kg × 12"
+            android:textSize="15sp" />
+
+        <TextView
+            android:id="@+id/textNouveau"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Nouveau : 4kg × 13"
+            android:textStyle="bold"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/textFlemme"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+            android:textColor="#F44336"
+            android:text="FLEMME"
+            android:visibility="gone"
+            android:layout_marginStart="8dp"
+            android:textSize="16sp"/>
+    </LinearLayout>
+
+    <!-- Progression -->
+    <TextView
+        android:id="@+id/textProgression"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="+4kg"
+        android:textStyle="bold"
+        android:textSize="16sp"
+        android:layout_marginStart="16dp" />
+</LinearLayout>

@@ -59,6 +59,16 @@
         android:name="com.df4l.liftaz.soulever.seances.entrainement.EntrainementFragment"
         android:label="Entrainement"
         tools:layout="@layout/fragment_entrainement"
+        ><action
+        android:id="@+id/action_entrainementFragment_to_bilanFragment"
+        app:destination="@id/navigation_bilan" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/navigation_bilan"
+        android:name="com.df4l.liftaz.soulever.bilan.BilanFragment"
+        android:label="Bilan d'entrainement"
+        tools:layout="@layout/fragment_bilan"
         />
 
     <fragment

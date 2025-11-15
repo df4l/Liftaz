@@ -25,7 +25,14 @@ class SeriesAdapter(
 ):
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
-    fun Float.toHint() = if (this == 0f) "" else this.toString()
+    fun Float.toHint(): String =
+        if (this == 0f) {
+            ""
+        } else if (this % 1f == 0f) {
+            this.toInt().toString()       // 12.0f → "12"
+        } else {
+            this.toString()               // 12.5f → "12.5"
+        }
 
     inner class FonteViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
@@ -89,6 +96,8 @@ class SeriesAdapter(
         private val checkboxFlemme = itemView.findViewById<CheckBox>(R.id.checkboxFlemme)
         private val viewElastiques = itemView.findViewById<AssistanceElastiqueView>(R.id.viewElastiques)
 
+        private var alreadyHadFlemme = 0
+
         fun bind(serie: SerieUi.PoidsDuCorps, index: Int) {
 
             textSerieNumber.text = "Série $index"
@@ -105,11 +114,22 @@ class SeriesAdapter(
 
             }
             checkboxFlemme.setOnCheckedChangeListener { _, checked ->
-                serie.flemme = checked
+                if (checked && alreadyHadFlemme == 0) {
+                    // Annuler le check sans relancer le listener
+                    checkboxFlemme.setOnCheckedChangeListener(null)
+                    checkboxFlemme.isChecked = false
 
-                editReps.isEnabled = !checked
+                    // Réassigner proprement le listener
+                    checkboxFlemme.setOnCheckedChangeListener { _, checkedInner ->
+                        handleFlemmeChecked(checkedInner, serie)
+                    }
 
-                onSeriesChanged()
+                    onFlemmeTriggered()
+
+                    alreadyHadFlemme = 1
+                } else {
+                    handleFlemmeChecked(checked, serie)
+                }
             }
 
             // Clique -> ouvre le dialogue multi sélection
@@ -159,6 +179,12 @@ class SeriesAdapter(
                 }
             }
 
+        }
+
+        private fun handleFlemmeChecked(checked: Boolean, serie: SerieUi.PoidsDuCorps) {
+            serie.flemme = checked
+            editReps.isEnabled = !checked
+            onSeriesChanged()
         }
     }
 

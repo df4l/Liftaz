@@ -20,4 +20,12 @@ interface SeanceHistoriqueDao {
 
     @Query("SELECT * FROM seances_historique WHERE idSeance = :idSeance ORDER BY date DESC LIMIT 1")
     suspend fun getLastSeanceHistorique(idSeance: Int): SeanceHistorique?
+
+    @Query("""
+    SELECT * FROM seances_historique 
+    WHERE idSeance = :idSeance 
+    ORDER BY date DESC 
+    LIMIT 1 OFFSET 1
+""")
+    suspend fun getPreviousSeanceHistorique(idSeance: Int): SeanceHistorique?
 }

@@ -26,6 +26,14 @@
         android:hint="Poids"
         android:layout_marginStart="8dp"/>
 
+    <TextView
+        android:id="@+id/textKgFois"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="kg    × "
+        android:textSize="18sp"
+        android:layout_marginEnd="16dp" />
+
     <EditText
         android:id="@+id/editReps"
         android:layout_width="0dp"

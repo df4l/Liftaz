@@ -215,8 +215,8 @@ class EntrainementFragment : Fragment() {
                             idSeanceHistorique = idSeanceHistorique,
                             idExercice = idExercice,
                             numeroSerie = numeroSerie,
-                            poids = serieUi.poids,
-                            nombreReps = serieUi.reps,
+                            poids = if(!serieUi.flemme) { serieUi.poids } else 0f,
+                            nombreReps = if(!serieUi.flemme) { serieUi.reps } else 0f,
                             elastiqueBitMask = 0
                         )
                         is SerieUi.PoidsDuCorps -> Serie(
@@ -224,7 +224,7 @@ class EntrainementFragment : Fragment() {
                             idExercice = idExercice,
                             numeroSerie = numeroSerie,
                             poids = 0f,
-                            nombreReps = serieUi.reps,
+                            nombreReps = if(!serieUi.flemme) { serieUi.reps } else 0f,
                             elastiqueBitMask = serieUi.bitmaskElastiques
                         )
                     }
@@ -239,7 +239,17 @@ class EntrainementFragment : Fragment() {
             db.serieDao().insertAll(seriesToInsert)
 
             Toast.makeText(requireContext(), "Séance enregistrée ✅", Toast.LENGTH_SHORT).show()
-            findNavController().popBackStack()
+
+            // 🔹 Navigation vers BilanFragment
+            val bundle = Bundle().apply {
+                putInt("idSeance", seanceId)
+                putInt("idSeanceHistorique", idSeanceHistorique)
+            }
+
+            findNavController().navigate(
+                R.id.action_entrainementFragment_to_bilanFragment,
+                bundle
+            )
         }
     }
 
