@@ -3,6 +3,7 @@ package com.df4l.liftaz.soulever
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageButton
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.df4l.liftaz.R
@@ -27,6 +28,7 @@ class SeancePickerAdapter(
             .inflate(R.layout.item_seance, parent, false)
         // on cache la fréquence ici :
         v.findViewById<TextView>(R.id.textFrequence)?.visibility = View.GONE
+        v.findViewById<ImageButton>(R.id.btnDeleteSeance)?.visibility = View.GONE
         return ViewHolder(v)
     }
 
