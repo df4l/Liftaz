@@ -1,6 +1,7 @@
 package com.df4l.liftaz.soulever.seances.entrainement
 
 import android.app.AlertDialog
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -158,16 +159,21 @@ class SeriesAdapter(
                 // Création du dialog
                 val dialog = AlertDialog.Builder(itemView.context)
                     .setTitle("Élastiques utilisés")
-                    .setAdapter(adapter, null) // On gère le click via ListView
+                    .setAdapter(adapter, null)
                     .setPositiveButton("OK") { _, _ ->
-                        // Appliquer les couleurs sélectionnées à la vue
                         viewElastiques.couleurs = getCouleursForBitmask(elastiques, serie.bitmaskElastiques)
+                        onSeriesChanged()
                     }
                     .setNegativeButton("Annuler", null)
                     .show()
 
-                // Gestion du click sur les items
+                // IMPORTANT : synchroniser l’état des cases AVANT clic
                 dialog.listView.choiceMode = ListView.CHOICE_MODE_MULTIPLE
+                for (i in elastiques.indices) {
+                    val bit = elastiques[i].valeurBitmask
+                    dialog.listView.setItemChecked(i, (bit and serie.bitmaskElastiques) != 0)
+                }
+
                 dialog.listView.setOnItemClickListener { _, view, position, _ ->
                     val bit = elastiques[position].valeurBitmask
                     val checked = (view as CheckedTextView).isChecked
@@ -177,6 +183,7 @@ class SeriesAdapter(
                     else
                         serie.bitmaskElastiques and bit.inv()
                 }
+
             }
 
         }
