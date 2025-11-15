@@ -3,11 +3,12 @@ package com.df4l.liftaz.manger
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.df4l.liftaz.data.Repas
 
 class MangerViewModel : ViewModel() {
 
-    private val _text = MutableLiveData<String>().apply {
-        value = "This is dashboard Fragment"
-    }
-    val text: LiveData<String> = _text
+    val matin = MutableLiveData<List<Repas>>(emptyList())
+    val midi = MutableLiveData<List<Repas>>(emptyList())
+    val apresMidi = MutableLiveData<List<Repas>>(emptyList())
+    val soir = MutableLiveData<List<Repas>>(emptyList())
 }

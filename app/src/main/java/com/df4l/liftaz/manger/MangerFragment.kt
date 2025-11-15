@@ -4,17 +4,12 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
 import com.df4l.liftaz.databinding.FragmentMangerBinding
 
 class MangerFragment : Fragment() {
 
     private var _binding: FragmentMangerBinding? = null
-
-    // This property is only valid between onCreateView and
-    // onDestroyView.
     private val binding get() = _binding!!
 
     override fun onCreateView(
@@ -22,17 +17,29 @@ class MangerFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        val mangerViewModel =
-            ViewModelProvider(this).get(MangerViewModel::class.java)
-
         _binding = FragmentMangerBinding.inflate(inflater, container, false)
-        val root: View = binding.root
 
-        val textView: TextView = binding.textManger
-        mangerViewModel.text.observe(viewLifecycleOwner) {
-            textView.text = it
-        }
-        return root
+        setupEmptyStates()
+
+        return binding.root
+    }
+
+    /**
+     * Comme il n’y a PAS d’adapter ni de repas,
+     * on affiche juste "Rien pour l'instant" partout
+     */
+    private fun setupEmptyStates() {
+        binding.emptyMatin.visibility = View.VISIBLE
+        binding.rvMatin.visibility = View.GONE
+
+        binding.emptyMidi.visibility = View.VISIBLE
+        binding.rvMidi.visibility = View.GONE
+
+        binding.emptyApresMidi.visibility = View.VISIBLE
+        binding.rvApresMidi.visibility = View.GONE
+
+        binding.emptySoir.visibility = View.VISIBLE
+        binding.rvSoir.visibility = View.GONE
     }
 
     override fun onDestroyView() {

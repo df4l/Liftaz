@@ -50,6 +50,8 @@ dependencies {
     implementation("androidx.media3:media3-ui:1.8.0")
     implementation("androidx.media3:media3-ui-compose:1.8.0")
 
+    implementation("com.mikhaellopez:circularprogressbar:3.1.0")
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
