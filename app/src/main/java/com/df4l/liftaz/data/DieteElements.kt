@@ -8,8 +8,8 @@ data class DieteElements(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
     var idDiete: Int,
-    var idRecette: Int? = null,
-    var idAliment: Int? = null,
+    var idElement: Int,
+    var typeElement: Int, // (0 = aliment, 1 = recette)
     var typeRepas: Int,
     var quantiteGrammes: Float
 )
