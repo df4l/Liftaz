@@ -97,7 +97,17 @@
         android:id="@+id/navigation_manger"
         android:name="com.df4l.liftaz.manger.MangerFragment"
         android:label="@string/title_manger"
-        tools:layout="@layout/fragment_manger" />
+        tools:layout="@layout/fragment_manger">
+        <action
+            android:id="@+id/action_mangerFragment_to_nourritureFragment"
+            app:destination="@id/navigation_nourriture" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/navigation_nourriture"
+        android:name="com.df4l.liftaz.manger.nourriture.NourritureFragment"
+        android:label="@string/title_stats"
+        tools:layout="@layout/fragment_nourriture" />
 
     <fragment
         android:id="@+id/navigation_stats"

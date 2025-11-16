@@ -2,9 +2,13 @@ package com.df4l.liftaz.manger
 
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import android.widget.PopupMenu
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
+import com.df4l.liftaz.R
 import com.df4l.liftaz.databinding.FragmentMangerBinding
 
 class MangerFragment : Fragment() {
@@ -20,6 +24,10 @@ class MangerFragment : Fragment() {
         _binding = FragmentMangerBinding.inflate(inflater, container, false)
 
         setupEmptyStates()
+
+        binding.fabManger.setOnClickListener { view ->
+            showFabMenu(view)
+        }
 
         return binding.root
     }
@@ -40,6 +48,39 @@ class MangerFragment : Fragment() {
 
         binding.emptySoir.visibility = View.VISIBLE
         binding.rvSoir.visibility = View.GONE
+    }
+
+    private fun showFabMenu(anchor: View) {
+        val popup = PopupMenu(requireContext(), anchor)
+        popup.menuInflater.inflate(R.menu.menu_manger_options, popup.menu)
+
+        popup.setOnMenuItemClickListener { item: MenuItem ->
+            when (item.itemId) {
+                R.id.action_nourriture -> {
+                    goToNourritureView()
+                    true
+                }
+                R.id.action_dietes -> {
+                    goToDieteView()
+                    true
+                }
+                else -> false
+            }
+        }
+
+        popup.show()
+    }
+
+    private fun goToDieteView()
+    {
+        val navController = findNavController()
+        //navController.navigate(R.id.action_souleverFragment_to_motivationFioulFragment)
+    }
+
+    private fun goToNourritureView()
+    {
+        val navController = findNavController()
+        navController.navigate(R.id.action_mangerFragment_to_nourritureFragment)
     }
 
     override fun onDestroyView() {
