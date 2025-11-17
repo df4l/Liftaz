@@ -22,6 +22,8 @@ class FioulAdapter(
     private val onDeleteFioul: (MotivationFioul) -> Unit
 ) : RecyclerView.Adapter<FioulAdapter.FioulViewHolder>() {
 
+    private val players = mutableListOf<ExoPlayer>()
+
     inner class FioulViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val tvTitle: TextView = view.findViewById(R.id.tvTitle)
         val tvText: TextView = view.findViewById(R.id.tvText)
@@ -76,6 +78,7 @@ class FioulAdapter(
                 holder.playerView.visibility = View.VISIBLE
 
                 val player = ExoPlayer.Builder(context).build()
+                players.add(player)
                 holder.player = player
                 holder.playerView.player = player
 
@@ -98,6 +101,13 @@ class FioulAdapter(
                 holder.playerView.visibility = View.GONE
             }
         }
+    }
+
+    fun releaseAllPlayers() {
+        for (p in players) {
+            try { p.release() } catch (_: Exception) {}
+        }
+        players.clear()
     }
 
     override fun onViewRecycled(holder: FioulViewHolder) {

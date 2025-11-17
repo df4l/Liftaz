@@ -67,5 +67,10 @@ class FioulFragment : Fragment(R.layout.fragment_motivationfioul) {
             Log.d("FioulFragment", "Nombre de fiouls : ${fiouls.size}")
         }
     }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        adapter.releaseAllPlayers()
+    }
 }
 
