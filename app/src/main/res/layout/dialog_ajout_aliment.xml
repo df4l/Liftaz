@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:padding="24dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <!-- Ligne NOM + bouton caméra -->
+        <!-- Bloc Nom + Marque + Caméra -->
+        <LinearLayout
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <!-- Bloc vertical Nom + Marque -->
+            <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content">
+
+                <!-- Nom -->
+                <LinearLayout
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:text="Nom"
+                        android:textStyle="bold"
+                        android:paddingEnd="16dp"
+                        android:layout_width="110dp"
+                        android:layout_height="wrap_content" />
+
+                    <EditText
+                        android:id="@+id/inputNom"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"/>
+                </LinearLayout>
+
+                <!-- Marque -->
+                <LinearLayout
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:text="Marque"
+                        android:textStyle="bold"
+                        android:paddingEnd="16dp"
+                        android:layout_width="110dp"
+                        android:layout_height="wrap_content" />
+
+                    <EditText
+                        android:id="@+id/inputMarque"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"/>
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <!-- Bouton Caméra circulaire -->
+            <ImageButton
+                android:id="@+id/btnScan"
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:layout_marginLeft="12dp"
+                android:background="@drawable/bg_circle_purple"
+                android:src="@drawable/ic_camera_40dp"
+                android:contentDescription="Scanner"
+                app:tint="@android:color/white"
+                android:scaleType="centerInside"
+                android:layout_gravity="center_vertical"
+                android:elevation="8dp"
+                android:clickable="true"
+                android:focusable="true" />
+        </LinearLayout>
+
+
+        <TextView
+            android:text="Valeurs nutritionnelles pour 100g"
+            android:textStyle="bold"
+            android:textSize="16sp"
+            android:layout_marginTop="20dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <!-- Calories -->
+        <LinearLayout
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:text="Calories (pour 100g)"
+                android:layout_width="150dp"
+                android:layout_height="wrap_content"
+                android:textStyle="bold"/>
+
+            <EditText
+                android:id="@+id/inputCalories"
+                android:inputType="number"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"/>
+        </LinearLayout>
+
+        <!-- Protéines -->
+        <LinearLayout
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:text="Protéines (g)"
+                android:layout_width="150dp"
+                android:layout_height="wrap_content"
+                android:textStyle="bold"/>
+
+            <EditText
+                android:id="@+id/inputProteines"
+                android:inputType="numberDecimal"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"/>
+        </LinearLayout>
+
+        <!-- Glucides -->
+        <LinearLayout
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:text="Glucides (g)"
+                android:layout_width="150dp"
+                android:layout_height="wrap_content"
+                android:textStyle="bold"/>
+
+            <EditText
+                android:id="@+id/inputGlucides"
+                android:inputType="numberDecimal"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"/>
+        </LinearLayout>
+
+        <!-- Lipides -->
+        <LinearLayout
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:text="Lipides (g)"
+                android:layout_width="150dp"
+                android:layout_height="wrap_content"
+                android:textStyle="bold"/>
+
+            <EditText
+                android:id="@+id/inputLipides"
+                android:inputType="numberDecimal"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"/>
+        </LinearLayout>
+
+        <!-- Quantité par défaut -->
+        <LinearLayout
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:text="Quantité par défaut (g)"
+                android:layout_width="150dp"
+                android:layout_height="wrap_content"
+                android:textStyle="bold"/>
+
+            <EditText
+                android:id="@+id/inputQuantite"
+                android:inputType="number"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"/>
+        </LinearLayout>
+
+    </LinearLayout>
+</ScrollView>

@@ -54,19 +54,32 @@ class BilanViewModel(
             val series = seriesAct.map { serieAct ->
                 val serieAnc = anc?.find { it.numeroSerie == serieAct.numeroSerie }
 
-                val progressionKg = (serieAct.poids * serieAct.nombreReps) - (serieAnc!!.poids * serieAnc.nombreReps)
-                val progressionReps = serieAct.nombreReps - serieAnc.nombreReps
+                // Valeurs précédentes (0 si aucune séance précédente)
+                val ancienPoids = serieAnc?.poids ?: 0f
+                val ancienReps = serieAnc?.nombreReps ?: 0f
+                val ancienMask = serieAnc?.elastiqueBitMask ?: 0
+
+                // Progressions
+                val progressionKg =
+                    if (!exercice.poidsDuCorps) {
+                        (serieAct.poids * serieAct.nombreReps) - (ancienPoids * ancienReps)
+                    } else 0f
+
+                val progressionReps =
+                    if (exercice.poidsDuCorps) {
+                        serieAct.nombreReps - ancienReps
+                    } else 0f
 
                 SerieBilan(
                     numero = serieAct.numeroSerie,
-                    ancienPoids = serieAnc.poids,
-                    ancienReps = serieAnc.nombreReps,
+                    ancienPoids = ancienPoids,
+                    ancienReps = ancienReps,
                     nouveauPoids = serieAct.poids,
                     nouveauReps = serieAct.nombreReps,
-                    progressionKg = if(!exercice.poidsDuCorps) { progressionKg } else 0f,
-                    progressionReps = if(exercice.poidsDuCorps) { progressionReps } else 0f,
-                    ancienBitMaskElastique = if(exercice.poidsDuCorps) { serieAnc.elastiqueBitMask } else 0,
-                    nouveauBitMaskElastique = if(exercice.poidsDuCorps) { serieAct.elastiqueBitMask } else 0
+                    progressionKg = progressionKg,
+                    progressionReps = progressionReps,
+                    ancienBitMaskElastique = if (exercice.poidsDuCorps) ancienMask else 0,
+                    nouveauBitMaskElastique = if (exercice.poidsDuCorps) serieAct.elastiqueBitMask else 0
                 )
             }
 
