@@ -9,11 +9,15 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.df4l.liftaz.R
 import com.df4l.liftaz.data.Aliment
+import com.df4l.liftaz.data.AlimentDao
+import com.df4l.liftaz.data.AppDatabase
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import kotlinx.coroutines.launch
 
 class NourritureFragment : Fragment() {
 
@@ -23,33 +27,21 @@ class NourritureFragment : Fragment() {
     private lateinit var tabAliments: TextView
     private lateinit var tabRecettes: TextView
 
-    private var ongletActif = 0 //0 = aliments, 1 = recettes
+    private var ongletActif = 0 // 0 = aliments, 1 = recettes
 
-    val alimentsFake = mutableListOf(
-        Aliment(nom="Pomme", code=111, marque="Bio", calories=52, proteines=0.3f, lipides=0.2f, glucides=14f),
-        Aliment(nom="Poulet", code=222, marque="Fermier", calories=165, proteines=31f, lipides=3.6f, glucides=0f),
-        Aliment(nom="Riz cuit", code=333, marque="Uncle Ben’s", calories=130, proteines=2.4f, lipides=0.3f, glucides=28f, quantiteParDefaut = 150),
-        Aliment(nom="Carotte", code=444, marque="Bio", calories=41, proteines=0.9f, lipides=0.24f, glucides=10f)
-    )
-    val recettePouletRiz = RecetteAffichee(
-        nom = "Poulet au riz",
-        proteines = 31f + 2.4f,
-        glucides = 0f + 28f,
-        lipides = 3.6f + 0.3f,
-        calories = 165 + 130,
-        quantiteTotale = 250f
-    )
-
-    val recettesFake = listOf(recettePouletRiz)
-
-    private val aliments = alimentsFake
-    private val recettes = recettesFake
+    // On récupérera les données depuis la BDD
+    private lateinit var alimentDao: AlimentDao
+    private var aliments = listOf<Aliment>()
+    private var recettes = listOf<RecetteAffichee>() // tu peux gérer tes recettes plus tard
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         val view = inflater.inflate(R.layout.fragment_nourriture, container, false)
+
+        // DAO
+        alimentDao = AppDatabase.getDatabase(requireContext()).alimentDao()
 
         tabAliments = view.findViewById(R.id.tabAliments)
         tabRecettes = view.findViewById(R.id.tabRecettes)
@@ -61,20 +53,19 @@ class NourritureFragment : Fragment() {
 
         // Par défaut : Aliments
         setActiveTab(tabAliments)
-        showAliments()
+        loadAliments()
 
         tabAliments.setOnClickListener {
             setActiveTab(tabAliments)
-            showAliments()
+            loadAliments()
         }
 
         tabRecettes.setOnClickListener {
             setActiveTab(tabRecettes)
-            showRecettes()
+            loadRecettes()
         }
 
         val fab = view.findViewById<FloatingActionButton>(R.id.fab_manger)
-
         fab.setOnClickListener {
             if (ongletActif == 0) {
                 ouvrirDialogAjoutAliment()
@@ -86,33 +77,36 @@ class NourritureFragment : Fragment() {
         return view
     }
 
-    private fun ouvrirDialogAjoutAliment() {
-        DialogAjoutAliment { aliment ->
-            alimentsFake.add(aliment)   // ⚠️ alimentsFake doit être MutableList
-            showAliments()
-        }.show(parentFragmentManager, "dialogAliment")
+    private fun loadAliments() {
+        lifecycleScope.launch {
+            aliments = alimentDao.getAll() // méthode suspendue
+            adapter.updateData(aliments)
+        }
     }
 
+    private fun loadRecettes() {
+        adapter.updateData(recettes) // futur traitement réel
+    }
+
+    private fun ouvrirDialogAjoutAliment() {
+        DialogAjoutAliment { aliment ->
+            // Sauvegarde dans la BDD
+            lifecycleScope.launch {
+                alimentDao.insert(aliment)
+                loadAliments()
+            }
+        }.show(parentFragmentManager, "dialogAliment")
+    }
 
     private fun ouvrirDialogAjoutRecette() {
         Toast.makeText(requireContext(), "Dialog ajout recette", Toast.LENGTH_SHORT).show()
     }
 
-
     private fun setActiveTab(active: TextView) {
         tabAliments.setTextColor(Color.BLACK)
         tabRecettes.setTextColor(Color.BLACK)
-
         active.setTextColor(ContextCompat.getColor(requireContext(), R.color.purple_500))
-
         ongletActif = if (active == tabAliments) 0 else 1
     }
-
-    private fun showAliments() {
-        adapter.updateData(aliments)
-    }
-
-    private fun showRecettes() {
-        adapter.updateData(recettes)
-    }
 }
+

@@ -52,6 +52,12 @@ dependencies {
 
     implementation("com.mikhaellopez:circularprogressbar:3.1.0")
 
+    implementation("com.google.android.gms:play-services-code-scanner:16.0.0")
+
+    implementation("com.squareup.okhttp3:okhttp:4.11.0")
+    implementation("com.squareup.moshi:moshi:1.15.0")
+    implementation("com.squareup.moshi:moshi-kotlin:1.15.0")
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)

@@ -14,12 +14,16 @@ import android.widget.Toast
 import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
+import androidx.lifecycle.lifecycleScope
 import com.df4l.liftaz.R
 import com.df4l.liftaz.data.Aliment
+import kotlinx.coroutines.launch
 
 class DialogAjoutAliment(
     private val onAdd: (Aliment) -> Unit
 ) : DialogFragment() {
+
+    lateinit var barcodeScanner: BarcodeScanner
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val builder = AlertDialog.Builder(requireContext())
@@ -52,12 +56,38 @@ class DialogAjoutAliment(
         btnScan.background = rippleDrawable
 
         // === BOUTON SCANNER ===
-        btnScan.setOnClickListener {
-            Toast.makeText(requireContext(), "Scan code-barres bientôt disponible 🔍📷", Toast.LENGTH_SHORT).show()
 
-            // Plus tard :
-            // openScannerCamera()
+        barcodeScanner = BarcodeScanner(requireContext())
+
+        val offAPI = OpenFoodFactsAPI()
+
+        btnScan.setOnClickListener {
+            lifecycleScope.launch {
+                try {
+                    val scannedCode = barcodeScanner.startScan()
+                    if (!scannedCode.isNullOrEmpty()) {
+                        val response = offAPI.getProduct(scannedCode)
+
+                        if (response != null && response.status == 1 && response.product != null) {
+                            inputNom.setText(response.product.productName ?: "")
+                            inputMarque.setText(response.product.brands ?: "")
+                            inputCalories.setText(response.product.nutriments?.energyKcal100g?.toInt()?.toString() ?: "0")
+                            inputProteines.setText(response.product.nutriments?.proteins100g?.toString() ?: "0")
+                            inputGlucides.setText(response.product.nutriments?.carbohydrates100g?.toString() ?: "0")
+                            inputLipides.setText(response.product.nutriments?.fat100g?.toString() ?: "0")
+                        } else {
+                            Toast.makeText(requireContext(), "Produit non trouvé dans OpenFoodFacts.", Toast.LENGTH_LONG).show()
+                        }
+                    } else {
+                        Toast.makeText(requireContext(), "Scan annulé ou code vide", Toast.LENGTH_SHORT).show()
+                    }
+                } catch (e: Exception) {
+                    Toast.makeText(requireContext(), "Erreur lors du scan ou de la récupération : ${e.message}", Toast.LENGTH_LONG).show()
+                }
+            }
         }
+
+
 
         builder.setView(view)
             .setTitle("Ajouter un aliment")
@@ -72,7 +102,7 @@ class DialogAjoutAliment(
                 val aliment = Aliment(
                     nom = nom,
                     marque = inputMarque.text.toString(),
-                    code = 0, // sera remplacé par le scan plus tard
+                    code = 0, // si scanné, mettre le code réel
                     calories = inputCalories.text.toString().toIntOrNull() ?: 0,
                     proteines = inputProteines.text.toString().toFloatOrNull() ?: 0f,
                     glucides = inputGlucides.text.toString().toFloatOrNull() ?: 0f,
@@ -80,7 +110,7 @@ class DialogAjoutAliment(
                     quantiteParDefaut = inputQuantite.text.toString().toIntOrNull()
                 )
 
-                onAdd(aliment)
+                onAdd(aliment) // le Fragment s'occupe maintenant de la BDD
             }
             .setNegativeButton("Annuler", null)
 
