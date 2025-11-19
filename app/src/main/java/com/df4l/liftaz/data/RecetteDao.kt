@@ -20,4 +20,7 @@ interface RecetteDao {
 
     @Query("SELECT * FROM recettes ORDER BY nom ASC")
     suspend fun getAll(): List<Recette>
+
+    @Query("SELECT * FROM recettes WHERE id = :id LIMIT 1")
+    suspend fun getById(id: Int): Recette?
 }

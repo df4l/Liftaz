@@ -21,4 +21,6 @@ interface RecetteAlimentsDao {
     @Query("SELECT * FROM recette_aliments WHERE idRecette = :recetteId")
     suspend fun getAllForRecette(recetteId: Int): List<RecetteAliments>
 
+    @Query("DELETE FROM recette_aliments WHERE idRecette = :recetteId")
+    suspend fun deleteForRecette(recetteId: Int)
 }

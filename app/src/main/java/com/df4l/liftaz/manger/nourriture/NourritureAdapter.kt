@@ -128,6 +128,7 @@ class NourritureAdapter(
 }
 
 data class RecetteAffichee(
+    val id: Int,
     val nom: String,
     val proteines: Float,
     val glucides: Float,

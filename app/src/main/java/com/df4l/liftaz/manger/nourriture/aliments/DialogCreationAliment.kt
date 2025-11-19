@@ -20,7 +20,8 @@ import com.df4l.liftaz.manger.nourriture.OpenFoodFactsAPI
 import kotlinx.coroutines.launch
 
 class DialogCreationAliment(
-    private val onAdd: (Aliment) -> Unit
+    private val alimentExistant: Aliment? = null, // si null => création
+    private val onAddOrUpdate: (Aliment) -> Unit
 ) : DialogFragment() {
 
     lateinit var barcodeScanner: BarcodeScanner
@@ -37,6 +38,16 @@ class DialogCreationAliment(
         val inputGlucides = view.findViewById<EditText>(R.id.inputGlucides)
         val inputLipides = view.findViewById<EditText>(R.id.inputLipides)
         val inputQuantite = view.findViewById<EditText>(R.id.inputQuantite)
+
+        alimentExistant?.let {
+            inputNom.setText(it.nom)
+            inputMarque.setText(it.marque)
+            inputCalories.setText(it.calories.toString())
+            inputProteines.setText(it.proteines.toString())
+            inputGlucides.setText(it.glucides.toString())
+            inputLipides.setText(it.lipides.toString())
+            inputQuantite.setText(it.quantiteParDefaut?.toString() ?: "")
+        }
 
         val btnScan = view.findViewById<ImageButton>(R.id.btnScan)
 
@@ -88,8 +99,8 @@ class DialogCreationAliment(
         }
 
         builder.setView(view)
-            .setTitle("Ajouter un aliment")
-            .setPositiveButton("Ajouter") { _, _ ->
+            .setTitle(if (alimentExistant != null) "Modifier l'aliment" else "Ajouter un aliment")
+            .setPositiveButton(if (alimentExistant != null) "Modifier" else "Ajouter") { _, _ ->
 
                 val nom = inputNom.text.toString().trim()
                 if (nom.isEmpty()) {
@@ -98,6 +109,7 @@ class DialogCreationAliment(
                 }
 
                 val aliment = Aliment(
+                    id = alimentExistant?.id ?: 0, // important pour la MAJ
                     nom = nom,
                     marque = inputMarque.text.toString(),
                     calories = inputCalories.text.toString().toIntOrNull() ?: 0,
@@ -107,7 +119,7 @@ class DialogCreationAliment(
                     quantiteParDefaut = inputQuantite.text.toString().toIntOrNull()
                 )
 
-                onAdd(aliment) // le Fragment s'occupe maintenant de la BDD
+                onAddOrUpdate(aliment) // le Fragment s'occupe maintenant de la BDD
             }
             .setNegativeButton("Annuler", null)
 

@@ -1,6 +1,5 @@
 package com.df4l.liftaz.manger.nourriture.recettes
 
-import android.app.AlertDialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -29,6 +28,16 @@ class CreationRecetteFragment : Fragment() {
     private lateinit var tvProteines: TextView
     private lateinit var tvGlucides: TextView
     private lateinit var tvLipides: TextView
+
+    private var recetteId: Int? = null
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        // On prévient NourritureFragment de passer à l'onglet Recettes
+        parentFragmentManager.setFragmentResult("ongletResult", Bundle().apply {
+            putInt("ongletActif", 1) // 1 = recettes
+        })
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -71,6 +80,31 @@ class CreationRecetteFragment : Fragment() {
 
         btnAddAliment.setOnClickListener {
             addAlimentToRecette()
+        }
+
+        recetteId = arguments?.getInt("recetteId")
+        recetteId?.let { loadRecette(it) }
+    }
+
+    private fun loadRecette(id: Int) {
+        lifecycleScope.launch {
+            val db = AppDatabase.getDatabase(requireContext())
+            val recette = db.recetteDao().getById(id) ?: return@launch
+            val recAliments = db.recetteAlimentsDao().getAllForRecette(id)
+
+            // Pré-remplir le nom et la portion
+            view?.findViewById<TextInputEditText>(R.id.editNomRecette)?.setText(recette.nom)
+            view?.findViewById<TextInputEditText>(R.id.editQuantitePortion)
+                ?.setText(recette.quantitePortion?.toString() ?: "")
+
+            items.clear()
+            for (ra in recAliments) {
+                val aliment = db.alimentDao().getById(ra.idAliment) ?: continue
+                val item = AlimentRecetteAdapter.AlimentRecetteItem(aliment, ra.coefAliment * 100)
+                items.add(item)
+            }
+            adapter.notifyDataSetChanged()
+            updateTotalMacros()
         }
     }
 
@@ -146,25 +180,38 @@ class CreationRecetteFragment : Fragment() {
         lifecycleScope.launch {
             val db = AppDatabase.getDatabase(requireContext())
 
-            val recette = Recette(
-                nom = nom,
-                quantitePortion = portion  // Peut être null
-            )
+            val idRecetteFinal = recetteId?.also { id ->
+                // ✅ Modification d'une recette existante
+                val recetteExistante = db.recetteDao().getById(id) ?: return@launch
 
-            val idRecette = db.recetteDao().insert(recette).toInt()
-            if (idRecette <= 0) {
-                Toast.makeText(requireContext(), "Erreur de sauvegarde", Toast.LENGTH_SHORT).show()
-                return@launch
+                db.recetteDao().update(
+                    Recette(
+                        id = id,
+                        nom = nom,
+                        quantitePortion = portion
+                    )
+                )
+
+                // Supprimer les anciens ingrédients
+                db.recetteAlimentsDao().deleteForRecette(id)
+
+            } ?: run {
+                // ✅ Création d'une nouvelle recette
+                db.recetteDao().insert(
+                    Recette(
+                        nom = nom,
+                        quantitePortion = portion
+                    )
+                ).toInt()
             }
 
-            // Sauvegarde de chaque aliment avec son coefficient
+            // Ajouter tous les ingrédients
             for (item in items) {
-                val coef = item.quantite / 100f
                 db.recetteAlimentsDao().insert(
                     RecetteAliments(
-                        idRecette = idRecette,
+                        idRecette = idRecetteFinal,
                         idAliment = item.aliment.id,
-                        coefAliment = coef
+                        coefAliment = item.quantite / 100f
                     )
                 )
             }
@@ -173,5 +220,7 @@ class CreationRecetteFragment : Fragment() {
             parentFragmentManager.popBackStack()
         }
     }
+
+
 
 }

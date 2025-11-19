@@ -41,6 +41,8 @@ class NourritureFragment : Fragment() {
     private var aliments = listOf<Aliment>()
     private var recettes = listOf<Recette>()
 
+
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -61,6 +63,26 @@ class NourritureFragment : Fragment() {
         recyclerView.adapter = adapter
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
 
+        adapter.setOnItemClickListener { item ->
+            when (item) {
+                is Aliment -> {
+                    DialogCreationAliment(item) { updatedAliment ->
+                        lifecycleScope.launch {
+                            alimentDao.update(updatedAliment)
+                            loadAliments()
+                        }
+                    }.show(parentFragmentManager, "dialogEditAliment")
+                }
+                is RecetteAffichee -> {
+                    // Récupérer l'objet Recette complet
+                    val bundle = Bundle().apply {
+                        putInt("recetteId", item.id)
+                    }
+                    findNavController().navigate(R.id.action_nourritureFragment_to_creationRecetteFragment, bundle)
+                }
+            }
+        }
+
         setActiveTab(tabAliments)
         loadAliments()
 
@@ -78,6 +100,14 @@ class NourritureFragment : Fragment() {
         fab.setOnClickListener {
             if (ongletActif == 0) ouvrirDialogAjoutAliment()
             else ouvrirDialogAjoutRecette()
+        }
+
+        parentFragmentManager.setFragmentResultListener("ongletResult", viewLifecycleOwner) { _, bundle ->
+            val onglet = bundle.getInt("ongletActif", 0)
+            if (onglet == 1) {
+                setActiveTab(tabRecettes)
+                loadRecettes()
+            }
         }
 
         return view
@@ -117,6 +147,7 @@ class NourritureFragment : Fragment() {
 
                 recettesAffichees.add(
                     RecetteAffichee(
+                        id = recette.id,
                         nom = recette.nom,
                         proteines = totalProteines,
                         glucides = totalGlucides,
