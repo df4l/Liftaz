@@ -76,7 +76,7 @@
                 android:layout_height="64dp"
                 android:layout_marginLeft="12dp"
                 android:background="@drawable/bg_circle_purple"
-                android:src="@drawable/ic_camera_40dp"
+                android:src="@drawable/ic_scanner_40dp"
                 android:contentDescription="Scanner"
                 app:tint="@android:color/white"
                 android:scaleType="centerInside"

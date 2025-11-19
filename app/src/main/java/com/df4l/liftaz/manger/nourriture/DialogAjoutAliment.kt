@@ -11,7 +11,6 @@ import android.os.Bundle
 import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.Toast
-import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.lifecycleScope
@@ -27,7 +26,7 @@ class DialogAjoutAliment(
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val builder = AlertDialog.Builder(requireContext())
-        val view = layoutInflater.inflate(R.layout.dialog_ajout_aliment, null)
+        val view = layoutInflater.inflate(R.layout.dialog_add_aliment, null)
 
         // Champs
         val inputNom = view.findViewById<EditText>(R.id.inputNom)
@@ -87,8 +86,6 @@ class DialogAjoutAliment(
             }
         }
 
-
-
         builder.setView(view)
             .setTitle("Ajouter un aliment")
             .setPositiveButton("Ajouter") { _, _ ->
@@ -102,7 +99,6 @@ class DialogAjoutAliment(
                 val aliment = Aliment(
                     nom = nom,
                     marque = inputMarque.text.toString(),
-                    code = 0, // si scanné, mettre le code réel
                     calories = inputCalories.text.toString().toIntOrNull() ?: 0,
                     proteines = inputProteines.text.toString().toFloatOrNull() ?: 0f,
                     glucides = inputGlucides.text.toString().toFloatOrNull() ?: 0f,

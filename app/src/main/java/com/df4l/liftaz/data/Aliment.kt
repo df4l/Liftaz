@@ -8,7 +8,6 @@ data class Aliment(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
     val nom: String,
-    val code: Long,
     val marque: String, //Tout ce qui suit compte pour 100 grammes
     val calories: Int,
     val proteines: Float,

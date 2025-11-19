@@ -62,9 +62,9 @@ class NourritureAdapter(
     }
 
     private fun nutritionalString(p: Float, g: Float, l: Float, kcal: Int): SpannableString {
-        val protStr = "${"%.0f".format(p)}g"
-        val glucStr = "${"%.0f".format(g)}g"
-        val lipStr  = "${"%.0f".format(l)}g"
+        val protStr = "${"%.1f".format(p)}g"
+        val glucStr = "${"%.1f".format(g)}g"
+        val lipStr  = "${"%.1f".format(l)}g"
         val calStr  = "${kcal}kcal"
 
         val text = "$protStr / $glucStr / $lipStr / $calStr"
