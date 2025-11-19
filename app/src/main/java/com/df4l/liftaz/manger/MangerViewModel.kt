@@ -1,14 +1,13 @@
 package com.df4l.liftaz.manger
 
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.df4l.liftaz.data.Repas
+import com.df4l.liftaz.data.MangerHistorique
 
 class MangerViewModel : ViewModel() {
 
-    val matin = MutableLiveData<List<Repas>>(emptyList())
-    val midi = MutableLiveData<List<Repas>>(emptyList())
-    val apresMidi = MutableLiveData<List<Repas>>(emptyList())
-    val soir = MutableLiveData<List<Repas>>(emptyList())
+    val matin = MutableLiveData<List<MangerHistorique>>(emptyList())
+    val midi = MutableLiveData<List<MangerHistorique>>(emptyList())
+    val apresMidi = MutableLiveData<List<MangerHistorique>>(emptyList())
+    val soir = MutableLiveData<List<MangerHistorique>>(emptyList())
 }

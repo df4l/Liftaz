@@ -7,13 +7,13 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Update
 
 @Dao
-interface RepasDao {
+interface MangerHistoriqueDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insert(repas: Repas)
+    suspend fun insert(mangerHistorique: MangerHistorique)
 
     @Update
-    suspend fun update(repas: Repas)
+    suspend fun update(mangerHistorique: MangerHistorique)
 
     @Delete
-    suspend fun delete(repas: Repas)
+    suspend fun delete(mangerHistorique: MangerHistorique)
 }

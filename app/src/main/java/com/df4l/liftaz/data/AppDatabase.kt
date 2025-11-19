@@ -23,8 +23,7 @@ import androidx.room.TypeConverters
     DieteElements::class,
     Recette::class,
     RecetteAliments::class,
-    Repas::class,
-    RepasElements::class
+    MangerHistorique::class,
     //Stats
                      ], version = 1, exportSchema = false)
 @TypeConverters(Converters::class)
@@ -47,8 +46,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun dieteElementsDao(): DieteElementsDao
     abstract fun recetteDao(): RecetteDao
     abstract fun recetteAlimentsDao(): RecetteAlimentsDao
-    abstract fun repasDao(): RepasDao
-    abstract fun repasElementsDao(): RepasElementsDao
+    abstract fun mangerHistoriqueDao(): MangerHistoriqueDao
 
     //Stats
 

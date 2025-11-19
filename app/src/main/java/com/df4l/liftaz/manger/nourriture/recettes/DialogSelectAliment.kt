@@ -28,33 +28,36 @@ class DialogSelectAliment(
         val recycler = view.findViewById<RecyclerView>(R.id.recyclerAliments)
         val search = view.findViewById<EditText>(R.id.searchAliment)
 
-        adapter = NourritureAdapter(filteredAliments)
+        adapter = NourritureAdapter(
+            items = filteredAliments,
+            onItemClick = { item ->
+                // Uniquement selection → pas de suppression ici
+                if (item is Aliment) {
+                    onAlimentSelected(item)
+                    dismiss()
+                }
+            },
+            onDeleteClick = null
+        )
+
         recycler.layoutManager = LinearLayoutManager(requireContext())
         recycler.adapter = adapter
 
-        // --- Filtre par recherche ---
+        // --- Filtre search ---
         search.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {
                 val query = s.toString().trim().lowercase()
-                filteredAliments = if (query.isEmpty()) {
-                    aliments
-                } else {
-                    aliments.filter { it.nom.lowercase().contains(query) }
-                }
+
+                filteredAliments =
+                    if (query.isEmpty()) aliments
+                    else aliments.filter { it.nom.lowercase().contains(query) }
+
                 adapter.updateData(filteredAliments)
             }
 
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
         })
-
-        // --- Clic sur un aliment ---
-        adapter.setOnItemClickListener { item ->
-            if (item is Aliment) {
-                onAlimentSelected(item)
-                dismiss()
-            }
-        }
 
         builder.setView(view)
         return builder.create()

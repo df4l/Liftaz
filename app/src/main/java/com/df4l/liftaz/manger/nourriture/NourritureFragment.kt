@@ -1,5 +1,6 @@
 package com.df4l.liftaz.manger.nourriture
 
+import android.app.AlertDialog
 import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
@@ -59,29 +60,39 @@ class NourritureFragment : Fragment() {
         tabRecettes = view.findViewById(R.id.tabRecettes)
         recyclerView = view.findViewById(R.id.recyclerViewNourriture)
 
-        adapter = NourritureAdapter(emptyList())
-        recyclerView.adapter = adapter
-        recyclerView.layoutManager = LinearLayoutManager(requireContext())
-
-        adapter.setOnItemClickListener { item ->
-            when (item) {
-                is Aliment -> {
-                    DialogCreationAliment(item) { updatedAliment ->
-                        lifecycleScope.launch {
-                            alimentDao.update(updatedAliment)
-                            loadAliments()
-                        }
-                    }.show(parentFragmentManager, "dialogEditAliment")
-                }
-                is RecetteAffichee -> {
-                    // Récupérer l'objet Recette complet
-                    val bundle = Bundle().apply {
-                        putInt("recetteId", item.id)
+        adapter = NourritureAdapter(
+            emptyList(),
+            onItemClick = { item ->
+                when (item) {
+                    is Aliment -> {
+                        DialogCreationAliment(item) { updatedAliment ->
+                            lifecycleScope.launch {
+                                alimentDao.update(updatedAliment)
+                                loadAliments()
+                            }
+                        }.show(parentFragmentManager, "dialogEditAliment")
                     }
-                    findNavController().navigate(R.id.action_nourritureFragment_to_creationRecetteFragment, bundle)
+                    is RecetteAffichee -> {
+                        val bundle = Bundle().apply {
+                            putInt("recetteId", item.id)
+                        }
+                        findNavController().navigate(
+                            R.id.action_nourritureFragment_to_creationRecetteFragment,
+                            bundle
+                        )
+                    }
+                }
+            },
+            onDeleteClick = { item ->
+                when (item) {
+                    is RecetteAffichee -> supprimerRecette(item)
+                    is Aliment -> supprimerAliment(item)
                 }
             }
-        }
+        )
+
+        recyclerView.adapter = adapter
+        recyclerView.layoutManager = LinearLayoutManager(requireContext())
 
         setActiveTab(tabAliments)
         loadAliments()
@@ -112,6 +123,50 @@ class NourritureFragment : Fragment() {
 
         return view
     }
+
+    private fun supprimerRecette(r: RecetteAffichee) {
+        AlertDialog.Builder(requireContext())
+            .setTitle("Supprimer la recette ?")
+            .setMessage("Voulez-vous vraiment supprimer la recette « ${r.nom} » ?")
+            .setPositiveButton("Supprimer") { _, _ ->
+                lifecycleScope.launch {
+                    recetteAlimentsDao.deleteForRecette(r.id)
+                    recetteDao.delete(Recette(id = r.id, nom = r.nom))
+                    loadRecettes()
+                }
+            }
+            .setNegativeButton("Annuler", null)
+            .show()
+    }
+
+    private fun supprimerAliment(a: Aliment) {
+        lifecycleScope.launch {
+            val utilisations = recetteAlimentsDao.getAll()
+                .count { it.idAliment == a.id }
+
+            if (utilisations > 0) {
+                AlertDialog.Builder(requireContext())
+                    .setTitle("Impossible de supprimer")
+                    .setMessage("Cet aliment est utilisé dans une ou plusieurs recettes.")
+                    .setPositiveButton("OK", null)
+                    .show()
+                return@launch
+            }
+
+            AlertDialog.Builder(requireContext())
+                .setTitle("Supprimer l’aliment ?")
+                .setMessage("Voulez-vous supprimer « ${a.nom} » ?")
+                .setPositiveButton("Supprimer") { _, _ ->
+                    lifecycleScope.launch {
+                        alimentDao.delete(a)
+                        loadAliments()
+                    }
+                }
+                .setNegativeButton("Annuler", null)
+                .show()
+        }
+    }
+
 
     private fun loadAliments() {
         lifecycleScope.launch {
