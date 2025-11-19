@@ -106,8 +106,18 @@
     <fragment
         android:id="@+id/navigation_nourriture"
         android:name="com.df4l.liftaz.manger.nourriture.NourritureFragment"
-        android:label="@string/title_stats"
-        tools:layout="@layout/fragment_nourriture" />
+        android:label="Nourriture"
+        tools:layout="@layout/fragment_nourriture">
+        <action
+            android:id="@+id/action_nourritureFragment_to_creationRecetteFragment"
+            app:destination="@id/navigation_creationrecette" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/navigation_creationrecette"
+        android:name="com.df4l.liftaz.manger.nourriture.recettes.CreationRecetteFragment"
+        android:label="Nourriture"
+        tools:layout="@layout/fragment_creationrecette" />
 
     <fragment
         android:id="@+id/navigation_stats"

@@ -1,4 +1,4 @@
-package com.df4l.liftaz.manger.nourriture
+package com.df4l.liftaz.manger.nourriture.aliments
 
 import android.app.AlertDialog
 import android.app.Dialog
@@ -16,9 +16,10 @@ import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.lifecycleScope
 import com.df4l.liftaz.R
 import com.df4l.liftaz.data.Aliment
+import com.df4l.liftaz.manger.nourriture.OpenFoodFactsAPI
 import kotlinx.coroutines.launch
 
-class DialogAjoutAliment(
+class DialogCreationAliment(
     private val onAdd: (Aliment) -> Unit
 ) : DialogFragment() {
 

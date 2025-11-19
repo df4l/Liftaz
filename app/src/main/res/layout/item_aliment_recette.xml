@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:padding="12dp"
+    android:background="?attr/selectableItemBackground">
+
+    <!-- NOM + MARQUE + SUPPRIMER -->
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:id="@+id/textContainer"
+            android:orientation="vertical"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/textAlimentName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Nom aliment"
+                android:textStyle="bold"
+                android:textSize="16sp"/>
+
+            <TextView
+                android:id="@+id/textAlimentMarque"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Marque"/>
+        </LinearLayout>
+
+        <!-- BOUTON SUPPRIMER -->
+        <ImageButton
+            android:id="@+id/btnRemoveAliment"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@android:drawable/ic_menu_close_clear_cancel"
+            android:contentDescription="Supprimer aliment"/>
+    </RelativeLayout>
+
+    <!-- INPUT QUANTITÉ (g) -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="8dp">
+
+        <EditText
+            android:id="@+id/editQuantiteIngredient"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:inputType="numberDecimal"
+            android:hint="Quantité (g)"/>
+    </LinearLayout>
+
+    <!-- MACROS MINIMALISTES POUR L’INGRÉDIENT -->
+    <LinearLayout
+        android:id="@+id/layoutMacrosIngredient"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingTop="8dp"
+        android:paddingBottom="4dp"
+        android:weightSum="3">
+
+        <!-- PROTÉINES -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="horizontal"
+            android:gravity="center">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_jambonneau_40dp"
+                app:tint="#ec99b5"/>
+
+            <TextView
+                android:id="@+id/tvProteinesIngredient"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0 g"
+                android:layout_marginStart="4dp"/>
+        </LinearLayout>
+
+        <!-- GLUCIDES -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="horizontal"
+            android:gravity="center">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_banane_40dp"
+                app:tint="#86e8cd"/>
+
+            <TextView
+                android:id="@+id/tvGlucidesIngredient"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0 g"
+                android:layout_marginStart="4dp"/>
+        </LinearLayout>
+
+        <!-- LIPIDES -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="horizontal"
+            android:gravity="center">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_fromage_40dp"
+                app:tint="#f2d678"/>
+
+            <TextView
+                android:id="@+id/tvLipidesIngredient"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0 g"
+                android:layout_marginStart="4dp"/>
+        </LinearLayout>
+
+    </LinearLayout>
+</LinearLayout>

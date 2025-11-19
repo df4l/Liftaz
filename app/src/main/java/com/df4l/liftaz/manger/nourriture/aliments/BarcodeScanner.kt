@@ -1,4 +1,4 @@
-package com.df4l.liftaz.manger.nourriture
+package com.df4l.liftaz.manger.nourriture.aliments
 
 import android.content.Context
 import com.google.mlkit.vision.barcode.common.Barcode

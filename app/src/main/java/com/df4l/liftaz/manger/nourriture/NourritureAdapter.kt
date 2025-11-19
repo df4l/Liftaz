@@ -15,6 +15,12 @@ class NourritureAdapter(
     private var items: List<Any>
 ) : RecyclerView.Adapter<NourritureAdapter.ViewHolder>() {
 
+    // --- Callback clic ---
+    private var onItemClickListener: ((Any) -> Unit)? = null
+    fun setOnItemClickListener(listener: (Any) -> Unit) {
+        onItemClickListener = listener
+    }
+
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val txtName: TextView = itemView.findViewById(R.id.itemName)
         val txtSub: TextView = itemView.findViewById(R.id.itemSub)
@@ -36,6 +42,10 @@ class NourritureAdapter(
             is Aliment -> bindAliment(holder, item)
             is RecetteAffichee -> bindRecette(holder, item)
         }
+
+        holder.itemView.setOnClickListener {
+            onItemClickListener?.invoke(item)
+        }
     }
 
     private fun bindAliment(holder: ViewHolder, a: Aliment) {
@@ -45,7 +55,6 @@ class NourritureAdapter(
         holder.txtSub.text = if (a.quantiteParDefaut != null) "${a.marque} - $q g" else "${a.marque} - Pour 100 g"
 
         val coef = q / 100f
-
         val prot = a.proteines * coef
         val glu = a.glucides * coef
         val lip = a.lipides * coef
@@ -56,10 +65,31 @@ class NourritureAdapter(
 
     private fun bindRecette(holder: ViewHolder, r: RecetteAffichee) {
         holder.txtName.text = r.nom
-        holder.txtSub.text = if(r.quantiteTotale % 1f == 0f) "${r.quantiteTotale.toInt()}g" else "${r.quantiteTotale}"
 
-        holder.txtNutri.text = nutritionalString(r.proteines, r.glucides, r.lipides, r.calories)
+        // Si portion définie, afficher "Portion de X g"
+        val subText = if (r.quantitePortion != null) {
+            "Portion de ${r.quantitePortion.toInt()}g"
+        } else {
+            // Sinon afficher la quantité totale
+            if (r.quantiteTotale % 1f == 0f) "${r.quantiteTotale.toInt()}g" else "${r.quantiteTotale}"
+        }
+        holder.txtSub.text = subText
+
+        // Calcul des macros pour la portion si définie
+        val coef = if (r.quantitePortion != null && r.quantiteTotale > 0f) {
+            r.quantitePortion / r.quantiteTotale
+        } else {
+            1f
+        }
+
+        val prot = r.proteines * coef
+        val glu  = r.glucides * coef
+        val lip  = r.lipides * coef
+        val cal  = (r.calories * coef).toInt()
+
+        holder.txtNutri.text = nutritionalString(prot, glu, lip, cal)
     }
+
 
     private fun nutritionalString(p: Float, g: Float, l: Float, kcal: Int): SpannableString {
         val protStr = "${"%.1f".format(p)}g"
@@ -75,17 +105,15 @@ class NourritureAdapter(
         val glucColor = Color.parseColor("#86e8cd")
         val fatColor  = Color.parseColor("#f2d678")
 
-        // Positions :
         val protStart = 0
         val protEnd = protStr.length
 
-        val glucStart = protEnd + 3          // " / "
+        val glucStart = protEnd + 3
         val glucEnd = glucStart + glucStr.length
 
-        val lipStart = glucEnd + 3           // " / "
+        val lipStart = glucEnd + 3
         val lipEnd = lipStart + lipStr.length
 
-        // Application des couleurs
         spannable.setSpan(ForegroundColorSpan(protColor), protStart, protEnd, 0)
         spannable.setSpan(ForegroundColorSpan(glucColor), glucStart, glucEnd, 0)
         spannable.setSpan(ForegroundColorSpan(fatColor), lipStart, lipEnd, 0)
@@ -108,4 +136,3 @@ data class RecetteAffichee(
     val quantiteTotale: Float,
     val quantitePortion: Float? = null
 )
-

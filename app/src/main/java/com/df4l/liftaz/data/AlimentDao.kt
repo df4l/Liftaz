@@ -20,4 +20,7 @@ interface AlimentDao {
 
     @Query("SELECT * FROM aliments ORDER BY nom ASC")
     suspend fun getAll(): List<Aliment>
+
+    @Query("SELECT * FROM aliments WHERE id = :id LIMIT 1")
+    suspend fun getById(id: Int): Aliment?
 }

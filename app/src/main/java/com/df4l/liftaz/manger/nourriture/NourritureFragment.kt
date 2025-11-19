@@ -2,20 +2,25 @@ package com.df4l.liftaz.manger.nourriture
 
 import android.graphics.Color
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.df4l.liftaz.R
 import com.df4l.liftaz.data.Aliment
 import com.df4l.liftaz.data.AlimentDao
 import com.df4l.liftaz.data.AppDatabase
+import com.df4l.liftaz.data.Recette
+import com.df4l.liftaz.data.RecetteAlimentsDao
+import com.df4l.liftaz.data.RecetteDao
+import com.df4l.liftaz.manger.nourriture.aliments.DialogCreationAliment
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.coroutines.launch
 
@@ -29,10 +34,12 @@ class NourritureFragment : Fragment() {
 
     private var ongletActif = 0 // 0 = aliments, 1 = recettes
 
-    // On récupérera les données depuis la BDD
     private lateinit var alimentDao: AlimentDao
+    private lateinit var recetteDao: RecetteDao
+    private lateinit var recetteAlimentsDao: RecetteAlimentsDao
+
     private var aliments = listOf<Aliment>()
-    private var recettes = listOf<RecetteAffichee>() // tu peux gérer tes recettes plus tard
+    private var recettes = listOf<Recette>()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -41,7 +48,10 @@ class NourritureFragment : Fragment() {
         val view = inflater.inflate(R.layout.fragment_nourriture, container, false)
 
         // DAO
-        alimentDao = AppDatabase.getDatabase(requireContext()).alimentDao()
+        val db = AppDatabase.getDatabase(requireContext())
+        alimentDao = db.alimentDao()
+        recetteDao = db.recetteDao()
+        recetteAlimentsDao = db.recetteAlimentsDao()
 
         tabAliments = view.findViewById(R.id.tabAliments)
         tabRecettes = view.findViewById(R.id.tabRecettes)
@@ -51,7 +61,6 @@ class NourritureFragment : Fragment() {
         recyclerView.adapter = adapter
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
 
-        // Par défaut : Aliments
         setActiveTab(tabAliments)
         loadAliments()
 
@@ -67,11 +76,8 @@ class NourritureFragment : Fragment() {
 
         val fab = view.findViewById<FloatingActionButton>(R.id.fab_manger)
         fab.setOnClickListener {
-            if (ongletActif == 0) {
-                ouvrirDialogAjoutAliment()
-            } else {
-                ouvrirDialogAjoutRecette()
-            }
+            if (ongletActif == 0) ouvrirDialogAjoutAliment()
+            else ouvrirDialogAjoutRecette()
         }
 
         return view
@@ -79,18 +85,55 @@ class NourritureFragment : Fragment() {
 
     private fun loadAliments() {
         lifecycleScope.launch {
-            aliments = alimentDao.getAll() // méthode suspendue
+            aliments = alimentDao.getAll()
             adapter.updateData(aliments)
         }
     }
 
     private fun loadRecettes() {
-        adapter.updateData(recettes) // futur traitement réel
+        lifecycleScope.launch {
+            recettes = recetteDao.getAll()
+
+            val recettesAffichees = mutableListOf<RecetteAffichee>()
+
+            for (recette in recettes) {
+                val recAliments = recetteAlimentsDao.getAllForRecette(recette.id)
+                var totalProteines = 0f
+                var totalGlucides = 0f
+                var totalLipides = 0f
+                var totalCalories = 0
+
+                var quantiteTotale = 0f
+
+                for (ra in recAliments) {
+                    val aliment = alimentDao.getById(ra.idAliment) ?: continue
+                    val coef = ra.coefAliment
+                    totalProteines += aliment.proteines * coef
+                    totalGlucides += aliment.glucides * coef
+                    totalLipides += aliment.lipides * coef
+                    totalCalories += (aliment.calories * coef).toInt()
+                    quantiteTotale += 100f * coef
+                }
+
+                recettesAffichees.add(
+                    RecetteAffichee(
+                        nom = recette.nom,
+                        proteines = totalProteines,
+                        glucides = totalGlucides,
+                        lipides = totalLipides,
+                        calories = totalCalories,
+                        quantiteTotale = quantiteTotale,
+                        quantitePortion = recette.quantitePortion?.toFloat()
+                    )
+                )
+            }
+
+            adapter.updateData(recettesAffichees)
+        }
     }
 
     private fun ouvrirDialogAjoutAliment() {
-        DialogAjoutAliment { aliment ->
-            // Sauvegarde dans la BDD
+        DialogCreationAliment { aliment ->
             lifecycleScope.launch {
                 alimentDao.insert(aliment)
                 loadAliments()
@@ -99,7 +142,7 @@ class NourritureFragment : Fragment() {
     }
 
     private fun ouvrirDialogAjoutRecette() {
-        Toast.makeText(requireContext(), "Dialog ajout recette", Toast.LENGTH_SHORT).show()
+        findNavController().navigate(R.id.action_nourritureFragment_to_creationRecetteFragment)
     }
 
     private fun setActiveTab(active: TextView) {
@@ -109,4 +152,5 @@ class NourritureFragment : Fragment() {
         ongletActif = if (active == tabAliments) 0 else 1
     }
 }
+
 
