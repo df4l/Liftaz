@@ -10,8 +10,44 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <!-- Ligne NOM + bouton caméra -->
-        <!-- Bloc Nom + Marque + Caméra -->
+        <!-- Cadre Image Aliment avec bouton caméra superposé -->
+        <FrameLayout
+            android:layout_width="150dp"
+            android:layout_height="150dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="16dp">
+
+            <!-- Image de l’aliment -->
+            <ImageView
+                android:id="@+id/imageAliment"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                android:clickable="true"
+                android:focusable="true"
+                android:background="#DDDDDD"
+                android:padding="2dp"
+                android:clipToOutline="true"
+                android:outlineProvider="background"
+               />
+
+            <!-- Bouton Caméra superposé -->
+            <ImageButton
+                android:id="@+id/btnCamera"
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:layout_gravity="center"
+                android:background="@drawable/bg_circle_purple"
+                android:src="@drawable/ic_camera_40dp"
+                android:contentDescription="Prendre photo"
+                app:tint="@android:color/white"
+                android:scaleType="centerInside"
+                android:elevation="8dp"
+                android:clickable="true"
+                android:focusable="true"/>
+        </FrameLayout>
+
+        <!-- Ligne NOM + bouton scan -->
         <LinearLayout
             android:orientation="horizontal"
             android:gravity="center_vertical"
@@ -69,7 +105,7 @@
 
             </LinearLayout>
 
-            <!-- Bouton Caméra circulaire -->
+            <!-- Bouton Scan -->
             <ImageButton
                 android:id="@+id/btnScan"
                 android:layout_width="64dp"
@@ -86,7 +122,7 @@
                 android:focusable="true" />
         </LinearLayout>
 
-
+        <!-- Texte nutritionnelles -->
         <TextView
             android:text="Valeurs nutritionnelles pour 100g"
             android:textStyle="bold"
@@ -162,7 +198,6 @@
         <LinearLayout
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
