@@ -50,7 +50,6 @@ class DialogCreationAliment(
         }
 
         val btnScan = view.findViewById<ImageButton>(R.id.btnScan)
-        val btnCamera = view.findViewById<ImageButton>(R.id.btnCamera)
 
         // Créer un ripple programmatique
         val rippleColor = Color.parseColor("#FFFFFF") // couleur du ripple
@@ -66,7 +65,6 @@ class DialogCreationAliment(
         )
 
         btnScan.background = rippleDrawable
-        btnCamera.background = rippleDrawable
 
         // === BOUTON SCANNER ===
 
