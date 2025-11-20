@@ -52,7 +52,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Programme orienté prise de masse"
-            android:textColor="@android:color/darker_gray"
+            android:textColor="@color/gray"
             android:textSize="14sp"
             android:layout_marginTop="4dp"
             android:maxLines="2"

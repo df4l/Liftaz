@@ -31,6 +31,8 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="0.031"
-            app:tint="@color/purple_500"
-            app:backgroundTint="@android:color/white"/>
+            app:tint="@color/purple_500_2"
+            android:backgroundTint="@color/white2"
+            app:backgroundTint="@color/white2"
+            />
 </androidx.constraintlayout.widget.ConstraintLayout>

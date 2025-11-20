@@ -37,7 +37,7 @@
                 android:layout_height="wrap_content"
                 android:text="Jours / Intervalle"
                 android:textSize="14sp"
-                android:textColor="#666"/>
+                android:textColor="@color/gray"/>
         </LinearLayout>
 
         <!-- Ligne des infos + croix -->
@@ -60,7 +60,7 @@
                     android:layout_height="wrap_content"
                     android:text="3 exercices"
                     android:textSize="14sp"
-                    android:textColor="#444"/>
+                    android:textColor="@color/gray"/>
 
                 <TextView
                     android:id="@+id/textMuscles"
@@ -68,7 +68,7 @@
                     android:layout_height="wrap_content"
                     android:text="Pecs, Dos, Jambes"
                     android:textSize="14sp"
-                    android:textColor="#666"
+                    android:textColor="@color/gray"
                     android:layout_marginTop="2dp"/>
             </LinearLayout>
 

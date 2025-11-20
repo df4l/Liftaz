@@ -232,8 +232,8 @@ class NourritureFragment : Fragment() {
     }
 
     private fun setActiveTab(active: TextView) {
-        tabAliments.setTextColor(Color.BLACK)
-        tabRecettes.setTextColor(Color.BLACK)
+        tabAliments.setTextColor(ContextCompat.getColor(requireContext(), R.color.black))
+        tabRecettes.setTextColor(ContextCompat.getColor(requireContext(), R.color.black))
         active.setTextColor(ContextCompat.getColor(requireContext(), R.color.purple_500))
         ongletActif = if (active == tabAliments) 0 else 1
     }

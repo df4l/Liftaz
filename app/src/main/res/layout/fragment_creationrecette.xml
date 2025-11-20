@@ -11,7 +11,8 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:hint="Nom de la recette"
-        android:layout_marginHorizontal="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="100dp"
         android:layout_marginTop="42dp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -40,7 +41,8 @@
             android:id="@+id/editQuantitePortion"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="numberDecimal"/>
+            android:inputType="numberDecimal"
+            android:layout_marginRight="85dp"/>
 
         <LinearLayout
             android:id="@+id/layoutMacros"
@@ -149,8 +151,6 @@
         android:contentDescription="@string/signe_plus"
         app:srcCompat="@android:drawable/ic_input_add"
         app:layout_anchorGravity="bottom|end"
-        app:backgroundTint="@android:color/white"
-        app:tint="@color/purple_500"
         android:layout_margin="16dp"
         android:layout_gravity="bottom|end"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -159,6 +159,9 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.031"
+        app:tint="@color/purple_500_2"
+        android:backgroundTint="@color/white2"
+        app:backgroundTint="@color/white2"
         />
 
     <!-- LISTE DES ALIMENTS -->
@@ -179,8 +182,9 @@
         android:layout_height="wrap_content"
         android:contentDescription="Sauvegarder"
         android:src="@android:drawable/ic_menu_save"
-        app:tint="@color/purple_500"
-        app:backgroundTint="@android:color/white"
+        app:tint="@color/purple_500_2"
+        android:backgroundTint="@color/white2"
+        app:backgroundTint="@color/white2"
         android:layout_marginEnd="16dp"
         android:layout_marginTop="8dp"
         app:layout_constraintTop_toBottomOf="@id/btnCreateAliment"

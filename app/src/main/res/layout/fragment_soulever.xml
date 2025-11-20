@@ -21,8 +21,9 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.031"
-        app:tint="@color/purple_500"
-        app:backgroundTint="@android:color/white"
+        app:tint="@color/purple_500_2"
+        android:backgroundTint="@color/white2"
+        app:backgroundTint="@color/white2"
 />
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -56,8 +57,8 @@
         android:layout_height="wrap_content"
         android:text="Démarrer une séance impromptue"
         android:textAllCaps="false"
-        android:textColor="@color/purple_500"
-        android:backgroundTint="@android:color/white"
+        android:textColor="@color/purple_500_2"
+        android:backgroundTint="@color/white2"
         app:layout_constraintTop_toBottomOf="@id/text_soulever"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -134,8 +135,8 @@
                 android:layout_height="wrap_content"
                 android:text="Choisir une autre séance…"
                 android:textAllCaps="false"
-                android:textColor="@color/purple_500"
-                android:backgroundTint="@android:color/white"
+                android:textColor="@color/purple_500_2"
+                android:backgroundTint="@color/white2"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
