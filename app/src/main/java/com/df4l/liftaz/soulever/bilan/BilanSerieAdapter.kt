@@ -45,9 +45,6 @@ class BilanSerieAdapter(
             b.textNouveau.paintFlags =
                 b.textNouveau.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
 
-            b.textProgression.paintFlags =
-                b.textProgression.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
-
             // Texte "Nouveau"
             b.textNouveau.text =
                 if (!poidsDuCorps)
@@ -117,9 +114,22 @@ class BilanSerieAdapter(
                 }
             } else {
                 when {
-                    progReps > 0 -> "+${progReps} reps"
-                    progReps < 0 -> "${progReps} reps"
-                    else -> "0"
+                    progKg != null && progKg != 0f -> {
+                        // Affiche la progression en kg si elle est non nulle
+                        when {
+                            progReps > 0 && progKg > 0 -> "+${progReps} reps (+${progKg.toInt()} kg)"
+                            else -> "${progReps} reps (${progKg.toInt()} kg)"
+                        }
+                    }
+
+                    else -> {
+                        // Sinon fallback sur la progression en reps
+                        when {
+                            progReps > 0 -> "+${progReps} reps"
+                            progReps < 0 -> "${progReps} reps"
+                            else -> "0"
+                        }
+                    }
                 }
             }
 
@@ -128,13 +138,11 @@ class BilanSerieAdapter(
         // -------------------------------------------
         // 5) Couleur progression (si pas FLEMME)
         // -------------------------------------------
-        val color = if (flemme) {
-            Color.GRAY
-        } else when {
+        val color = when{
             s.ancienPoids == null -> Color.GRAY
-            (!poidsDuCorps && progKg > 0f) || (poidsDuCorps && progReps > 0) ->
+            (!poidsDuCorps && progKg > 0f) || (poidsDuCorps && (progReps > 0 || progKg > 0)) ->
                 Color.parseColor("#4CAF50")
-            (!poidsDuCorps && progKg < 0f) || (poidsDuCorps && progReps < 0) ->
+            (!poidsDuCorps && progKg < 0f) || (poidsDuCorps && (progReps < 0 || progKg < 0)) ->
                 Color.parseColor("#F44336")
             else -> Color.GRAY
         }

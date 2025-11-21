@@ -20,4 +20,7 @@ interface EntreePoidsDao {
 
     @Query("SELECT * FROM entree_poids ORDER BY id ASC")
     suspend fun getAll(): List<EntreePoids>
+
+    @Query("SELECT * FROM entree_poids ORDER BY date DESC LIMIT 1")
+    suspend fun getLatestWeight(): EntreePoids?
 }

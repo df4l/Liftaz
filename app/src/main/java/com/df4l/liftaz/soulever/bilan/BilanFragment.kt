@@ -37,22 +37,27 @@ class BilanFragment : Fragment() {
         val idSeance = requireArguments().getInt("idSeance")
         val idSeanceHistoriqueActuelle = requireArguments().getInt("idSeanceHistorique")
 
-        viewModel = BilanViewModel(
-            db.seanceHistoriqueDao(),
-            db.serieDao(),
-            db.exerciceDao(),
-            db.muscleDao(),
-            idSeance,
-            idSeanceHistoriqueActuelle
-        )
+        lifecycleScope.launch {
+            val elastiques = db.elastiqueDao().getAll()
 
-        binding.recyclerBilan.layoutManager = LinearLayoutManager(ctx)
+            // ⬇️ Construire le ViewModel avec la liste récupérée
+            viewModel = BilanViewModel(
+                db.seanceHistoriqueDao(),
+                db.serieDao(),
+                db.exerciceDao(),
+                db.muscleDao(),
+                db.entreePoidsDao(),
+                elastiques,  // ⬅️ ICI OK maintenant
+                idSeance,
+                idSeanceHistoriqueActuelle
+            )
 
-        viewModel.bilan.observe(viewLifecycleOwner) { liste ->
-            lifecycleScope.launch {
-                val db = AppDatabase.getDatabase(requireContext())
-                val elastiques = db.elastiqueDao().getAll()
-                binding.recyclerBilan.adapter = BilanExerciceAdapter(liste, elastiques)
+            binding.recyclerBilan.layoutManager = LinearLayoutManager(ctx)
+
+            // ⬇️ Pas besoin de recharger les élastiques ici
+            viewModel.bilan.observe(viewLifecycleOwner) { liste ->
+                binding.recyclerBilan.adapter =
+                    BilanExerciceAdapter(liste, elastiques)  // ⬅️ réutilise la même liste !
             }
         }
 
