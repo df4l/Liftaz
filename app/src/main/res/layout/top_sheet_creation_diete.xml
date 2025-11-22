@@ -49,10 +49,15 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content">
 
-                    <NumberPicker
-                        android:id="@+id/npCalories"
-                        android:layout_width="wrap_content"
-                        android:layout_height="80dp" />
+                    <EditText
+                        android:id="@+id/etCalories"
+                        android:layout_width="80dp"
+                        android:layout_height="wrap_content"
+                        android:inputType="number"
+                        android:gravity="center"
+                        android:text="2000"
+                        android:textSize="16sp"
+                         />
 
                     <TextView
                         style="@style/TextAppearance.Material3.TitleMedium"
