@@ -101,6 +101,9 @@
         <action
             android:id="@+id/action_mangerFragment_to_nourritureFragment"
             app:destination="@id/navigation_nourriture" />
+        <action
+            android:id="@+id/action_mangerFragment_to_dieteFragment"
+            app:destination="@id/navigation_creationdiete" />
     </fragment>
 
     <fragment
@@ -114,9 +117,15 @@
     </fragment>
 
     <fragment
+        android:id="@+id/navigation_creationdiete"
+        android:name="com.df4l.liftaz.manger.diete.CreationDieteFragment"
+        android:label="Création diète"
+        tools:layout="@layout/layout_creationdiete" />
+
+    <fragment
         android:id="@+id/navigation_creationrecette"
         android:name="com.df4l.liftaz.manger.nourriture.recettes.CreationRecetteFragment"
-        android:label="Nourriture"
+        android:label="Création recette"
         tools:layout="@layout/fragment_creationrecette" />
 
     <fragment

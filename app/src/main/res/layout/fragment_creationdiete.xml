@@ -1,0 +1,16 @@
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:clipToPadding="false"
+    android:clipChildren="false"
+    android:id="@+id/coordinatorLayoutCreationDiete">
+
+    <!-- Ici ton layout principal -->
+    <include layout="@layout/layout_creationdiete"/>
+
+    <!-- Ici ton top sheet -->
+    <include layout="@layout/top_sheet_creation_diete"/>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

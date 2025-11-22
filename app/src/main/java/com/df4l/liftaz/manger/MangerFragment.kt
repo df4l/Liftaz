@@ -74,7 +74,7 @@ class MangerFragment : Fragment() {
     private fun goToDieteView()
     {
         val navController = findNavController()
-        //navController.navigate(R.id.action_souleverFragment_to_motivationFioulFragment)
+        navController.navigate(R.id.action_mangerFragment_to_dieteFragment)
     }
 
     private fun goToNourritureView()
