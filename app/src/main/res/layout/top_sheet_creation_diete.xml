@@ -68,6 +68,213 @@
                 </LinearLayout>
             </LinearLayout>
 
+            <LinearLayout
+                android:id="@+id/layoutMacros"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:layout_marginTop="12dp"
+                android:weightSum="3">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:text="Protéines"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+
+                    <ImageView
+                        android:src="@drawable/ic_jambonneau_40dp"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        app:tint="#ec99b5" />
+
+                    <!-- g -->
+                    <LinearLayout
+                        android:orientation="horizontal"
+                        android:gravity="center"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content">
+
+                        <EditText
+                            android:id="@+id/etProteinesGr"
+                            android:layout_width="60dp"
+                            android:layout_height="wrap_content"
+                            android:inputType="number"
+                            android:text="200"
+                            android:gravity="center"/>
+
+                        <TextView
+                            android:text="g"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="4dp"/>
+                    </LinearLayout>
+
+                    <!-- g/kg -->
+                    <LinearLayout
+                        android:orientation="horizontal"
+                        android:gravity="center"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp">
+
+                        <EditText
+                            android:id="@+id/etProteinesKg"
+                            android:layout_width="60dp"
+                            android:layout_height="wrap_content"
+                            android:inputType="numberDecimal"
+                            android:gravity="center"/>
+
+                        <TextView
+                            android:text="g/kg"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="4dp"/>
+                    </LinearLayout>
+
+                </LinearLayout>
+
+
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:text="Glucides"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+
+                    <ImageView
+                        android:src="@drawable/ic_banane_40dp"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        app:tint="#86e8cd" />
+
+                    <!-- g -->
+                    <LinearLayout
+                        android:orientation="horizontal"
+                        android:gravity="center"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content">
+
+                        <EditText
+                            android:id="@+id/etGlucidesGr"
+                            android:layout_width="60dp"
+                            android:layout_height="wrap_content"
+                            android:inputType="number"
+                            android:text="200"
+                            android:gravity="center"/>
+
+                        <TextView
+                            android:text="g"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="4dp"/>
+                    </LinearLayout>
+
+                    <!-- g/kg -->
+                    <LinearLayout
+                        android:orientation="horizontal"
+                        android:gravity="center"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp">
+
+                        <EditText
+                            android:id="@+id/etGlucidesKg"
+                            android:layout_width="60dp"
+                            android:layout_height="wrap_content"
+                            android:inputType="numberDecimal"
+                            android:gravity="center"/>
+
+                        <TextView
+                            android:text="g/kg"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="4dp"/>
+                    </LinearLayout>
+
+                </LinearLayout>
+
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:text="Lipides"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+
+                    <ImageView
+                        android:src="@drawable/ic_fromage_40dp"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        app:tint="#f2d678" />
+
+                    <!-- g -->
+                    <LinearLayout
+                        android:orientation="horizontal"
+                        android:gravity="center"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content">
+
+                        <EditText
+                            android:id="@+id/etLipidesGr"
+                            android:layout_width="60dp"
+                            android:text="44"
+                            android:layout_height="wrap_content"
+                            android:inputType="number"
+                            android:gravity="center"/>
+
+                        <TextView
+                            android:text="g"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="4dp"/>
+                    </LinearLayout>
+
+                    <!-- g/kg -->
+                    <LinearLayout
+                        android:orientation="horizontal"
+                        android:gravity="center"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp">
+
+                        <EditText
+                            android:id="@+id/etLipidesKg"
+                            android:layout_width="60dp"
+                            android:layout_height="wrap_content"
+                            android:inputType="numberDecimal"
+                            android:gravity="center"/>
+
+                        <TextView
+                            android:text="g/kg"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="4dp"/>
+                    </LinearLayout>
+
+                </LinearLayout>
+
+
+            </LinearLayout>
+
             <com.google.android.material.divider.MaterialDivider
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -97,7 +304,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:stepSize="1"
-                        android:value="30"
+                        android:value="40"
                         android:valueFrom="0"
                         android:valueTo="100"
                         app:thumbColor="#ec99b5"
@@ -105,19 +312,13 @@
 
                     <TextView
                         android:id="@+id/tvProteinesPercentage"
-                        android:layout_width="45dp"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:gravity="end"
-                        android:text="30%" />
+                        android:text="40%" />
 
-                    <EditText
-                        android:id="@+id/etProteinesGrams"
-                        android:layout_width="60dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="8dp"
-                        android:inputType="number"
-                        android:gravity="end"
-                        android:textSize="14sp" />
+
+
                 </LinearLayout>
 
                 <!-- GLUCIDES -->
@@ -146,19 +347,12 @@
 
                     <TextView
                         android:id="@+id/tvGlucidesPercentage"
-                        android:layout_width="45dp"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:gravity="end"
                         android:text="40%" />
 
-                    <EditText
-                        android:id="@+id/etGlucidesGrams"
-                        android:layout_width="60dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="8dp"
-                        android:inputType="number"
-                        android:gravity="end"
-                        android:textSize="14sp" />
+
                 </LinearLayout>
 
                 <!-- LIPIDES -->
@@ -166,7 +360,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center_vertical"
-                    android:layout_marginTop="4dp">
+                    android:layout_marginTop="4dp"
+                    android:layout_marginBottom="16dp">
 
                     <TextView
                         android:layout_width="70dp"
@@ -179,7 +374,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:stepSize="1"
-                        android:value="30"
+                        android:value="20"
                         android:valueFrom="0"
                         android:valueTo="100"
                         app:thumbColor="#f2d678"
@@ -187,19 +382,10 @@
 
                     <TextView
                         android:id="@+id/tvLipidesPercentage"
-                        android:layout_width="45dp"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:gravity="end"
-                        android:text="30%" />
-
-                    <EditText
-                        android:id="@+id/etLipidesGrams"
-                        android:layout_width="60dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="8dp"
-                        android:inputType="number"
-                        android:gravity="end"
-                        android:textSize="14sp" />
+                        android:text="20%" />
                 </LinearLayout>
 
             </LinearLayout>
