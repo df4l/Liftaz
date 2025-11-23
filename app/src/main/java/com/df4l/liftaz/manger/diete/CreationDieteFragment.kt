@@ -179,15 +179,7 @@ class CreationDieteFragment : Fragment() {
         })
     }
 
-    private fun updateMacrosFromCalories(ancienneValeur: String,
-                                         nouvelleValeur: String,
-                                         etProteinesGr: EditText,
-                                         etGlucidesGr: EditText,
-                                         etLipidesGr: EditText,
-                                         etProteinesKg: EditText,
-                                         etGlucidesKg: EditText,
-                                         etLipidesKg: EditText,
-                                         poidsUtilisateur: Float?)
+    private fun updateMacrosFromCalories(ancienneValeur: String, nouvelleValeur: String, etProteinesGr: EditText, etGlucidesGr: EditText, etLipidesGr: EditText, etProteinesKg: EditText, etGlucidesKg: EditText, etLipidesKg: EditText, poidsUtilisateur: Float?)
     {
 
 
@@ -228,21 +220,7 @@ class CreationDieteFragment : Fragment() {
         }
     }
 
-    private fun updateMacrosFromEditTextsGrams(
-        editedMacro: String,
-        ancienneValeur: String,
-        nouvelleValeur: String,
-        etProteinesGr: EditText,
-        etGlucidesGr: EditText,
-        etLipidesGr: EditText,
-        etProteinesKg: EditText,
-        etGlucidesKg: EditText,
-        etLipidesKg: EditText,
-        poidsUtilisateur: Float?,
-        prot: Slider,
-        gluc: Slider,
-        lip: Slider,
-        view: View
+    private fun updateMacrosFromEditTextsGrams(editedMacro: String, ancienneValeur: String, nouvelleValeur: String, etProteinesGr: EditText, etGlucidesGr: EditText, etLipidesGr: EditText, etProteinesKg: EditText, etGlucidesKg: EditText, etLipidesKg: EditText, poidsUtilisateur: Float?, prot: Slider, gluc: Slider, lip: Slider, view: View
     ) {
         if (isUpdating) return
         isUpdating = true
@@ -361,19 +339,7 @@ class CreationDieteFragment : Fragment() {
         isUpdating = false
     }
 
-    private fun updateMacrosFromSliders(
-        prot: Slider,
-        gluc: Slider,
-        lip: Slider,
-        changed: Slider,
-        view: View,
-        etCalories: EditText,
-        etProteinesGr: EditText,
-        etGlucidesGr: EditText,
-        etLipidesGr: EditText,
-        etProteinesKg: EditText,
-        etGlucidesKg: EditText,
-        etLipidesKg: EditText
+    private fun updateMacrosFromSliders(prot: Slider, gluc: Slider, lip: Slider, changed: Slider, view: View, etCalories: EditText, etProteinesGr: EditText, etGlucidesGr: EditText, etLipidesGr: EditText, etProteinesKg: EditText, etGlucidesKg: EditText, etLipidesKg: EditText
     )
     {
         isUpdating = true
