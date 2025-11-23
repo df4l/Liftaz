@@ -171,7 +171,7 @@ class CreationDieteFragment : Fragment() {
         val listener = Slider.OnChangeListener { slider, value, fromUser ->
             if (!fromUser) return@OnChangeListener
             if (isUpdating) return@OnChangeListener
-            updateMacrosFromSliders(sliderProteines, sliderGlucides, sliderLipides, slider, view, etCalories, etProteinesGr, etGlucidesGr, etLipidesGr, etProteinesKg, etGlucidesKg, etLipidesKg)
+            updateMacrosFromSliders(slider, poidsUtilisateur)
         }
 
         sliderProteines.addOnChangeListener(listener)
@@ -381,13 +381,12 @@ class CreationDieteFragment : Fragment() {
         isUpdating = false
     }
 
-    private fun updateMacrosFromSliders(prot: Slider, gluc: Slider, lip: Slider, changed: Slider, view: View, etCalories: EditText, etProteinesGr: EditText, etGlucidesGr: EditText, etLipidesGr: EditText, etProteinesKg: EditText, etGlucidesKg: EditText, etLipidesKg: EditText
-    ) {
+    private fun updateMacrosFromSliders(editedSlider: Slider, poidsUtilisateur: Float?) {
         isUpdating = true
 
-        var p = prot.value.roundToInt()
-        var g = gluc.value.roundToInt()
-        var l = lip.value.roundToInt()
+        var p = sliderProteines.value.roundToInt()
+        var g = sliderGlucides.value.roundToInt()
+        var l = sliderLipides.value.roundToInt()
 
         val total = p + g + l
         val diff = total - 100
@@ -397,12 +396,12 @@ class CreationDieteFragment : Fragment() {
             return
         }
 
-        when (changed) {
+        when (editedSlider) {
 
             // ----------------------------------------------------
             // PROTÉINES MODIFIÉES
             // ----------------------------------------------------
-            prot -> {
+            sliderProteines -> {
                 if (diff > 0) {
                     // ----------------------------------------------------
                     // CAS : On augmente les protéines → il faut retirer
@@ -445,7 +444,7 @@ class CreationDieteFragment : Fragment() {
             // ----------------------------------------------------
             // GLUCIDES MODIFIÉS
             // ----------------------------------------------------
-            gluc -> {
+            sliderGlucides -> {
                 var reste = diff
 
                 // D'abord retirer des lipides
@@ -464,7 +463,7 @@ class CreationDieteFragment : Fragment() {
             // ----------------------------------------------------
             // LIPIDES MODIFIÉS
             // ----------------------------------------------------
-            lip -> {
+            sliderLipides -> {
                 var reste = diff
 
                 // D'abord retirer des glucides
@@ -482,13 +481,9 @@ class CreationDieteFragment : Fragment() {
         }
 
         // Appliquer les nouvelles valeurs
-        prot.value = p.toFloat()
-        gluc.value = g.toFloat()
-        lip.value = l.toFloat()
-
-        val tvProteines = view.findViewById<TextView>(R.id.tvProteinesPercentage)
-        val tvGlucides = view.findViewById<TextView>(R.id.tvGlucidesPercentage)
-        val tvLipides = view.findViewById<TextView>(R.id.tvLipidesPercentage)
+        sliderProteines.value = p.toFloat()
+        sliderGlucides.value = g.toFloat()
+        sliderLipides.value = l.toFloat()
 
         tvProteines.text = "$p%"
         tvGlucides.text = "$g%"
