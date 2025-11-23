@@ -9,6 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.LinearLayout
+import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -20,6 +21,7 @@ import com.df4l.liftaz.data.AppDatabase
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.slider.Slider
+import com.mikhaellopez.circularprogressbar.CircularProgressBar
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
@@ -29,10 +31,24 @@ class CreationDieteFragment : Fragment() {
     private lateinit var topSheetBehavior: TopSheetBehavior<MaterialCardView>
     private var poidsUtilisateur: Float? = null
 
-    private var pourcentageProteines = 40;
-    private var pourcentageGlucides = 40;
-    private var pourcentageLipides = 20;
-    private var totalCalories = 2000;
+    private var pourcentageProteines = 40
+    private var pourcentageGlucides = 40
+    private var pourcentageLipides = 20
+    private var totalCalories = 2000
+
+    private var objectifProteines = 0
+    private var objectifGlucides = 0
+    private var objectifLipides = 0
+
+    private var progressProteines: ProgressBar? = null
+    private var progressGlucides: ProgressBar? = null
+    private var progressLipides: ProgressBar? = null
+
+    private var tvProteines: TextView? = null
+    private var tvGlucides: TextView? = null
+    private var tvLipides: TextView? = null
+
+    private var tvCaloriesStatus: TextView? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -44,6 +60,15 @@ class CreationDieteFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        progressProteines = view.findViewById(R.id.progressProteines)
+        progressGlucides = view.findViewById(R.id.progressGlucides)
+        progressLipides = view.findViewById(R.id.progressLipides)
+        tvProteines = view.findViewById(R.id.tvProteines)
+        tvGlucides = view.findViewById(R.id.tvGlucides)
+        tvLipides = view.findViewById(R.id.tvLipides)
+        tvCaloriesStatus = view.findViewById(R.id.tvCaloriesStatus)
+
 
         val topSheet: MaterialCardView = view.findViewById(R.id.topSheetLayout)
         topSheetBehavior = TopSheetBehavior.from(topSheet)
@@ -179,9 +204,14 @@ class CreationDieteFragment : Fragment() {
         })
     }
 
+    //TODO: Améliorer tout ce code dégoutant
+    //Ce code a deux raisons d'exister : d'une part parce qu'il fonctionne mais de l'autre parce que je ne peux pas passer raisonnablement plus de temps dessus tant que le reste de l'application n'est pas encore développé
     private fun updateMacrosFromCalories(ancienneValeur: String, nouvelleValeur: String, etProteinesGr: EditText, etGlucidesGr: EditText, etLipidesGr: EditText, etProteinesKg: EditText, etGlucidesKg: EditText, etLipidesKg: EditText, poidsUtilisateur: Float?)
     {
+        if(isUpdating)
+            return
 
+        isUpdating = true
 
         if(nouvelleValeur != "") {
             val proteinesGr =
@@ -205,6 +235,8 @@ class CreationDieteFragment : Fragment() {
             }
 
             totalCalories = nouvelleValeur.toInt()
+
+            updateMacrosInFragment(glucidesGr, lipidesGr, proteinesGr)
         }
         else
         {
@@ -217,9 +249,15 @@ class CreationDieteFragment : Fragment() {
             etLipidesKg.setHint("0.00")
 
             totalCalories = 0
+
+            updateMacrosInFragment(0, 0, 0)
         }
+
+        isUpdating = false
     }
 
+    //TODO: Améliorer tout ce code dégoutant
+    //Ce code a deux raisons d'exister : d'une part parce qu'il fonctionne mais de l'autre parce que je ne peux pas passer raisonnablement plus de temps dessus tant que le reste de l'application n'est pas encore développé
     private fun updateMacrosFromEditTextsGrams(editedMacro: String, ancienneValeur: String, nouvelleValeur: String, etProteinesGr: EditText, etGlucidesGr: EditText, etLipidesGr: EditText, etProteinesKg: EditText, etGlucidesKg: EditText, etLipidesKg: EditText, poidsUtilisateur: Float?, prot: Slider, gluc: Slider, lip: Slider, view: View
     ) {
         if (isUpdating) return
@@ -329,6 +367,8 @@ class CreationDieteFragment : Fragment() {
         etGlucidesGr.setText(newGlucidesGr.toString())
         etLipidesGr.setText(newLipidesGr.toString())
 
+        updateMacrosInFragment(newGlucidesGr, newLipidesGr, newProteinesGr)
+
         poidsUtilisateur?.let { poids ->
             etProteinesKg.setHint(String.format("%.2f", newProteinesGr / poids))
             etGlucidesKg.setHint(String.format("%.2f", newGlucidesGr / poids))
@@ -339,9 +379,10 @@ class CreationDieteFragment : Fragment() {
         isUpdating = false
     }
 
+    //TODO: Améliorer tout ce code dégoutant
+    //Ce code a deux raisons d'exister : d'une part parce qu'il fonctionne mais de l'autre parce que je ne peux pas passer raisonnablement plus de temps dessus tant que le reste de l'application n'est pas encore développé
     private fun updateMacrosFromSliders(prot: Slider, gluc: Slider, lip: Slider, changed: Slider, view: View, etCalories: EditText, etProteinesGr: EditText, etGlucidesGr: EditText, etLipidesGr: EditText, etProteinesKg: EditText, etGlucidesKg: EditText, etLipidesKg: EditText
-    )
-    {
+    ) {
         isUpdating = true
 
         var p = prot.value.roundToInt()
@@ -468,6 +509,8 @@ class CreationDieteFragment : Fragment() {
         etGlucidesGr.setText(glucidesGr.toString())
         etLipidesGr.setText(lipidesGr.toString())
 
+        updateMacrosInFragment(glucidesGr, lipidesGr, proteinesGr)
+
         // --- Mise à jour des g/kg SI un poids existe ---
         poidsUtilisateur?.let { poids ->
 
@@ -483,5 +526,21 @@ class CreationDieteFragment : Fragment() {
         isUpdating = false
     }
 
+    private fun updateMacrosInFragment(glucidesGr: Int, lipidesGr: Int, proteinesGr: Int)
+    {
+        objectifProteines = proteinesGr
+        objectifGlucides = glucidesGr
+        objectifLipides = lipidesGr
+
+        tvCaloriesStatus!!.text = "0 / ${totalCalories}\ncalories"
+
+        tvProteines!!.text = "0 / ${objectifProteines}g"
+        tvGlucides!!.text = "0 / ${objectifGlucides}g"
+        tvLipides!!.text = "0 / ${objectifLipides}g"
+
+        progressProteines!!.max = objectifProteines
+        progressGlucides!!.max = objectifGlucides
+        progressLipides!!.max = objectifLipides
+    }
 }
 
