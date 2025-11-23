@@ -31,6 +31,7 @@ class CreationDieteFragment : Fragment() {
     private lateinit var topSheetBehavior: TopSheetBehavior<MaterialCardView>
     private var poidsUtilisateur: Float? = null
 
+    // Valeurs de base
     private var pourcentageProteines = 40
     private var pourcentageGlucides = 40
     private var pourcentageLipides = 20
@@ -40,17 +41,46 @@ class CreationDieteFragment : Fragment() {
     private var objectifGlucides = 0
     private var objectifLipides = 0
 
-    private var progressProteines: ProgressBar? = null
-    private var progressGlucides: ProgressBar? = null
-    private var progressLipides: ProgressBar? = null
+    // Vues du Fragment
+    private lateinit var etCalories: EditText
+    private lateinit var etProteinesGr: EditText
+    private lateinit var etGlucidesGr: EditText
+    private lateinit var etLipidesGr: EditText
+    private lateinit var etProteinesKg: EditText
+    private lateinit var etGlucidesKg: EditText
+    private lateinit var etLipidesKg: EditText
+    private lateinit var sliderProteines: Slider
+    private lateinit var sliderGlucides: Slider
+    private lateinit var sliderLipides: Slider
+    private lateinit var progressProteines: ProgressBar
+    private lateinit var progressGlucides: ProgressBar
+    private lateinit var progressLipides: ProgressBar
+    private lateinit var tvProteines: TextView
+    private lateinit var tvGlucides: TextView
+    private lateinit var tvLipides: TextView
+    private lateinit var tvCaloriesStatus: TextView
 
-    private var tvProteines: TextView? = null
-    private var tvGlucides: TextView? = null
-    private var tvLipides: TextView? = null
+    private fun bindViews(view: View) {
+        progressProteines = view.findViewById(R.id.progressProteines)
+        progressGlucides = view.findViewById(R.id.progressGlucides)
+        progressLipides = view.findViewById(R.id.progressLipides)
+        tvProteines = view.findViewById(R.id.tvProteines)
+        tvGlucides = view.findViewById(R.id.tvGlucides)
+        tvLipides = view.findViewById(R.id.tvLipides)
+        tvCaloriesStatus = view.findViewById(R.id.tvCaloriesStatus)
+        etCalories = view.findViewById(R.id.etCalories)
+        etProteinesGr = view.findViewById(R.id.etProteinesGr)
+        etGlucidesGr = view.findViewById(R.id.etGlucidesGr)
+        etLipidesGr = view.findViewById(R.id.etLipidesGr)
+        sliderProteines = view.findViewById(R.id.sliderProteines)
+        sliderGlucides = view.findViewById(R.id.sliderGlucides)
+        sliderLipides = view.findViewById(R.id.sliderLipides)
+        etProteinesKg = view.findViewById(R.id.etProteinesKg)
+        etGlucidesKg = view.findViewById(R.id.etGlucidesKg)
+        etLipidesKg = view.findViewById(R.id.etLipidesKg)
+    }
 
-    private var tvCaloriesStatus: TextView? = null
-
-    override fun onCreateView(
+        override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -60,15 +90,6 @@ class CreationDieteFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        progressProteines = view.findViewById(R.id.progressProteines)
-        progressGlucides = view.findViewById(R.id.progressGlucides)
-        progressLipides = view.findViewById(R.id.progressLipides)
-        tvProteines = view.findViewById(R.id.tvProteines)
-        tvGlucides = view.findViewById(R.id.tvGlucides)
-        tvLipides = view.findViewById(R.id.tvLipides)
-        tvCaloriesStatus = view.findViewById(R.id.tvCaloriesStatus)
-
 
         val topSheet: MaterialCardView = view.findViewById(R.id.topSheetLayout)
         topSheetBehavior = TopSheetBehavior.from(topSheet)
@@ -99,19 +120,7 @@ class CreationDieteFragment : Fragment() {
             insets
         }
 
-        val etCalories = view.findViewById<EditText>(R.id.etCalories)
-
-        val etProteinesGr = view.findViewById<EditText>(R.id.etProteinesGr)
-        val etGlucidesGr = view.findViewById<EditText>(R.id.etGlucidesGr)
-        val etLipidesGr = view.findViewById<EditText>(R.id.etLipidesGr)
-
-        val sliderProteines = view.findViewById<Slider>(R.id.sliderProteines)
-        val sliderGlucides  = view.findViewById<Slider>(R.id.sliderGlucides)
-        val sliderLipides   = view.findViewById<Slider>(R.id.sliderLipides)
-
-        val etProteinesKg = view.findViewById<EditText>(R.id.etProteinesKg)
-        val etGlucidesKg = view.findViewById<EditText>(R.id.etGlucidesKg)
-        val etLipidesKg = view.findViewById<EditText>(R.id.etLipidesKg)
+        bindViews(view)
 
         lifecycleScope.launch {
             val dernierPoidsUtilisateur =
@@ -141,22 +150,22 @@ class CreationDieteFragment : Fragment() {
 
         addTextWatcher(etCalories) { ancienneValeur, nouvelleValeur ->
             Log.d("TextWatcher", "Les calories ont changées de '$ancienneValeur' à '$nouvelleValeur'")
-            updateMacrosFromCalories(ancienneValeur, nouvelleValeur, etProteinesGr, etGlucidesGr, etLipidesGr, etProteinesKg, etGlucidesKg, etLipidesKg, poidsUtilisateur)
+            updateMacrosFromCalories(nouvelleValeur, poidsUtilisateur)
         }
 
         addTextWatcher(etProteinesGr) { ancienneValeur, nouvelleValeur ->
             Log.d("TextWatcher", "Proteines (g) a changé de '$ancienneValeur' à '$nouvelleValeur'")
-            updateMacrosFromEditTextsGrams("proteines", ancienneValeur, nouvelleValeur, etProteinesGr, etGlucidesGr, etLipidesGr, etProteinesKg, etGlucidesKg, etLipidesKg, poidsUtilisateur, sliderProteines, sliderGlucides, sliderLipides, view)
+            updateMacrosFromEditTextsGrams("proteines", nouvelleValeur, poidsUtilisateur)
         }
 
         addTextWatcher(etGlucidesGr) { ancienneValeur, nouvelleValeur ->
             Log.d("TextWatcher", "Glucides (g) a changé de '$ancienneValeur' à '$nouvelleValeur'")
-            updateMacrosFromEditTextsGrams("glucides", ancienneValeur, nouvelleValeur, etProteinesGr, etGlucidesGr, etLipidesGr, etProteinesKg, etGlucidesKg, etLipidesKg, poidsUtilisateur, sliderProteines, sliderGlucides, sliderLipides, view)
+            updateMacrosFromEditTextsGrams("glucides", nouvelleValeur, poidsUtilisateur)
         }
 
         addTextWatcher(etLipidesGr) { ancienneValeur, nouvelleValeur ->
             Log.d("TextWatcher", "Lipides (g) a changé de '$ancienneValeur' à '$nouvelleValeur'")
-            updateMacrosFromEditTextsGrams("lipides", ancienneValeur, nouvelleValeur, etProteinesGr, etGlucidesGr, etLipidesGr, etProteinesKg, etGlucidesKg, etLipidesKg, poidsUtilisateur, sliderProteines, sliderGlucides, sliderLipides, view)
+            updateMacrosFromEditTextsGrams("lipides", nouvelleValeur, poidsUtilisateur)
         }
 
         val listener = Slider.OnChangeListener { slider, value, fromUser ->
@@ -204,9 +213,7 @@ class CreationDieteFragment : Fragment() {
         })
     }
 
-    //TODO: Améliorer tout ce code dégoutant
-    //Ce code a deux raisons d'exister : d'une part parce qu'il fonctionne mais de l'autre parce que je ne peux pas passer raisonnablement plus de temps dessus tant que le reste de l'application n'est pas encore développé
-    private fun updateMacrosFromCalories(ancienneValeur: String, nouvelleValeur: String, etProteinesGr: EditText, etGlucidesGr: EditText, etLipidesGr: EditText, etProteinesKg: EditText, etGlucidesKg: EditText, etLipidesKg: EditText, poidsUtilisateur: Float?)
+    private fun updateMacrosFromCalories(nouvelleValeur: String, poidsUtilisateur: Float?)
     {
         if(isUpdating)
             return
@@ -256,10 +263,8 @@ class CreationDieteFragment : Fragment() {
         isUpdating = false
     }
 
-    //TODO: Améliorer tout ce code dégoutant
-    //Ce code a deux raisons d'exister : d'une part parce qu'il fonctionne mais de l'autre parce que je ne peux pas passer raisonnablement plus de temps dessus tant que le reste de l'application n'est pas encore développé
-    private fun updateMacrosFromEditTextsGrams(editedMacro: String, ancienneValeur: String, nouvelleValeur: String, etProteinesGr: EditText, etGlucidesGr: EditText, etLipidesGr: EditText, etProteinesKg: EditText, etGlucidesKg: EditText, etLipidesKg: EditText, poidsUtilisateur: Float?, prot: Slider, gluc: Slider, lip: Slider, view: View
-    ) {
+    private fun updateMacrosFromEditTextsGrams(editedMacro: String, nouvelleValeur: String, poidsUtilisateur: Float?)
+    {
         if (isUpdating) return
         isUpdating = true
 
@@ -314,10 +319,10 @@ class CreationDieteFragment : Fragment() {
                         p -= takeFromProt
                     } else {
                         val reste = -diff
-                        val addToProt = minOf(100 - p, reste)
-                        p += addToProt
-                        val addToLip = minOf(100 - l, reste - addToProt)
+                        val addToLip = minOf(100 - l, reste)
                         l += addToLip
+                        val addToProt = minOf(100 - p, reste - addToLip)
+                        p += addToProt
                     }
                 }
                 "lipides" -> {
@@ -342,14 +347,11 @@ class CreationDieteFragment : Fragment() {
         l = l.coerceIn(0, 100)
 
         // Mise à jour sliders
-        prot.value = p.coerceIn(prot.valueFrom.toInt(), prot.valueTo.toInt()).toFloat()
-        gluc.value = g.coerceIn(gluc.valueFrom.toInt(), gluc.valueTo.toInt()).toFloat()
-        lip.value = l.coerceIn(lip.valueFrom.toInt(), lip.valueTo.toInt()).toFloat()
+        sliderProteines.value = p.coerceIn(sliderProteines.valueFrom.toInt(), sliderProteines.valueTo.toInt()).toFloat()
+        sliderGlucides.value = g.coerceIn(sliderGlucides.valueFrom.toInt(), sliderGlucides.valueTo.toInt()).toFloat()
+        sliderLipides.value = l.coerceIn(sliderLipides.valueFrom.toInt(), sliderLipides.valueTo.toInt()).toFloat()
 
         // Mise à jour pourcentages visibles
-        val tvProteines = view.findViewById<TextView>(R.id.tvProteinesPercentage)
-        val tvGlucides = view.findViewById<TextView>(R.id.tvGlucidesPercentage)
-        val tvLipides = view.findViewById<TextView>(R.id.tvLipidesPercentage)
         tvProteines.text = "$p%"
         tvGlucides.text = "$g%"
         tvLipides.text = "$l%"
@@ -379,8 +381,6 @@ class CreationDieteFragment : Fragment() {
         isUpdating = false
     }
 
-    //TODO: Améliorer tout ce code dégoutant
-    //Ce code a deux raisons d'exister : d'une part parce qu'il fonctionne mais de l'autre parce que je ne peux pas passer raisonnablement plus de temps dessus tant que le reste de l'application n'est pas encore développé
     private fun updateMacrosFromSliders(prot: Slider, gluc: Slider, lip: Slider, changed: Slider, view: View, etCalories: EditText, etProteinesGr: EditText, etGlucidesGr: EditText, etLipidesGr: EditText, etProteinesKg: EditText, etGlucidesKg: EditText, etLipidesKg: EditText
     ) {
         isUpdating = true
