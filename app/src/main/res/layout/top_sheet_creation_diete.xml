@@ -130,7 +130,8 @@
                             android:layout_width="60dp"
                             android:layout_height="wrap_content"
                             android:inputType="numberDecimal"
-                            android:gravity="center"/>
+                            android:gravity="center"
+                            android:enabled="false"/>
 
                         <TextView
                             android:text="g/kg"
@@ -196,7 +197,8 @@
                             android:layout_width="60dp"
                             android:layout_height="wrap_content"
                             android:inputType="numberDecimal"
-                            android:gravity="center"/>
+                            android:gravity="center"
+                            android:enabled="false"/>
 
                         <TextView
                             android:text="g/kg"
@@ -261,7 +263,8 @@
                             android:layout_width="60dp"
                             android:layout_height="wrap_content"
                             android:inputType="numberDecimal"
-                            android:gravity="center"/>
+                            android:gravity="center"
+                            android:enabled="false"/>
 
                         <TextView
                             android:text="g/kg"

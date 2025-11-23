@@ -1,7 +1,8 @@
 package com.df4l.liftaz.manger.diete
 
-import android.content.Context
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -26,8 +27,12 @@ class CreationDieteFragment : Fragment() {
 
     private var isUpdating = false
     private lateinit var topSheetBehavior: TopSheetBehavior<MaterialCardView>
-
     private var poidsUtilisateur: Float? = null
+
+    private var pourcentageProteines = 40;
+    private var pourcentageGlucides = 40;
+    private var pourcentageLipides = 20;
+    private var totalCalories = 2000;
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -96,14 +101,9 @@ class CreationDieteFragment : Fragment() {
                 val gKg = 200 / dernierPoidsUtilisateur
                 val lKg = 40 / dernierPoidsUtilisateur
 
-                etProteinesKg.setText(String.format("%.2f", pKg))
-                etGlucidesKg.setText(String.format("%.2f", gKg))
-                etLipidesKg.setText(String.format("%.2f", lKg))
-
-                // Les champs deviennent actifs
-                etProteinesKg.isEnabled = true
-                etGlucidesKg.isEnabled = true
-                etLipidesKg.isEnabled = true
+                etProteinesKg.setHint(String.format("%.2f", pKg))
+                etGlucidesKg.setHint(String.format("%.2f", gKg))
+                etLipidesKg.setHint(String.format("%.2f", lKg))
 
             } else {
                 poidsUtilisateur = null
@@ -111,22 +111,38 @@ class CreationDieteFragment : Fragment() {
                 etProteinesKg.hint = "N/D"
                 etGlucidesKg.hint = "N/D"
                 etLipidesKg.hint = "N/D"
-                etProteinesKg.isEnabled = false
-                etGlucidesKg.isEnabled = false
-                etLipidesKg.isEnabled = false
             }
+        }
+
+        addTextWatcher(etCalories) { ancienneValeur, nouvelleValeur ->
+            Log.d("TextWatcher", "Les calories ont changées de '$ancienneValeur' à '$nouvelleValeur'")
+            updateMacrosFromCalories(ancienneValeur, nouvelleValeur, etProteinesGr, etGlucidesGr, etLipidesGr, etProteinesKg, etGlucidesKg, etLipidesKg, poidsUtilisateur)
+        }
+
+        addTextWatcher(etProteinesGr) { ancienneValeur, nouvelleValeur ->
+            Log.d("TextWatcher", "Proteines (g) a changé de '$ancienneValeur' à '$nouvelleValeur'")
+            updateMacrosFromEditTextsGrams("proteines", ancienneValeur, nouvelleValeur, etProteinesGr, etGlucidesGr, etLipidesGr, etProteinesKg, etGlucidesKg, etLipidesKg, poidsUtilisateur, sliderProteines, sliderGlucides, sliderLipides, view)
+        }
+
+        addTextWatcher(etGlucidesGr) { ancienneValeur, nouvelleValeur ->
+            Log.d("TextWatcher", "Glucides (g) a changé de '$ancienneValeur' à '$nouvelleValeur'")
+            updateMacrosFromEditTextsGrams("glucides", ancienneValeur, nouvelleValeur, etProteinesGr, etGlucidesGr, etLipidesGr, etProteinesKg, etGlucidesKg, etLipidesKg, poidsUtilisateur, sliderProteines, sliderGlucides, sliderLipides, view)
+        }
+
+        addTextWatcher(etLipidesGr) { ancienneValeur, nouvelleValeur ->
+            Log.d("TextWatcher", "Lipides (g) a changé de '$ancienneValeur' à '$nouvelleValeur'")
+            updateMacrosFromEditTextsGrams("lipides", ancienneValeur, nouvelleValeur, etProteinesGr, etGlucidesGr, etLipidesGr, etProteinesKg, etGlucidesKg, etLipidesKg, poidsUtilisateur, sliderProteines, sliderGlucides, sliderLipides, view)
         }
 
         val listener = Slider.OnChangeListener { slider, value, fromUser ->
             if (!fromUser) return@OnChangeListener
             if (isUpdating) return@OnChangeListener
-            updateSliders(sliderProteines, sliderGlucides, sliderLipides, slider, view, etCalories, etProteinesGr, etGlucidesGr, etLipidesGr, etProteinesKg, etGlucidesKg, etLipidesKg)
+            updateMacrosFromSliders(sliderProteines, sliderGlucides, sliderLipides, slider, view, etCalories, etProteinesGr, etGlucidesGr, etLipidesGr, etProteinesKg, etGlucidesKg, etLipidesKg)
         }
 
         sliderProteines.addOnChangeListener(listener)
         sliderGlucides.addOnChangeListener(listener)
         sliderLipides.addOnChangeListener(listener)
-
     }
 
     private fun toggleTopSheet() {
@@ -137,7 +153,215 @@ class CreationDieteFragment : Fragment() {
         }
     }
 
-    private fun updateSliders(
+    private fun addTextWatcher(editText: EditText, onTextChangedAction: (ancienneValeur: String, nouvelleValeur: String) -> Unit) {
+        editText.addTextChangedListener(object : TextWatcher {
+            private var ancienneValeur: String = ""
+
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+                if (isUpdating) return
+                ancienneValeur = s.toString()
+            }
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                // Pas nécessaire pour ce cas d'usage
+            }
+
+            override fun afterTextChanged(s: Editable?) {
+                if (isUpdating) return
+
+                val nouvelleValeur = s.toString()
+
+                // Évite les rappels infinis si l'action modifie le même EditText
+                if (ancienneValeur != nouvelleValeur) {
+                    onTextChangedAction(ancienneValeur, nouvelleValeur)
+                }
+            }
+        })
+    }
+
+    private fun updateMacrosFromCalories(ancienneValeur: String,
+                                         nouvelleValeur: String,
+                                         etProteinesGr: EditText,
+                                         etGlucidesGr: EditText,
+                                         etLipidesGr: EditText,
+                                         etProteinesKg: EditText,
+                                         etGlucidesKg: EditText,
+                                         etLipidesKg: EditText,
+                                         poidsUtilisateur: Float?)
+    {
+
+
+        if(nouvelleValeur != "") {
+            val proteinesGr =
+                ((pourcentageProteines / 100f) * nouvelleValeur.toInt() / 4f).roundToInt()
+            val glucidesGr =
+                ((pourcentageGlucides / 100f) * nouvelleValeur.toInt() / 4f).roundToInt()
+            val lipidesGr = ((pourcentageLipides / 100f) * nouvelleValeur.toInt() / 9f).roundToInt()
+
+            etProteinesGr.setText(proteinesGr.toString())
+            etGlucidesGr.setText(glucidesGr.toString())
+            etLipidesGr.setText(lipidesGr.toString())
+
+            if (poidsUtilisateur != null) {
+                val newProteinesKg = proteinesGr / poidsUtilisateur
+                val newGlucidesKg = glucidesGr / poidsUtilisateur
+                val newLipidesKg = lipidesGr / poidsUtilisateur
+
+                etProteinesKg.setHint(String.format("%.2f", newProteinesKg))
+                etGlucidesKg.setHint(String.format("%.2f", newGlucidesKg))
+                etLipidesKg.setHint(String.format("%.2f", newLipidesKg))
+            }
+
+            totalCalories = nouvelleValeur.toInt()
+        }
+        else
+        {
+            etProteinesGr.setText("0")
+            etGlucidesGr.setText("0")
+            etLipidesGr.setText("0")
+
+            etProteinesKg.setHint("0.00")
+            etGlucidesKg.setHint("0.00")
+            etLipidesKg.setHint("0.00")
+
+            totalCalories = 0
+        }
+    }
+
+    private fun updateMacrosFromEditTextsGrams(
+        editedMacro: String,
+        ancienneValeur: String,
+        nouvelleValeur: String,
+        etProteinesGr: EditText,
+        etGlucidesGr: EditText,
+        etLipidesGr: EditText,
+        etProteinesKg: EditText,
+        etGlucidesKg: EditText,
+        etLipidesKg: EditText,
+        poidsUtilisateur: Float?,
+        prot: Slider,
+        gluc: Slider,
+        lip: Slider,
+        view: View
+    ) {
+        if (isUpdating) return
+        isUpdating = true
+
+        var proteinesGr = etProteinesGr.text.toString().toIntOrNull() ?: 0
+        var glucidesGr = etGlucidesGr.text.toString().toIntOrNull() ?: 0
+        var lipidesGr = etLipidesGr.text.toString().toIntOrNull() ?: 0
+
+        when (editedMacro) {
+            "proteines" -> {
+                proteinesGr = nouvelleValeur.toIntOrNull() ?: 0
+            }
+            "glucides" -> {
+                // faire quelque chose uniquement pour les glucides
+                glucidesGr = nouvelleValeur.toIntOrNull() ?: 0
+            }
+            "lipides" -> {
+                // faire quelque chose uniquement pour les lipides
+                lipidesGr = nouvelleValeur.toIntOrNull() ?: 0
+            }
+        }
+
+        val totalCalories = totalCalories
+
+        // Calculer les pourcentages
+        var p = ((proteinesGr * 4f / totalCalories) * 100).roundToInt()
+        var g = ((glucidesGr * 4f / totalCalories) * 100).roundToInt()
+        var l = ((lipidesGr * 9f / totalCalories) * 100).roundToInt()
+
+        // Ajuster si total != 100
+        val diff = p + g + l - 100
+        if (diff != 0) {
+            when (editedMacro) {
+                "proteines" -> {
+                    val reste = -diff
+                    if (diff > 0) {
+                        val takeFromLip = minOf(l, diff)
+                        l -= takeFromLip
+                        val takeFromGluc = minOf(g, diff - takeFromLip)
+                        g -= takeFromGluc
+                    } else {
+                        val addToGluc = minOf(100 - g, reste)
+                        g += addToGluc
+                        val addToLip = minOf(100 - l, reste - addToGluc)
+                        l += addToLip
+                    }
+                }
+                "glucides" -> {
+                    if (diff > 0) {
+                        val takeFromLip = minOf(l, diff)
+                        l -= takeFromLip
+                        val takeFromProt = minOf(p, diff - takeFromLip)
+                        p -= takeFromProt
+                    } else {
+                        val reste = -diff
+                        val addToProt = minOf(100 - p, reste)
+                        p += addToProt
+                        val addToLip = minOf(100 - l, reste - addToProt)
+                        l += addToLip
+                    }
+                }
+                "lipides" -> {
+                    if (diff > 0) {
+                        val takeFromGluc = minOf(g, diff)
+                        g -= takeFromGluc
+                        val takeFromProt = minOf(p, diff - takeFromGluc)
+                        p -= takeFromProt
+                    } else {
+                        val reste = -diff
+                        val addToGluc = minOf(100 - g, reste)
+                        g += addToGluc
+                        val addToProt = minOf(100 - p, reste - addToGluc)
+                        p += addToProt
+                    }
+                }
+            }
+        }
+
+        p = p.coerceIn(0, 100)
+        g = g.coerceIn(0, 100)
+        l = l.coerceIn(0, 100)
+
+        // Mise à jour sliders
+        prot.value = p.coerceIn(prot.valueFrom.toInt(), prot.valueTo.toInt()).toFloat()
+        gluc.value = g.coerceIn(gluc.valueFrom.toInt(), gluc.valueTo.toInt()).toFloat()
+        lip.value = l.coerceIn(lip.valueFrom.toInt(), lip.valueTo.toInt()).toFloat()
+
+        // Mise à jour pourcentages visibles
+        val tvProteines = view.findViewById<TextView>(R.id.tvProteinesPercentage)
+        val tvGlucides = view.findViewById<TextView>(R.id.tvGlucidesPercentage)
+        val tvLipides = view.findViewById<TextView>(R.id.tvLipidesPercentage)
+        tvProteines.text = "$p%"
+        tvGlucides.text = "$g%"
+        tvLipides.text = "$l%"
+
+        // Sauvegarder pourcentages globaux
+        pourcentageProteines = p
+        pourcentageGlucides = g
+        pourcentageLipides = l
+
+        val newProteinesGr = ((p / 100f) * totalCalories / 4f).roundToInt()
+        val newGlucidesGr = ((g / 100f) * totalCalories / 4f).roundToInt()
+        val newLipidesGr = ((l / 100f) * totalCalories / 9f).roundToInt()
+
+        etProteinesGr.setText(newProteinesGr.toString())
+        etGlucidesGr.setText(newGlucidesGr.toString())
+        etLipidesGr.setText(newLipidesGr.toString())
+
+        poidsUtilisateur?.let { poids ->
+            etProteinesKg.setHint(String.format("%.2f", newProteinesGr / poids))
+            etGlucidesKg.setHint(String.format("%.2f", newGlucidesGr / poids))
+            etLipidesKg.setHint(String.format("%.2f", newLipidesGr / poids))
+        }
+
+
+        isUpdating = false
+    }
+
+    private fun updateMacrosFromSliders(
         prot: Slider,
         gluc: Slider,
         lip: Slider,
@@ -263,6 +487,10 @@ class CreationDieteFragment : Fragment() {
         tvGlucides.text = "$g%"
         tvLipides.text = "$l%"
 
+        pourcentageProteines = p
+        pourcentageGlucides = g
+        pourcentageLipides = l
+
         // --- Mise à jour des grammes selon les pourcentages ---
         val caloriesTotal = etCalories.text.toString().toIntOrNull() ?: 0
 
@@ -281,9 +509,9 @@ class CreationDieteFragment : Fragment() {
             val gKg = glucidesGr / poids
             val lKg = lipidesGr / poids
 
-            etProteinesKg.setText(String.format("%.2f", pKg))
-            etGlucidesKg.setText(String.format("%.2f", gKg))
-            etLipidesKg.setText(String.format("%.2f", lKg))
+            etProteinesKg.setHint(String.format("%.2f", pKg))
+            etGlucidesKg.setHint(String.format("%.2f", gKg))
+            etLipidesKg.setHint(String.format("%.2f", lKg))
         }
 
         isUpdating = false
