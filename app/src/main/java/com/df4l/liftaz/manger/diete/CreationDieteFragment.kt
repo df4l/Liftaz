@@ -397,42 +397,22 @@ class CreationDieteFragment : Fragment() {
         }
 
         when (editedSlider) {
-
-            // ----------------------------------------------------
-            // PROTÉINES MODIFIÉES
-            // ----------------------------------------------------
             sliderProteines -> {
                 if (diff > 0) {
-                    // ----------------------------------------------------
-                    // CAS : On augmente les protéines → il faut retirer
-                    // ----------------------------------------------------
                     var reste = diff
-
-                    // D'abord retirer des lipides
                     val takeFromLip = minOf(l, reste)
                     l -= takeFromLip
                     reste -= takeFromLip
-
-                    // Ensuite retirer des glucides
                     if (reste > 0) {
                         val takeFromGluc = minOf(g, reste)
                         g -= takeFromGluc
                         reste -= takeFromGluc
                     }
-
                 } else if (diff < 0) {
-                    // ----------------------------------------------------
-                    // CAS : On diminue les protéines → il faut ajouter
-                    // (glucides en priorité)
-                    // ----------------------------------------------------
                     var reste = -diff
-
-                    // Ajouter aux glucides en priorité
                     val addToGluc = minOf(100 - g, reste)
                     g += addToGluc
                     reste -= addToGluc
-
-                    // Puis aux lipides
                     if (reste > 0) {
                         val addToLip = minOf(100 - l, reste)
                         l += addToLip
@@ -440,38 +420,22 @@ class CreationDieteFragment : Fragment() {
                     }
                 }
             }
-
-            // ----------------------------------------------------
-            // GLUCIDES MODIFIÉS
-            // ----------------------------------------------------
             sliderGlucides -> {
                 var reste = diff
-
-                // D'abord retirer des lipides
                 val takeFromLip = minOf(l, reste)
                 l -= takeFromLip
                 reste -= takeFromLip
-
-                // Ensuite retirer des protéines
                 if (reste > 0) {
                     val takeFromProt = minOf(p, reste)
                     p -= takeFromProt
                     reste -= takeFromProt
                 }
             }
-
-            // ----------------------------------------------------
-            // LIPIDES MODIFIÉS
-            // ----------------------------------------------------
             sliderLipides -> {
                 var reste = diff
-
-                // D'abord retirer des glucides
                 val takeFromGluc = minOf(g, reste)
                 g -= takeFromGluc
                 reste -= takeFromGluc
-
-                // Ensuite retirer des protéines
                 if (reste > 0) {
                     val takeFromProt = minOf(p, reste)
                     p -= takeFromProt
