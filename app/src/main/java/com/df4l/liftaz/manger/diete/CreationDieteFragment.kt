@@ -21,7 +21,6 @@ import com.df4l.liftaz.data.AppDatabase
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.slider.Slider
-import com.mikhaellopez.circularprogressbar.CircularProgressBar
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
@@ -59,6 +58,9 @@ class CreationDieteFragment : Fragment() {
     private lateinit var tvGlucides: TextView
     private lateinit var tvLipides: TextView
     private lateinit var tvCaloriesStatus: TextView
+    private lateinit var tvProteinesPercentage: TextView
+    private lateinit var tvGlucidesPercentage: TextView
+    private lateinit var tvLipidesPercentage: TextView
 
     private fun bindViews(view: View) {
         progressProteines = view.findViewById(R.id.progressProteines)
@@ -78,6 +80,9 @@ class CreationDieteFragment : Fragment() {
         etProteinesKg = view.findViewById(R.id.etProteinesKg)
         etGlucidesKg = view.findViewById(R.id.etGlucidesKg)
         etLipidesKg = view.findViewById(R.id.etLipidesKg)
+        tvProteinesPercentage = view.findViewById(R.id.tvProteinesPercentage)
+        tvGlucidesPercentage = view.findViewById(R.id.tvGlucidesPercentage)
+        tvLipidesPercentage = view.findViewById(R.id.tvLipidesPercentage)
     }
 
         override fun onCreateView(
@@ -243,7 +248,7 @@ class CreationDieteFragment : Fragment() {
 
             totalCalories = nouvelleValeur.toInt()
 
-            updateMacrosInFragment(glucidesGr, lipidesGr, proteinesGr)
+            updateMacrosObjectivesInFragment(glucidesGr, lipidesGr, proteinesGr)
         }
         else
         {
@@ -257,7 +262,7 @@ class CreationDieteFragment : Fragment() {
 
             totalCalories = 0
 
-            updateMacrosInFragment(0, 0, 0)
+            updateMacrosObjectivesInFragment(0, 0, 0)
         }
 
         isUpdating = false
@@ -352,9 +357,9 @@ class CreationDieteFragment : Fragment() {
         sliderLipides.value = l.coerceIn(sliderLipides.valueFrom.toInt(), sliderLipides.valueTo.toInt()).toFloat()
 
         // Mise à jour pourcentages visibles
-        tvProteines.text = "$p%"
-        tvGlucides.text = "$g%"
-        tvLipides.text = "$l%"
+        tvProteinesPercentage.text = "$p%"
+        tvGlucidesPercentage.text = "$g%"
+        tvLipidesPercentage.text = "$l%"
 
         // Sauvegarder pourcentages globaux
         pourcentageProteines = p
@@ -369,7 +374,7 @@ class CreationDieteFragment : Fragment() {
         etGlucidesGr.setText(newGlucidesGr.toString())
         etLipidesGr.setText(newLipidesGr.toString())
 
-        updateMacrosInFragment(newGlucidesGr, newLipidesGr, newProteinesGr)
+        updateMacrosObjectivesInFragment(newGlucidesGr, newLipidesGr, newProteinesGr)
 
         poidsUtilisateur?.let { poids ->
             etProteinesKg.setHint(String.format("%.2f", newProteinesGr / poids))
@@ -449,9 +454,9 @@ class CreationDieteFragment : Fragment() {
         sliderGlucides.value = g.toFloat()
         sliderLipides.value = l.toFloat()
 
-        tvProteines.text = "$p%"
-        tvGlucides.text = "$g%"
-        tvLipides.text = "$l%"
+        tvProteinesPercentage.text = "$p%"
+        tvGlucidesPercentage.text = "$g%"
+        tvLipidesPercentage.text = "$l%"
 
         pourcentageProteines = p
         pourcentageGlucides = g
@@ -468,7 +473,7 @@ class CreationDieteFragment : Fragment() {
         etGlucidesGr.setText(glucidesGr.toString())
         etLipidesGr.setText(lipidesGr.toString())
 
-        updateMacrosInFragment(glucidesGr, lipidesGr, proteinesGr)
+        updateMacrosObjectivesInFragment(glucidesGr, lipidesGr, proteinesGr)
 
         // --- Mise à jour des g/kg SI un poids existe ---
         poidsUtilisateur?.let { poids ->
@@ -485,7 +490,7 @@ class CreationDieteFragment : Fragment() {
         isUpdating = false
     }
 
-    private fun updateMacrosInFragment(glucidesGr: Int, lipidesGr: Int, proteinesGr: Int)
+    private fun updateMacrosObjectivesInFragment(glucidesGr: Int, lipidesGr: Int, proteinesGr: Int)
     {
         objectifProteines = proteinesGr
         objectifGlucides = glucidesGr
