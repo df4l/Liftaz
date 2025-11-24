@@ -17,7 +17,11 @@ import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.df4l.liftaz.R
+import com.df4l.liftaz.data.Aliment
 import com.df4l.liftaz.data.AppDatabase
+import com.df4l.liftaz.data.Recette
+import com.df4l.liftaz.data.RecetteAliments
+import com.df4l.liftaz.manger.nourriture.RecetteAffichee
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.slider.Slider
@@ -61,6 +65,7 @@ class CreationDieteFragment : Fragment() {
     private lateinit var tvProteinesPercentage: TextView
     private lateinit var tvGlucidesPercentage: TextView
     private lateinit var tvLipidesPercentage: TextView
+    private lateinit var btnAddAlimentOuRecette: FloatingActionButton
 
     private fun bindViews(view: View) {
         progressProteines = view.findViewById(R.id.progressProteines)
@@ -83,6 +88,7 @@ class CreationDieteFragment : Fragment() {
         tvProteinesPercentage = view.findViewById(R.id.tvProteinesPercentage)
         tvGlucidesPercentage = view.findViewById(R.id.tvGlucidesPercentage)
         tvLipidesPercentage = view.findViewById(R.id.tvLipidesPercentage)
+        btnAddAlimentOuRecette = view.findViewById(R.id.btnAddAlimentOuRecette)
     }
 
         override fun onCreateView(
@@ -126,6 +132,26 @@ class CreationDieteFragment : Fragment() {
         }
 
         bindViews(view)
+
+        lifecycleScope.launch {
+            val aliments = AppDatabase.getDatabase(requireContext()).alimentDao().getAll()
+            val recettes = AppDatabase.getDatabase(requireContext()).recetteDao().getAll()
+
+            val recettesAffichees = recettes.map { recette ->
+                val ing = AppDatabase.getDatabase(requireContext()).recetteAlimentsDao()
+                    .getAllForRecette(recette.id)
+                recetteToAffichee(recette, ing, aliments)
+            }
+
+            btnAddAlimentOuRecette.setOnClickListener {
+                DialogSelectNourriture(
+                    items = aliments + recettesAffichees,
+                    onItemSelected = { item ->
+                        ajouterItemToDiete(item)
+                    }
+                ).show(parentFragmentManager, "selectNourriture")
+            }
+        }
 
         lifecycleScope.launch {
             val dernierPoidsUtilisateur =
@@ -182,6 +208,48 @@ class CreationDieteFragment : Fragment() {
         sliderProteines.addOnChangeListener(listener)
         sliderGlucides.addOnChangeListener(listener)
         sliderLipides.addOnChangeListener(listener)
+    }
+
+    private fun ajouterItemToDiete(truc: Any)
+    {
+
+    }
+
+    fun recetteToAffichee(
+        recette: Recette,
+        ingredients: List<RecetteAliments>,
+        aliments: List<Aliment>
+    ): RecetteAffichee {
+
+        var prot = 0f
+        var glu = 0f
+        var lip = 0f
+        var cal = 0
+        var poids = 0f
+
+        ingredients.forEach { ing ->
+            val alim = aliments.firstOrNull { it.id == ing.idAliment } ?: return@forEach
+            val coef = ing.coefAliment
+
+            poids += 100f * coef
+
+            prot += alim.proteines * coef
+            glu += alim.glucides * coef
+            lip += alim.lipides * coef
+            cal += (alim.calories * coef).toInt()
+        }
+
+
+        return RecetteAffichee(
+            id = recette.id,
+            nom = recette.nom,
+            proteines = prot,
+            glucides = glu,
+            lipides = lip,
+            calories = cal,
+            quantiteTotale = poids,
+            quantitePortion = recette.quantitePortion?.toFloat()
+        )
     }
 
     private fun toggleTopSheet() {
