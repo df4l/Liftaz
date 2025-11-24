@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:layout_width="match_parent" xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_height="wrap_content" android:orientation="vertical" android:padding="24dp">
+
+    <!-- Section pour afficher l'item sélectionné (similaire à item_nourriture.xml) -->
+    <TextView android:id="@+id/itemName" style="@style/TextAppearance.Material3.TitleLarge"
+        android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:text="Nom de l'item" />
+
+    <TextView android:id="@+id/itemSub" style="@style/TextAppearance.Material3.BodyMedium"
+        android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:text="Marque / Poids" android:textColor="?android:attr/textColorSecondary" />
+
+    <TextView android:id="@+id/itemNutri" android:layout_width="wrap_content"
+        android:layout_height="wrap_content" android:layout_marginTop="4dp"
+        android:text="P / G / L / Cal" android:textSize="16sp" />
+
+    <com.google.android.material.divider.MaterialDivider android:layout_width="match_parent"
+        android:layout_height="1dp" android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp" />
+
+    <!-- Section pour la quantité (visible uniquement pour les Aliments) -->
+    <com.google.android.material.textfield.TextInputLayout android:id="@+id/layoutQuantite"
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:hint="Quantité (en grammes)"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:visibility="gone">
+
+        <com.google.android.material.textfield.TextInputEditText android:id="@+id/etQuantite"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:inputType="number" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- Section pour choisir le moment de la journée -->
+    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:layout_marginTop="16dp" android:text="Ajouter à"
+        style="@style/TextAppearance.Material3.TitleMedium" />
+
+    <RadioGroup android:id="@+id/radioGroupMoment" android:layout_width="match_parent"
+        android:layout_height="wrap_content" android:orientation="vertical"
+        android:layout_marginTop="8dp">
+
+        <RadioButton android:id="@+id/rbMatin" android:layout_width="wrap_content"
+            android:layout_height="wrap_content" android:text="Matin" />
+
+        <RadioButton android:id="@+id/rbMidi" android:layout_width="wrap_content"
+            android:layout_height="wrap_content" android:text="Midi" />
+
+        <RadioButton android:id="@+id/rbApresMidi" android:layout_width="wrap_content"
+            android:layout_height="wrap_content" android:text="Après-midi" />
+
+        <RadioButton android:id="@+id/rbSoir" android:layout_width="wrap_content"
+            android:layout_height="wrap_content" android:text="Soir" />
+    </RadioGroup>
+
+</LinearLayout>

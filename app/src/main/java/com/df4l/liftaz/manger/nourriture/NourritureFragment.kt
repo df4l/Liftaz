@@ -175,6 +175,7 @@ class NourritureFragment : Fragment() {
         }
     }
 
+    //TODO: Il serait bon que le NourritureAdapter reçoive directement les recettes à l'avenir plutôt que des versions "affichée"
     private fun loadRecettes() {
         lifecycleScope.launch {
             recettes = recetteDao.getAll()

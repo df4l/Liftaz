@@ -1,8 +1,11 @@
 package com.df4l.liftaz.manger.diete
 
+import android.graphics.Color
 import android.os.Bundle
 import android.text.Editable
+import android.text.SpannableString
 import android.text.TextWatcher
+import android.text.style.ForegroundColorSpan
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -10,21 +13,31 @@ import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.ProgressBar
+import android.widget.RadioButton
+import android.widget.RadioGroup
 import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
+import androidx.compose.animation.core.copy
+import androidx.compose.ui.semantics.dismiss
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.df4l.liftaz.R
 import com.df4l.liftaz.data.Aliment
 import com.df4l.liftaz.data.AppDatabase
 import com.df4l.liftaz.data.Recette
 import com.df4l.liftaz.data.RecetteAliments
+import com.df4l.liftaz.manger.nourriture.NourritureAdapter
 import com.df4l.liftaz.manger.nourriture.RecetteAffichee
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.slider.Slider
+import com.google.android.material.textfield.TextInputLayout
+import com.mikhaellopez.circularprogressbar.CircularProgressBar
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
@@ -40,9 +53,14 @@ class CreationDieteFragment : Fragment() {
     private var pourcentageLipides = 20
     private var totalCalories = 2000
 
-    private var objectifProteines = 0
-    private var objectifGlucides = 0
-    private var objectifLipides = 0
+    private var objectifProteines = 200
+    private var objectifGlucides = 200
+    private var objectifLipides = 44
+
+    private var usedProteines = 0
+    private var usedGlucides = 0
+    private var usedLipides = 0
+    private var usedCalories = 0
 
     // Vues du Fragment
     private lateinit var etCalories: EditText
@@ -66,6 +84,22 @@ class CreationDieteFragment : Fragment() {
     private lateinit var tvGlucidesPercentage: TextView
     private lateinit var tvLipidesPercentage: TextView
     private lateinit var btnAddAlimentOuRecette: FloatingActionButton
+    private lateinit var cpbCalories: CircularProgressBar
+
+    private lateinit var rvMatin: RecyclerView
+    private lateinit var rvMidi: RecyclerView
+    private lateinit var rvApresMidi: RecyclerView
+    private lateinit var rvSoir: RecyclerView
+
+    private lateinit var matinAdapter: NourritureAdapter
+    private lateinit var midiAdapter: NourritureAdapter
+    private lateinit var apresMidiAdapter: NourritureAdapter
+    private lateinit var soirAdapter: NourritureAdapter
+
+    private val matinItems = mutableListOf<Any>()
+    private val midiItems = mutableListOf<Any>()
+    private val apresMidiItems = mutableListOf<Any>()
+    private val soirItems = mutableListOf<Any>()
 
     private fun bindViews(view: View) {
         progressProteines = view.findViewById(R.id.progressProteines)
@@ -89,6 +123,11 @@ class CreationDieteFragment : Fragment() {
         tvGlucidesPercentage = view.findViewById(R.id.tvGlucidesPercentage)
         tvLipidesPercentage = view.findViewById(R.id.tvLipidesPercentage)
         btnAddAlimentOuRecette = view.findViewById(R.id.btnAddAlimentOuRecette)
+        rvMatin = view.findViewById(R.id.rvMatin)
+        rvMidi = view.findViewById(R.id.rvMidi)
+        rvApresMidi = view.findViewById(R.id.rvApresMidi)
+        rvSoir = view.findViewById(R.id.rvSoir)
+        cpbCalories = view.findViewById(R.id.cpbCalories)
     }
 
         override fun onCreateView(
@@ -132,6 +171,7 @@ class CreationDieteFragment : Fragment() {
         }
 
         bindViews(view)
+        setupRecyclerViews()
 
         lifecycleScope.launch {
             val aliments = AppDatabase.getDatabase(requireContext()).alimentDao().getAll()
@@ -210,11 +250,194 @@ class CreationDieteFragment : Fragment() {
         sliderLipides.addOnChangeListener(listener)
     }
 
-    private fun ajouterItemToDiete(truc: Any)
-    {
+    private fun setupRecyclerViews() {
+        matinAdapter = NourritureAdapter(matinItems, onItemClick = {}, onDeleteClick = { item -> /* Logique de suppression */ })
+        rvMatin.layoutManager = LinearLayoutManager(requireContext())
+        rvMatin.adapter = matinAdapter
 
+        midiAdapter = NourritureAdapter(midiItems, onItemClick = {}, onDeleteClick = { item -> /* Logique de suppression */ })
+        rvMidi.layoutManager = LinearLayoutManager(requireContext())
+        rvMidi.adapter = midiAdapter
+
+        apresMidiAdapter = NourritureAdapter(apresMidiItems, onItemClick = {}, onDeleteClick = { item -> /* Logique de suppression */ })
+        rvApresMidi.layoutManager = LinearLayoutManager(requireContext())
+        rvApresMidi.adapter = apresMidiAdapter
+
+        soirAdapter = NourritureAdapter(soirItems, onItemClick = {}, onDeleteClick = { item -> /* Logique de suppression */ })
+        rvSoir.layoutManager = LinearLayoutManager(requireContext())
+        rvSoir.adapter = soirAdapter
     }
 
+    private fun ajouterItemToDiete(item: Any)
+    {
+        val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_add_diete_item, null)
+        val builder = AlertDialog.Builder(requireContext())
+            .setView(dialogView)
+            .setTitle("Ajouter à la diète")
+
+        // Récupération des vues du dialogue
+        val txtName: TextView = dialogView.findViewById(R.id.itemName)
+        val txtSub: TextView = dialogView.findViewById(R.id.itemSub)
+        val txtNutri: TextView = dialogView.findViewById(R.id.itemNutri)
+        val layoutQuantite: TextInputLayout = dialogView.findViewById(R.id.layoutQuantite)
+        val etQuantite: EditText = dialogView.findViewById(R.id.etQuantite)
+        val radioGroup: RadioGroup = dialogView.findViewById(R.id.radioGroupMoment)
+        val rbMatin: RadioButton = dialogView.findViewById(R.id.rbMatin)
+
+        // Pré-cocher "Matin"
+        rbMatin.isChecked = true
+
+        // Remplir les informations de l'item
+        when (item) {
+            is Aliment -> {
+                val q = item.quantiteParDefaut ?: 100
+                txtName.text = item.nom
+                txtSub.text = if (item.quantiteParDefaut != null) "${item.marque} - $q g" else "${item.marque} - Pour 100 g"
+
+                val coef = q / 100f
+                txtNutri.text = nutritionalString(item.proteines * coef, item.glucides * coef, item.lipides * coef, (item.calories * coef).toInt())
+
+                // Afficher le champ de quantité et le pré-remplir
+                layoutQuantite.visibility = View.VISIBLE
+                etQuantite.setText(q.toString())
+            }
+            is RecetteAffichee -> {
+                txtName.text = item.nom
+                val subText = if (item.quantitePortion != null) {
+                    "Portion de ${item.quantitePortion.toInt()}g"
+                } else {
+                    if (item.quantiteTotale % 1f == 0f) "${item.quantiteTotale.toInt()}g" else "${item.quantiteTotale}g"
+                }
+                txtSub.text = subText
+
+                val coef = if (item.quantitePortion != null && item.quantiteTotale > 0f) item.quantitePortion / item.quantiteTotale else 1f
+                txtNutri.text = nutritionalString(item.proteines * coef, item.glucides * coef, item.lipides * coef, (item.calories * coef).toInt())
+
+                // Cacher le champ de quantité pour les recettes
+                layoutQuantite.visibility = View.GONE
+            }
+        }
+
+        builder.setPositiveButton("Ajouter") { dialog, _ ->
+            val selectedMomentId = radioGroup.checkedRadioButtonId
+            val itemToAdd = when (item) {
+                is Aliment -> {
+                    val quantiteStr = etQuantite.text.toString()
+                    val quantite = quantiteStr.toIntOrNull() ?: item.quantiteParDefaut ?: 100
+                    // On crée une copie avec la quantité choisie pour l'affichage
+                    item.copy(quantiteParDefaut = quantite)
+                }
+                is RecetteAffichee -> {
+                    // Pour une recette, on ajoute l'objet tel quel
+                    item
+                }
+                else -> return@setPositiveButton
+            }
+
+            when (selectedMomentId) {
+                R.id.rbMatin -> {
+                    matinItems.add(itemToAdd)
+                    matinAdapter.updateData(matinItems)
+                }
+                R.id.rbMidi -> {
+                    midiItems.add(itemToAdd)
+                    midiAdapter.updateData(midiItems)
+                }
+                R.id.rbApresMidi -> {
+                    apresMidiItems.add(itemToAdd)
+                    apresMidiAdapter.updateData(apresMidiItems)
+                }
+                R.id.rbSoir -> {
+                    soirItems.add(itemToAdd)
+                    soirAdapter.updateData(soirItems)
+                }
+            }
+
+            updateDietTotals()
+
+            dialog.dismiss()
+        }
+
+        builder.setNegativeButton("Annuler") { dialog, _ ->
+            dialog.cancel()
+        }
+
+        builder.create().show()
+    }
+
+    private fun updateDietTotals()
+    {
+        var totalProteines = 0f
+        var totalGlucides = 0f
+        var totalLipides = 0f
+        var totalCalories = 0
+
+        var tousLesItems = matinItems + midiItems + apresMidiItems + soirItems
+
+        tousLesItems.forEach { item ->
+            when(item) {
+                is Aliment -> {
+                    if(item.quantiteParDefaut != null) {
+                        totalProteines += (item.proteines * item.quantiteParDefaut) / 100
+                        totalGlucides += (item.glucides * item.quantiteParDefaut) / 100
+                        totalLipides += (item.lipides * item.quantiteParDefaut) / 100
+                        totalCalories += (item.calories * item.quantiteParDefaut) / 100
+                    }
+                    else {
+                        totalProteines += item.proteines
+                        totalGlucides += item.glucides
+                        totalLipides += item.lipides
+                        totalCalories += item.calories
+                    }
+                }
+                is RecetteAffichee -> {
+                    totalProteines += item.proteines
+                    totalGlucides += item.glucides
+                    totalLipides += item.lipides
+                    totalCalories += item.calories
+                }
+            }
+        }
+
+        usedCalories = totalCalories
+        usedGlucides = totalGlucides.roundToInt()
+        usedLipides = totalLipides.roundToInt()
+        usedProteines = totalProteines.roundToInt()
+
+        updateMacrosObjectivesInFragment(objectifGlucides, objectifLipides, objectifProteines)
+    }
+
+
+    private fun nutritionalString(p: Float, g: Float, l: Float, kcal: Int): SpannableString {
+        val protStr = "${"%.1f".format(p)}g"
+        val glucStr = "${"%.1f".format(g)}g"
+        val lipStr = "${"%.1f".format(l)}g"
+        val calStr = "${kcal}kcal"
+
+        val text = "$protStr / $glucStr / $lipStr / $calStr"
+        val span = SpannableString(text)
+
+        val protColor = Color.parseColor("#ec99b5")
+        val glucColor = Color.parseColor("#86e8cd")
+        val fatColor = Color.parseColor("#f2d678")
+
+        val protStart = 0
+        val protEnd = protStr.length
+
+        val glucStart = protEnd + 3
+        val glucEnd = glucStart + glucStr.length
+
+        val lipStart = glucEnd + 3
+        val lipEnd = lipStart + lipStr.length
+
+        span.setSpan(ForegroundColorSpan(protColor), protStart, protEnd, 0)
+        span.setSpan(ForegroundColorSpan(glucColor), glucStart, glucEnd, 0)
+        span.setSpan(ForegroundColorSpan(fatColor), lipStart, lipEnd, 0)
+
+        return span
+    }
+
+    //TODO: Il serait bon que le NourritureAdapter reçoive directement les recettes à l'avenir plutôt que des versions "affichée"
     fun recetteToAffichee(
         recette: Recette,
         ingredients: List<RecetteAliments>,
@@ -366,6 +589,7 @@ class CreationDieteFragment : Fragment() {
         var g = ((glucidesGr * 4f / totalCalories) * 100).roundToInt()
         var l = ((lipidesGr * 9f / totalCalories) * 100).roundToInt()
 
+        //TODO: Ce code est dupliqué dans UpdateMacrosFromSliders, ça serait bien de l'avoir en qu'un seul exemplaire
         // Ajuster si total != 100
         val diff = p + g + l - 100
         if (diff != 0) {
@@ -469,6 +693,7 @@ class CreationDieteFragment : Fragment() {
             return
         }
 
+        //TODO: Ce code est dupliqué dans UpdateMacrosFromGrams, ça serait bien de l'avoir en qu'un seul exemplaire
         when (editedSlider) {
             sliderProteines -> {
                 if (diff > 0) {
@@ -564,15 +789,34 @@ class CreationDieteFragment : Fragment() {
         objectifGlucides = glucidesGr
         objectifLipides = lipidesGr
 
-        tvCaloriesStatus!!.text = "0 / ${totalCalories}\ncalories"
+        tvCaloriesStatus!!.text = "${usedCalories} / ${totalCalories}\ncalories"
+        cpbCalories!!.progressMax = totalCalories.toFloat()
+        if(usedCalories < totalCalories)
+            cpbCalories!!.progress = usedCalories.toFloat()
+        else
+            cpbCalories!!.progress = cpbCalories.progressMax
 
-        tvProteines!!.text = "0 / ${objectifProteines}g"
-        tvGlucides!!.text = "0 / ${objectifGlucides}g"
-        tvLipides!!.text = "0 / ${objectifLipides}g"
+        tvProteines!!.text = "${usedProteines} / ${objectifProteines}g"
+        tvGlucides!!.text = "${usedGlucides} / ${objectifGlucides}g"
+        tvLipides!!.text = "${usedLipides} / ${objectifLipides}g"
 
         progressProteines!!.max = objectifProteines
+        if(usedProteines < objectifProteines)
+            progressProteines!!.progress = usedProteines
+        else
+            progressProteines!!.progress = progressProteines!!.max
+
         progressGlucides!!.max = objectifGlucides
+        if(usedGlucides < objectifGlucides)
+            progressGlucides!!.progress = usedGlucides
+        else
+            progressGlucides!!.progress = progressGlucides!!.max
+
         progressLipides!!.max = objectifLipides
+        if(usedLipides < objectifLipides)
+            progressLipides!!.progress = usedLipides
+        else
+            progressLipides!!.progress = progressLipides!!.max
     }
 }
 
