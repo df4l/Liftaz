@@ -1,4 +1,4 @@
-package com.df4l.liftaz.manger.diete;
+package com.df4l.liftaz.manger.diete.creationDiete;
 
 import android.content.Context;
 import android.content.res.TypedArray;

@@ -38,4 +38,7 @@ interface SeanceDao {
 
     @Query("UPDATE seances SET idProgramme = NULL WHERE idProgramme = :programmeId")
     suspend fun clearProgrammeIdForProgramme(programmeId: Int)
+
+    @Query("SELECT * FROM seances WHERE idProgramme IS NULL")
+    suspend fun getSeancesSansProgramme(): List<Seance>
 }

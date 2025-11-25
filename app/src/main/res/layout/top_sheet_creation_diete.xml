@@ -10,7 +10,7 @@
     app:behavior_hideable="false"
     app:behavior_peekHeight="42dp"
     app:cardElevation="8dp"
-    app:layout_behavior="com.df4l.liftaz.manger.diete.TopSheetBehavior">
+    app:layout_behavior="com.df4l.liftaz.manger.diete.creationDiete.TopSheetBehavior">
 
     <FrameLayout
         android:layout_width="match_parent"

@@ -1,4 +1,4 @@
-package com.df4l.liftaz.manger.diete
+package com.df4l.liftaz.manger.diete.creationDiete
 
 import android.graphics.Color
 import android.os.Bundle
@@ -139,9 +139,9 @@ class CreationDieteFragment : Fragment() {
     }
 
         override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
+            inflater: LayoutInflater,
+            container: ViewGroup?,
+            savedInstanceState: Bundle?
     ): View? {
         return inflater.inflate(R.layout.fragment_creationdiete, container, false)
     }
@@ -186,11 +186,11 @@ class CreationDieteFragment : Fragment() {
         }
 
         lifecycleScope.launch {
-            val aliments = AppDatabase.getDatabase(requireContext()).alimentDao().getAll()
-            val recettes = AppDatabase.getDatabase(requireContext()).recetteDao().getAll()
+            val aliments = AppDatabase.Companion.getDatabase(requireContext()).alimentDao().getAll()
+            val recettes = AppDatabase.Companion.getDatabase(requireContext()).recetteDao().getAll()
 
             val recettesAffichees = recettes.map { recette ->
-                val ing = AppDatabase.getDatabase(requireContext()).recetteAlimentsDao()
+                val ing = AppDatabase.Companion.getDatabase(requireContext()).recetteAlimentsDao()
                     .getAllForRecette(recette.id)
                 recetteToAffichee(recette, ing, aliments)
             }
@@ -207,7 +207,7 @@ class CreationDieteFragment : Fragment() {
 
         lifecycleScope.launch {
             val dernierPoidsUtilisateur =
-                AppDatabase.getDatabase(requireContext()).entreePoidsDao().getLatestWeight()?.poids
+                AppDatabase.Companion.getDatabase(requireContext()).entreePoidsDao().getLatestWeight()?.poids
 
             if (dernierPoidsUtilisateur != null) {
 
@@ -300,14 +300,15 @@ class CreationDieteFragment : Fragment() {
     {
         //Pour plus tard quand je ferais l'update de diète
         lifecycleScope.launch {
-            val dieteDao = AppDatabase.getDatabase(requireContext()).dieteDao()
-            val dieteElementsDao = AppDatabase.getDatabase(requireContext()).dieteElementsDao()
+            val dieteDao = AppDatabase.Companion.getDatabase(requireContext()).dieteDao()
+            val dieteElementsDao = AppDatabase.Companion.getDatabase(requireContext()).dieteElementsDao()
 
             val idDiete = idDieteModif?.also {
                 null
             } ?: run {
                 dieteDao.insert(
-                    Diete(nom = nom,
+                    Diete(
+                        nom = nom,
                         objProteines = objectifProteines,
                         objGlucides = objectifGlucides,
                         objLipides = objectifLipides,
@@ -335,7 +336,8 @@ class CreationDieteFragment : Fragment() {
                                 typeElement = TypeElement.ALIMENT,
                                 periodeRepas = periode,
                                 quantiteGrammes = item.quantiteParDefaut!!
-                                ))
+                            )
+                        )
                     }
                     is RecetteAffichee -> {
                         dieteElementsDao.insert(
@@ -360,19 +362,31 @@ class CreationDieteFragment : Fragment() {
     }
 
     private fun setupRecyclerViews() {
-        matinAdapter = NourritureAdapter(matinItems, onItemClick = {}, onDeleteClick = { item -> deleteFromDiete(item, matinItems, matinAdapter) })
+        matinAdapter = NourritureAdapter(
+            matinItems,
+            onItemClick = {},
+            onDeleteClick = { item -> deleteFromDiete(item, matinItems, matinAdapter) })
         rvMatin.layoutManager = LinearLayoutManager(requireContext())
         rvMatin.adapter = matinAdapter
 
-        midiAdapter = NourritureAdapter(midiItems, onItemClick = {}, onDeleteClick = { item -> deleteFromDiete(item, midiItems, midiAdapter) })
+        midiAdapter = NourritureAdapter(
+            midiItems,
+            onItemClick = {},
+            onDeleteClick = { item -> deleteFromDiete(item, midiItems, midiAdapter) })
         rvMidi.layoutManager = LinearLayoutManager(requireContext())
         rvMidi.adapter = midiAdapter
 
-        apresMidiAdapter = NourritureAdapter(apresMidiItems, onItemClick = {}, onDeleteClick = { item -> deleteFromDiete(item, apresMidiItems, apresMidiAdapter) })
+        apresMidiAdapter = NourritureAdapter(
+            apresMidiItems,
+            onItemClick = {},
+            onDeleteClick = { item -> deleteFromDiete(item, apresMidiItems, apresMidiAdapter) })
         rvApresMidi.layoutManager = LinearLayoutManager(requireContext())
         rvApresMidi.adapter = apresMidiAdapter
 
-        soirAdapter = NourritureAdapter(soirItems, onItemClick = {}, onDeleteClick = { item -> deleteFromDiete(item, soirItems, soirAdapter) })
+        soirAdapter = NourritureAdapter(
+            soirItems,
+            onItemClick = {},
+            onDeleteClick = { item -> deleteFromDiete(item, soirItems, soirAdapter) })
         rvSoir.layoutManager = LinearLayoutManager(requireContext())
         rvSoir.adapter = soirAdapter
     }
@@ -961,4 +975,3 @@ class CreationDieteFragment : Fragment() {
             progressLipides!!.progress = progressLipides!!.max
     }
 }
-

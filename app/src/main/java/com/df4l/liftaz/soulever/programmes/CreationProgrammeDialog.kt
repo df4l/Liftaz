@@ -35,7 +35,8 @@ class CreationProgrammeDialog(
         database = AppDatabase.getDatabase(requireContext())
 
         lifecycleScope.launch {
-            seances = database.seanceDao().getAllSeances() // tu as probablement déjà cette fonction
+
+            seances = database.seanceDao().getSeancesSansProgramme()
             adapter = ArrayAdapter(
                 requireContext(),
                 android.R.layout.simple_list_item_multiple_choice,

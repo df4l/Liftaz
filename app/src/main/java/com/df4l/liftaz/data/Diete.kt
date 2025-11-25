@@ -11,5 +11,6 @@ data class Diete(
     var objProteines: Int,
     var objGlucides: Int,
     var objLipides: Int,
-    var objCalories: Int
+    var objCalories: Int,
+    val actif: Boolean = false //Une seule diète active à la fois
 )

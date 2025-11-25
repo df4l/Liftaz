@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
+import androidx.room.Query
 import androidx.room.Update
 
 @Dao
@@ -16,4 +17,7 @@ interface DieteDao {
 
     @Delete
     suspend fun delete(diete: Diete)
+
+    @Query("SELECT * FROM dietes")
+    suspend fun getAllDietes(): List<Diete>
 }
