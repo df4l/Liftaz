@@ -12,6 +12,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.LinearLayout
+import android.widget.NumberPicker
 import android.widget.ProgressBar
 import android.widget.RadioButton
 import android.widget.RadioGroup
@@ -251,21 +252,28 @@ class CreationDieteFragment : Fragment() {
     }
 
     private fun setupRecyclerViews() {
-        matinAdapter = NourritureAdapter(matinItems, onItemClick = {}, onDeleteClick = { item -> /* Logique de suppression */ })
+        matinAdapter = NourritureAdapter(matinItems, onItemClick = {}, onDeleteClick = { item -> deleteFromDiete(item, matinItems, matinAdapter) })
         rvMatin.layoutManager = LinearLayoutManager(requireContext())
         rvMatin.adapter = matinAdapter
 
-        midiAdapter = NourritureAdapter(midiItems, onItemClick = {}, onDeleteClick = { item -> /* Logique de suppression */ })
+        midiAdapter = NourritureAdapter(midiItems, onItemClick = {}, onDeleteClick = { item -> deleteFromDiete(item, midiItems, midiAdapter) })
         rvMidi.layoutManager = LinearLayoutManager(requireContext())
         rvMidi.adapter = midiAdapter
 
-        apresMidiAdapter = NourritureAdapter(apresMidiItems, onItemClick = {}, onDeleteClick = { item -> /* Logique de suppression */ })
+        apresMidiAdapter = NourritureAdapter(apresMidiItems, onItemClick = {}, onDeleteClick = { item -> deleteFromDiete(item, apresMidiItems, apresMidiAdapter) })
         rvApresMidi.layoutManager = LinearLayoutManager(requireContext())
         rvApresMidi.adapter = apresMidiAdapter
 
-        soirAdapter = NourritureAdapter(soirItems, onItemClick = {}, onDeleteClick = { item -> /* Logique de suppression */ })
+        soirAdapter = NourritureAdapter(soirItems, onItemClick = {}, onDeleteClick = { item -> deleteFromDiete(item, soirItems, soirAdapter) })
         rvSoir.layoutManager = LinearLayoutManager(requireContext())
         rvSoir.adapter = soirAdapter
+    }
+
+    private fun deleteFromDiete(item: Any, listeItems: MutableList<Any>, adapter: NourritureAdapter)
+    {
+        listeItems.remove(item)
+        adapter.updateData(listeItems)
+        updateDietTotals()
     }
 
     private fun ajouterItemToDiete(item: Any)
@@ -283,86 +291,112 @@ class CreationDieteFragment : Fragment() {
         val etQuantite: EditText = dialogView.findViewById(R.id.etQuantite)
         val radioGroup: RadioGroup = dialogView.findViewById(R.id.radioGroupMoment)
         val rbMatin: RadioButton = dialogView.findViewById(R.id.rbMatin)
+        val layoutPortions: LinearLayout = dialogView.findViewById(R.id.layoutPortions)
+        val npPortions: NumberPicker = dialogView.findViewById(R.id.numberPickerPortions)
 
-        // Pré-cocher "Matin"
         rbMatin.isChecked = true
 
-        // Remplir les informations de l'item
+        npPortions.minValue = 1
+        npPortions.maxValue = 100
+        npPortions.value = 1
+
         when (item) {
             is Aliment -> {
                 val q = item.quantiteParDefaut ?: 100
                 txtName.text = item.nom
-                txtSub.text = if (item.quantiteParDefaut != null) "${item.marque} - $q g" else "${item.marque} - Pour 100 g"
+                txtSub.text = if (item.quantiteParDefaut != null)
+                    "${item.marque} - $q g"
+                else
+                    "${item.marque} - Pour 100 g"
 
                 val coef = q / 100f
-                txtNutri.text = nutritionalString(item.proteines * coef, item.glucides * coef, item.lipides * coef, (item.calories * coef).toInt())
+                txtNutri.text = nutritionalString(
+                    item.proteines * coef,
+                    item.glucides * coef,
+                    item.lipides * coef,
+                    (item.calories * coef).toInt()
+                )
 
-                // Afficher le champ de quantité et le pré-remplir
-                layoutQuantite.visibility = View.VISIBLE
-                etQuantite.setText(q.toString())
+                if (item.quantiteParDefaut == null) {
+                    layoutQuantite.visibility = View.VISIBLE
+                    etQuantite.setText(q.toString())
+                } else {
+                    layoutPortions.visibility = View.VISIBLE
+                }
             }
+
             is RecetteAffichee -> {
                 txtName.text = item.nom
                 val subText = if (item.quantitePortion != null) {
                     "Portion de ${item.quantitePortion.toInt()}g"
                 } else {
-                    if (item.quantiteTotale % 1f == 0f) "${item.quantiteTotale.toInt()}g" else "${item.quantiteTotale}g"
+                    if (item.quantiteTotale % 1f == 0f)
+                        "${item.quantiteTotale.toInt()}g"
+                    else
+                        "${item.quantiteTotale}g"
                 }
                 txtSub.text = subText
 
-                val coef = if (item.quantitePortion != null && item.quantiteTotale > 0f) item.quantitePortion / item.quantiteTotale else 1f
-                txtNutri.text = nutritionalString(item.proteines * coef, item.glucides * coef, item.lipides * coef, (item.calories * coef).toInt())
+                val coef = if (item.quantitePortion != null && item.quantiteTotale > 0f)
+                    item.quantitePortion / item.quantiteTotale
+                else 1f
 
-                // Cacher le champ de quantité pour les recettes
+                txtNutri.text = nutritionalString(
+                    item.proteines * coef,
+                    item.glucides * coef,
+                    item.lipides * coef,
+                    (item.calories * coef).toInt()
+                )
+
                 layoutQuantite.visibility = View.GONE
             }
         }
 
         builder.setPositiveButton("Ajouter") { dialog, _ ->
             val selectedMomentId = radioGroup.checkedRadioButtonId
-            val itemToAdd = when (item) {
-                is Aliment -> {
-                    val quantiteStr = etQuantite.text.toString()
-                    val quantite = quantiteStr.toIntOrNull() ?: item.quantiteParDefaut ?: 100
-                    // On crée une copie avec la quantité choisie pour l'affichage
-                    item.copy(quantiteParDefaut = quantite)
-                }
-                is RecetteAffichee -> {
-                    // Pour une recette, on ajoute l'objet tel quel
-                    item
-                }
-                else -> return@setPositiveButton
-            }
 
-            when (selectedMomentId) {
-                R.id.rbMatin -> {
-                    matinItems.add(itemToAdd)
-                    matinAdapter.updateData(matinItems)
+            when (item) {
+                is Aliment -> {
+
+                    // ➤ Cas 1 : aliment SANS quantité par défaut → on récupère l'entrée utilisateur
+                    if (item.quantiteParDefaut == null) {
+                        val quantite = etQuantite.text.toString().toIntOrNull() ?: 100
+                        val alimentCopy = item.copy(quantiteParDefaut = quantite)
+
+                        addItemToMoment(selectedMomentId, alimentCopy)
+                    }
+
+                    // ➤ Cas 2 : aliment AVEC quantité par défaut → on ajoute N copies
+                    else {
+                        val portions = npPortions.value
+
+                        repeat(portions) {
+                            val alimentCopy = item.copy()   // copie simple
+                            addItemToMoment(selectedMomentId, alimentCopy)
+                        }
+                    }
                 }
-                R.id.rbMidi -> {
-                    midiItems.add(itemToAdd)
-                    midiAdapter.updateData(midiItems)
-                }
-                R.id.rbApresMidi -> {
-                    apresMidiItems.add(itemToAdd)
-                    apresMidiAdapter.updateData(apresMidiItems)
-                }
-                R.id.rbSoir -> {
-                    soirItems.add(itemToAdd)
-                    soirAdapter.updateData(soirItems)
+
+                is RecetteAffichee -> {
+                    addItemToMoment(selectedMomentId, item)
                 }
             }
 
             updateDietTotals()
-
             dialog.dismiss()
         }
 
-        builder.setNegativeButton("Annuler") { dialog, _ ->
-            dialog.cancel()
-        }
-
+        builder.setNegativeButton("Annuler") { dialog, _ -> dialog.cancel() }
         builder.create().show()
+    }
+
+    private fun addItemToMoment(momentId: Int, item: Any) {
+        when (momentId) {
+            R.id.rbMatin -> { matinItems.add(item); matinAdapter.updateData(matinItems) }
+            R.id.rbMidi -> { midiItems.add(item); midiAdapter.updateData(midiItems) }
+            R.id.rbApresMidi -> { apresMidiItems.add(item); apresMidiAdapter.updateData(apresMidiItems) }
+            R.id.rbSoir -> { soirItems.add(item); soirAdapter.updateData(soirItems) }
+        }
     }
 
     private fun updateDietTotals()

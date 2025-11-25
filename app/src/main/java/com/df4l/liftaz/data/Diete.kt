@@ -7,5 +7,9 @@ import androidx.room.PrimaryKey
 data class Diete(
     @PrimaryKey(autoGenerate = true)
     var id: Int,
-    var nom: String
+    var nom: String,
+    var objProteines: Int,
+    var objGlucides: Int,
+    var objLipides: Int,
+    var objCalories: Int
 )
