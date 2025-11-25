@@ -17,9 +17,8 @@ import android.widget.ProgressBar
 import android.widget.RadioButton
 import android.widget.RadioGroup
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
-import androidx.compose.animation.core.copy
-import androidx.compose.ui.semantics.dismiss
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updateLayoutParams
@@ -30,8 +29,12 @@ import androidx.recyclerview.widget.RecyclerView
 import com.df4l.liftaz.R
 import com.df4l.liftaz.data.Aliment
 import com.df4l.liftaz.data.AppDatabase
+import com.df4l.liftaz.data.Diete
+import com.df4l.liftaz.data.DieteElements
+import com.df4l.liftaz.data.PeriodeRepas
 import com.df4l.liftaz.data.Recette
 import com.df4l.liftaz.data.RecetteAliments
+import com.df4l.liftaz.data.TypeElement
 import com.df4l.liftaz.manger.nourriture.NourritureAdapter
 import com.df4l.liftaz.manger.nourriture.RecetteAffichee
 import com.google.android.material.card.MaterialCardView
@@ -85,6 +88,7 @@ class CreationDieteFragment : Fragment() {
     private lateinit var tvGlucidesPercentage: TextView
     private lateinit var tvLipidesPercentage: TextView
     private lateinit var btnAddAlimentOuRecette: FloatingActionButton
+    private lateinit var btnSauvegarderDiete: FloatingActionButton
     private lateinit var cpbCalories: CircularProgressBar
 
     private lateinit var rvMatin: RecyclerView
@@ -101,6 +105,8 @@ class CreationDieteFragment : Fragment() {
     private val midiItems = mutableListOf<Any>()
     private val apresMidiItems = mutableListOf<Any>()
     private val soirItems = mutableListOf<Any>()
+
+    private var idDieteModif: Int? = null
 
     private fun bindViews(view: View) {
         progressProteines = view.findViewById(R.id.progressProteines)
@@ -124,6 +130,7 @@ class CreationDieteFragment : Fragment() {
         tvGlucidesPercentage = view.findViewById(R.id.tvGlucidesPercentage)
         tvLipidesPercentage = view.findViewById(R.id.tvLipidesPercentage)
         btnAddAlimentOuRecette = view.findViewById(R.id.btnAddAlimentOuRecette)
+        btnSauvegarderDiete = view.findViewById(R.id.btnSauvegarderDiete)
         rvMatin = view.findViewById(R.id.rvMatin)
         rvMidi = view.findViewById(R.id.rvMidi)
         rvApresMidi = view.findViewById(R.id.rvApresMidi)
@@ -173,6 +180,10 @@ class CreationDieteFragment : Fragment() {
 
         bindViews(view)
         setupRecyclerViews()
+
+        btnSauvegarderDiete.setOnClickListener {
+            leadToSetNameAndSaveDiete()
+        }
 
         lifecycleScope.launch {
             val aliments = AppDatabase.getDatabase(requireContext()).alimentDao().getAll()
@@ -249,6 +260,103 @@ class CreationDieteFragment : Fragment() {
         sliderProteines.addOnChangeListener(listener)
         sliderGlucides.addOnChangeListener(listener)
         sliderLipides.addOnChangeListener(listener)
+    }
+
+    private fun leadToSetNameAndSaveDiete()
+    {
+        //Vérifier qu'il y a bien des repas à enregister
+        var tousLesItems = matinItems + midiItems + apresMidiItems + soirItems
+
+        if(tousLesItems.isEmpty())
+        {
+            Toast.makeText(context, "La diète est vide !", Toast.LENGTH_SHORT).show()
+            return
+        }
+        else
+        {
+            val editText = EditText(context)
+            editText.hint = "Nom de la diète"
+
+            val dialog = AlertDialog.Builder(requireContext())
+                .setTitle("Ajouter un nom et sauvegarder la diète")
+                .setView(editText)
+                .setPositiveButton("Sauvegarder") { _, _ ->
+                    val nomDiete = editText.text.toString().trim()
+
+                    if (nomDiete.isNotEmpty()) {
+                        sauvegarderDiete(nomDiete)
+                    } else {
+                        Toast.makeText(context, "Veuillez entrer un nom", Toast.LENGTH_SHORT).show()
+                    }
+                }
+                .setNegativeButton("Annuler", null)
+                .create()
+
+            dialog.show()
+        }
+    }
+
+    private fun sauvegarderDiete(nom: String)
+    {
+        //Pour plus tard quand je ferais l'update de diète
+        lifecycleScope.launch {
+            val dieteDao = AppDatabase.getDatabase(requireContext()).dieteDao()
+            val dieteElementsDao = AppDatabase.getDatabase(requireContext()).dieteElementsDao()
+
+            val idDiete = idDieteModif?.also {
+                null
+            } ?: run {
+                dieteDao.insert(
+                    Diete(nom = nom,
+                        objProteines = objectifProteines,
+                        objGlucides = objectifGlucides,
+                        objLipides = objectifLipides,
+                        objCalories = totalCalories
+                    )
+                ).toInt()
+            }
+
+            val tousLesItems = listOf(
+                PeriodeRepas.MATIN to matinItems,
+                PeriodeRepas.MIDI to midiItems,
+                PeriodeRepas.APRES_MIDI to apresMidiItems,
+                PeriodeRepas.SOIR to soirItems
+            ).flatMap { (periode, items) ->
+                items.map { item -> item to periode }
+            }
+
+            tousLesItems.forEach { (item, periode) ->
+                when (item)  {
+                    is Aliment -> {
+                        dieteElementsDao.insert(
+                            DieteElements(
+                                idDiete = idDiete,
+                                idElement = item.id,
+                                typeElement = TypeElement.ALIMENT,
+                                periodeRepas = periode,
+                                quantiteGrammes = item.quantiteParDefaut!!
+                                ))
+                    }
+                    is RecetteAffichee -> {
+                        dieteElementsDao.insert(
+                            DieteElements(
+                                idDiete = idDiete,
+                                idElement = item.id,
+                                typeElement = TypeElement.RECETTE,
+                                periodeRepas = periode,
+                                quantiteGrammes = item.quantiteTotale.toInt()
+                            )
+                        )
+                    }
+                }
+            }
+
+            requireActivity().runOnUiThread {
+                val msg = if (idDieteModif != null) "Diète modifiée ✅" else "Diète sauvegardée ✅"
+                Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show()
+                requireActivity().onBackPressedDispatcher.onBackPressed()
+            }
+        }
     }
 
     private fun setupRecyclerViews() {
