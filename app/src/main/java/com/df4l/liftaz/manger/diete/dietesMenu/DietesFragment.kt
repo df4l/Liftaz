@@ -1,10 +1,12 @@
 package com.df4l.liftaz.manger.diete.dietesMenu
 
+import android.app.AlertDialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
@@ -56,7 +58,28 @@ class DietesFragment : Fragment() {
         lifecycleScope.launch {
             val dietes = dieteDao.getAllDietes()
 
-            adapter = DieteAdapter(dietes = dietes, onActivate = {}, onDelete = {})
+            adapter = DieteAdapter(dietes = dietes,
+                onActivate = {
+
+                },
+                onDelete = {
+                    diete ->
+                    AlertDialog.Builder(requireContext())
+                        .setTitle("Supprimer la diète ?")
+                        .setMessage("Voulez-vous vraiment supprimer « ${diete.nom} » ? ")
+                        .setPositiveButton("Oui") { _, _ ->
+                            lifecycleScope.launch {
+                                // Détacher les séances de ce programme
+                                AppDatabase.getDatabase(requireContext()).dieteElementsDao().deleteByIdDiete(diete.id)
+                                // Supprimer le programme
+                                AppDatabase.getDatabase(requireContext()).dieteDao().delete(diete)
+                                loadDietes()
+                                Toast.makeText(requireContext(), "Diète supprimée 🗑️", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                        .setNegativeButton("Non", null)
+                        .show()
+                })
             recyclerView.adapter = adapter
 
 
