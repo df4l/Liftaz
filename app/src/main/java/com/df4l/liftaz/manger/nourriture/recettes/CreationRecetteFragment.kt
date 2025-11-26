@@ -130,7 +130,8 @@ class CreationRecetteFragment : Fragment() {
             }
 
             DialogSelectAliment(aliments) { aliment ->
-                val item = AlimentRecetteAdapter.AlimentRecetteItem(aliment)
+                val quantiteInitiale = aliment.quantiteParDefaut?.toFloat() ?: 0f
+                val item = AlimentRecetteAdapter.AlimentRecetteItem(aliment, quantiteInitiale)
                 items.add(item)
                 adapter.notifyItemInserted(items.size - 1)
                 updateTotalMacros()
