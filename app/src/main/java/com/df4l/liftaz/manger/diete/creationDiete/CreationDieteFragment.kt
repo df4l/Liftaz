@@ -714,7 +714,8 @@ class CreationDieteFragment : Fragment() {
             lipides = lip,
             calories = cal,
             quantiteTotale = poids,
-            quantitePortion = recette.quantitePortion?.toFloat()
+            quantitePortion = recette.quantitePortion?.toFloat(),
+            imageUri = recette.imageUri
         )
     }
 

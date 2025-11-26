@@ -7,8 +7,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
+import android.widget.ImageView
 import android.widget.TextView
+import androidx.compose.animation.with
+import androidx.core.net.toUri
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.df4l.liftaz.R
 import com.df4l.liftaz.data.Aliment
 
@@ -23,6 +27,7 @@ class NourritureAdapter(
         val txtSub: TextView = itemView.findViewById(R.id.itemSub)
         val txtNutri: TextView = itemView.findViewById(R.id.itemNutri)
         val btnRemove: ImageButton = itemView.findViewById(R.id.btnRemoveNourriture)
+        val itemImage: ImageView = itemView.findViewById(R.id.itemImage)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -63,6 +68,17 @@ class NourritureAdapter(
             if (a.quantiteParDefaut != null) "${a.marque} - $q g"
             else "${a.marque} - Pour 100 g"
 
+        a.imageUri?.let { uriString ->
+            Glide.with(holder.itemView.context)
+                .load(uriString.toUri())
+                .centerCrop()
+                .into(holder.itemImage)
+        } ?: run {
+            // S'il n'y a pas d'image, on peut afficher une placeholder ou nettoyer la vue
+            holder.itemImage.setImageResource(0) // Efface l'image précédente
+            holder.itemImage.setBackgroundColor(Color.parseColor("#E0E0E0"))
+        }
+
         val coef = q / 100f
         val prot = a.proteines * coef
         val glu = a.glucides * coef
@@ -79,6 +95,16 @@ class NourritureAdapter(
             "Portion de ${r.quantitePortion.toInt()}g"
         } else {
             if (r.quantiteTotale % 1f == 0f) "${r.quantiteTotale.toInt()}g" else "${r.quantiteTotale}"
+        }
+
+        r.imageUri?.let { uriString ->
+            Glide.with(holder.itemView.context)
+                .load(uriString.toUri())
+                .centerCrop()
+                .into(holder.itemImage)
+        } ?: run {
+            holder.itemImage.setImageResource(0)
+            holder.itemImage.setBackgroundColor(Color.parseColor("#E0E0E0"))
         }
 
         holder.txtSub.text = subText
@@ -141,5 +167,6 @@ data class RecetteAffichee(
     val lipides: Float,
     val calories: Int,
     val quantiteTotale: Float,
-    val quantitePortion: Float? = null
+    val quantitePortion: Float? = null,
+    val imageUri: String? = null
 )

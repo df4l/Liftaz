@@ -235,7 +235,8 @@ class NourritureFragment : Fragment() {
                         lipides = totalLipides,
                         calories = totalCalories,
                         quantiteTotale = quantiteTotale,
-                        quantitePortion = recette.quantitePortion?.toFloat()
+                        quantitePortion = recette.quantitePortion?.toFloat(),
+                        imageUri = recette.imageUri
                     )
                 )
             }

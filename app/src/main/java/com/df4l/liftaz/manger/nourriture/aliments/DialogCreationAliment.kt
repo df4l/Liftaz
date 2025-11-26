@@ -53,7 +53,6 @@ class DialogCreationAliment(
                 it.isVisible = true // Rendre l'ImageView visible
             }
             // On peut masquer le bouton caméra une fois la photo prise
-            btnPrendrePhoto?.isVisible = false
         } else {
             // La prise de photo a été annulée ou a échoué.
             Toast.makeText(requireContext(), "Prise de photo annulée.", Toast.LENGTH_SHORT).show()
