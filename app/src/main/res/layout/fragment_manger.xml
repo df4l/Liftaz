@@ -88,7 +88,7 @@
                         app:tint="#ec99b5" />
 
                     <TextView
-                        android:id="@+id/tvProteines"
+                        android:id="@+id/tvProteinesManger"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="60g (1.2 g/kg)" />
@@ -113,7 +113,7 @@
                         app:tint="#86e8cd" />
 
                     <TextView
-                        android:id="@+id/tvGlucides"
+                        android:id="@+id/tvGlucidesManger"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="50g" />
@@ -138,7 +138,7 @@
                         app:tint="#f2d678" />
 
                     <TextView
-                        android:id="@+id/tvLipides"
+                        android:id="@+id/tvLipidesManger"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="20g" />

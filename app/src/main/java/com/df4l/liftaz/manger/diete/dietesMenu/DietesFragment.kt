@@ -62,10 +62,19 @@ class DietesFragment : Fragment() {
             adapter = DieteAdapter(dietes = dietes,
                 onActivate = { diete ->
                     lifecycleScope.launch {
+                        if(dieteDao.isDieteActive(diete.id))
+                        {
+                            dieteDao.desactiverTous()
+                            loadDietes()
+                            Toast.makeText(requireContext(), "Diète « ${diete.nom} » désactivée ✅", Toast.LENGTH_SHORT).show()
+                        }
+                        else
+                        {
                         dieteDao.desactiverTous()
                         dieteDao.activer(diete.id)
                         loadDietes()
                         Toast.makeText(requireContext(), "Diète « ${diete.nom} » activée ✅", Toast.LENGTH_SHORT).show()
+                        }
                     }
                 },
                 onDelete = {

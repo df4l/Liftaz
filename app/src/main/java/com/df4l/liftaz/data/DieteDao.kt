@@ -29,4 +29,10 @@ interface DieteDao {
 
     @Query("UPDATE dietes SET actif = 1 WHERE id = :dieteId")
     suspend fun activer(dieteId: Int)
+
+    @Query("SELECT EXISTS(SELECT 1 FROM dietes WHERE id = :dieteId AND actif = 1)")
+    suspend fun isDieteActive(dieteId: Int): Boolean
+
+    @Query("SELECT * FROM dietes WHERE actif = 1 LIMIT 1")
+    suspend fun getActiveDiete(): Diete?
 }

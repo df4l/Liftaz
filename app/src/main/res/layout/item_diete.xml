@@ -4,68 +4,77 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginVertical="6dp"
-    app:cardCornerRadius="16dp"
-    app:cardElevation="4dp"
     android:clickable="true"
-    android:foreground="?android:attr/selectableItemBackground">
+    android:foreground="?android:attr/selectableItemBackground"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="4dp">
 
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="top"
-        android:baselineAligned="false"
-        >
+        android:layout_height="wrap_content">
 
         <!-- Camembert -->
         <com.github.mikephil.charting.charts.PieChart
             android:id="@+id/pieChartMini"
             android:layout_width="120dp"
             android:layout_height="120dp"
-            android:layout_margin="12dp" />
+            android:layout_margin="12dp"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true" />
+
+        <!-- Bouton delete -->
+        <ImageButton
+            android:id="@+id/btnDeleteDiete"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@android:drawable/ic_menu_close_clear_cancel"
+            android:contentDescription="Supprimer le programme"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp" />
 
         <!-- Texte à droite du camembert -->
         <LinearLayout
-            android:layout_width="0dp"
+            android:id="@+id/layoutTexteCalMacros"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
             android:orientation="vertical"
-            android:layout_gravity="center">
+            android:layout_toEndOf="@id/pieChartMini"
+            android:layout_toStartOf="@id/btnDeleteDiete"
+            android:layout_centerVertical="true">
 
-            <!-- Titre + badge -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
                 android:gravity="top"
-                android:layout_marginTop="12dp">
+                android:orientation="horizontal">
 
                 <TextView
                     android:id="@+id/textNomDiete"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
+                    android:gravity="center"
                     android:text="Nom de la diète"
-                    android:textStyle="bold"
                     android:textSize="18sp"
-                    android:gravity="center"/>
-
-
+                    android:textStyle="bold" />
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
                 android:gravity="center"
+                android:orientation="horizontal"
                 android:layout_marginTop="12dp">
 
                 <TextView
                     android:id="@+id/tvCalories"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="2000 kcal"
-                    android:layout_marginStart="4dp"/>
+                    android:layout_marginStart="4dp"
+                    android:text="2000 kcal" />
 
             </LinearLayout>
 
@@ -74,8 +83,8 @@
                 android:id="@+id/layoutMacrosIngredient"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
                 android:gravity="center_vertical"
+                android:orientation="horizontal"
                 android:paddingTop="8dp"
                 android:paddingBottom="4dp"
                 android:weightSum="3">
@@ -85,21 +94,21 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:orientation="horizontal"
-                    android:gravity="center">
+                    android:gravity="center"
+                    android:orientation="horizontal">
 
                     <ImageView
                         android:layout_width="24dp"
                         android:layout_height="24dp"
                         android:src="@drawable/ic_jambonneau_40dp"
-                        app:tint="#ec99b5"/>
+                        app:tint="#ec99b5" />
 
                     <TextView
                         android:id="@+id/tvProteinesDiete"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="0 g"
-                        android:layout_marginStart="4dp"/>
+                        android:layout_marginStart="4dp"
+                        android:text="0 g" />
                 </LinearLayout>
 
                 <!-- GLUCIDES -->
@@ -107,21 +116,21 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:orientation="horizontal"
-                    android:gravity="center">
+                    android:gravity="center"
+                    android:orientation="horizontal">
 
                     <ImageView
                         android:layout_width="24dp"
                         android:layout_height="24dp"
                         android:src="@drawable/ic_banane_40dp"
-                        app:tint="#86e8cd"/>
+                        app:tint="#86e8cd" />
 
                     <TextView
                         android:id="@+id/tvGlucidesDiete"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="0 g"
-                        android:layout_marginStart="4dp"/>
+                        android:layout_marginStart="4dp"
+                        android:text="0 g" />
                 </LinearLayout>
 
                 <!-- LIPIDES -->
@@ -129,21 +138,21 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:orientation="horizontal"
-                    android:gravity="center">
+                    android:gravity="center"
+                    android:orientation="horizontal">
 
                     <ImageView
                         android:layout_width="24dp"
                         android:layout_height="24dp"
                         android:src="@drawable/ic_fromage_40dp"
-                        app:tint="#f2d678"/>
+                        app:tint="#f2d678" />
 
                     <TextView
                         android:id="@+id/tvLipidesDiete"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="0 g"
-                        android:layout_marginStart="4dp"/>
+                        android:layout_marginStart="4dp"
+                        android:text="0 g" />
                 </LinearLayout>
 
             </LinearLayout>
@@ -154,25 +163,19 @@
             android:id="@+id/textActifBadge"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="ACTIF"
-            android:textStyle="bold"
-            android:textColor="@android:color/white"
             android:background="@drawable/badge_actif_background"
             android:paddingHorizontal="8dp"
             android:paddingVertical="4dp"
-            android:visibility="gone"
-            android:layout_marginTop="4dp"
-            android:textSize="12sp" />
+            android:text="ACTIF"
+            android:textColor="@android:color/white"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:visibility="visible"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginTop="12dp"
+            android:layout_marginEnd="12dp" />
 
-        <!-- Bouton delete -->
-        <ImageButton
-            android:id="@+id/btnDeleteDiete"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@android:drawable/ic_menu_close_clear_cancel"
-            android:contentDescription="Supprimer le programme" />
-    </LinearLayout>
-
+    </RelativeLayout>
 
 </com.google.android.material.card.MaterialCardView>
