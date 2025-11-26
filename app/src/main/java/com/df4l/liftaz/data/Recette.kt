@@ -8,5 +8,6 @@ data class Recette (
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
     val nom: String,
-    val quantitePortion: Int? = null
+    val quantitePortion: Int? = null,
+    val imageUri: String? = null
 )

@@ -1,18 +1,33 @@
 package com.df4l.liftaz.manger.nourriture.recettes
 
+import android.content.res.ColorStateList
+import android.graphics.Color
+import android.graphics.drawable.RippleDrawable
+import android.graphics.drawable.ShapeDrawable
+import android.graphics.drawable.shapes.OvalShape
+import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
+import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.with
+import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
+import androidx.core.net.toUri
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.df4l.liftaz.R
 import com.df4l.liftaz.data.AppDatabase
 import com.df4l.liftaz.data.Recette
@@ -21,8 +36,27 @@ import com.df4l.liftaz.manger.nourriture.aliments.DialogCreationAliment
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.textfield.TextInputEditText
 import kotlinx.coroutines.launch
+import java.io.File
 
 class CreationRecetteFragment : Fragment() {
+
+    private var photoUri: Uri? = null
+
+    private val takePicture = registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
+        if (success) {
+            val imagePreview = view?.findViewById<ImageView>(R.id.imagePreview)
+
+            imagePreview?.let {
+                Glide.with(requireContext())
+                    .load(photoUri)
+                    .centerCrop()
+                    .into(it)
+                it.isVisible = true
+            }
+        } else {
+            Toast.makeText(requireContext(), "Prise de photo annulée.", Toast.LENGTH_SHORT).show()
+        }
+    }
 
     private lateinit var adapter: AlimentRecetteAdapter
     private val items = mutableListOf<AlimentRecetteAdapter.AlimentRecetteItem>()
@@ -49,10 +83,32 @@ class CreationRecetteFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        val imagePreview = view.findViewById<ImageView>(R.id.imagePreview)
+        val btnPrendrePhoto = view.findViewById<ImageButton>(R.id.btnPrendrePhoto)
         val recycler = view.findViewById<RecyclerView>(R.id.recyclerIngredients)
         val btnCreateAliment = view.findViewById<FloatingActionButton>(R.id.btnCreateAliment)
         val btnAddAliment = view.findViewById<ImageButton>(R.id.btnAddPlus)
         val btnSave = view.findViewById<FloatingActionButton>(R.id.btnSauvegarderRecette)
+
+        btnPrendrePhoto.setOnClickListener {
+            // Logique de suppression de l'ancienne image si elle existe
+            photoUri?.let { oldUri ->
+                try {
+                    requireContext().contentResolver.delete(oldUri, null, null)
+                } catch (e: Exception) {
+                    Log.e("CreationRecette", "Échec de la suppression de l'ancienne image: $oldUri", e)
+                }
+            }
+
+            // Création du nouvel URI et lancement de la caméra
+            val tempFile = File.createTempFile("IMG_", ".jpg", requireContext().externalCacheDir)
+            photoUri = FileProvider.getUriForFile(
+                requireContext(),
+                "${requireContext().packageName}.fileprovider",
+                tempFile
+            )
+            takePicture.launch(photoUri)
+        }
 
         tvProteines = view.findViewById(R.id.tvProteinesTotal)
         tvGlucides = view.findViewById(R.id.tvGlucidesTotal)
@@ -84,6 +140,20 @@ class CreationRecetteFragment : Fragment() {
             addAlimentToRecette()
         }
 
+        val rippleColor = Color.parseColor("#FFFFFF") // couleur du ripple
+        val contentDrawable = ContextCompat.getDrawable(requireContext(), R.drawable.bg_circle_purple)
+        val mask = ShapeDrawable(OvalShape()).apply {
+            paint.color = Color.WHITE // couleur de masque (pour limiter le ripple au cercle)
+        }
+
+        val rippleDrawable = RippleDrawable(
+            ColorStateList.valueOf(rippleColor),
+            contentDrawable,
+            mask
+        )
+
+        btnPrendrePhoto.background = rippleDrawable
+
         recetteId = arguments?.getInt("recetteId")
         recetteId?.let { loadRecette(it) }
 
@@ -109,6 +179,22 @@ class CreationRecetteFragment : Fragment() {
             view?.findViewById<TextInputEditText>(R.id.editNomRecette)?.setText(recette.nom)
             view?.findViewById<TextInputEditText>(R.id.editQuantitePortion)
                 ?.setText(recette.quantitePortion?.toString() ?: "")
+
+            view?.let {
+                val imagePreview = it.findViewById<ImageView>(R.id.imagePreview)
+                val btnPrendrePhoto = it.findViewById<ImageButton>(R.id.btnPrendrePhoto)
+
+                recette.imageUri?.let { uriString ->
+                    photoUri = uriString.toUri() // Sauvegarder l'URI actuel
+                    imagePreview.isVisible = true
+                    Glide.with(this@CreationRecetteFragment)
+                        .load(photoUri)
+                        .centerCrop()
+                        .into(imagePreview)
+                } ?: run {
+                    imagePreview.isVisible = false
+                }
+            }
 
             items.clear()
             for (ra in recAliments) {
@@ -202,7 +288,8 @@ class CreationRecetteFragment : Fragment() {
                     Recette(
                         id = id,
                         nom = nom,
-                        quantitePortion = portion
+                        quantitePortion = portion,
+                        imageUri = photoUri?.toString()
                     )
                 )
 
@@ -214,7 +301,8 @@ class CreationRecetteFragment : Fragment() {
                 db.recetteDao().insert(
                     Recette(
                         nom = nom,
-                        quantitePortion = portion
+                        quantitePortion = portion,
+                        imageUri = photoUri?.toString()
                     )
                 ).toInt()
             }

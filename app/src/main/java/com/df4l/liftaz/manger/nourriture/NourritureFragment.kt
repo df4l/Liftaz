@@ -132,8 +132,22 @@ class NourritureFragment : Fragment() {
             .setMessage("Voulez-vous vraiment supprimer la recette « ${r.nom} » ?")
             .setPositiveButton("Supprimer") { _, _ ->
                 lifecycleScope.launch {
+                    val recetteComplete = recetteDao.getById(r.id)
+                    val imageUriString = recetteComplete?.imageUri
+
+                    // Suppression des dépendances et de la recette
                     recetteAlimentsDao.deleteForRecette(r.id)
-                    recetteDao.delete(Recette(id = r.id, nom = r.nom))
+                    recetteDao.delete(Recette(id = r.id, nom = r.nom, quantitePortion = r.quantitePortion?.toInt()))
+
+                    // Suppression du fichier image
+                    imageUriString?.let { uri ->
+                        try {
+                            requireContext().contentResolver.delete(uri.toUri(), null, null)
+                        } catch (e: Exception) {
+                            Log.e("NourritureFragment", "Échec de la suppression de l'image recette: $uri", e)
+                        }
+                    }
+
                     loadRecettes()
                 }
             }
