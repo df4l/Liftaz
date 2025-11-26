@@ -7,17 +7,27 @@ import android.graphics.Color
 import android.graphics.drawable.RippleDrawable
 import android.graphics.drawable.ShapeDrawable
 import android.graphics.drawable.shapes.OvalShape
+import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.widget.EditText
 import android.widget.ImageButton
+import android.widget.ImageView
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.with
 import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
+import androidx.core.net.toUri
+import androidx.core.view.isVisible
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.lifecycleScope
 import com.df4l.liftaz.R
 import com.df4l.liftaz.data.Aliment
 import com.df4l.liftaz.manger.nourriture.OpenFoodFactsAPI
 import kotlinx.coroutines.launch
+import java.io.File
+import com.bumptech.glide.Glide
 
 class DialogCreationAliment(
     private val alimentExistant: Aliment? = null, // si null => création
@@ -26,9 +36,37 @@ class DialogCreationAliment(
 
     lateinit var barcodeScanner: BarcodeScanner
 
+    private var photoUri: Uri? = null
+
+    private val takePicture = registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
+        if (success) {
+            // L'image a été sauvegardée avec succès à l'URI fourni (photoUri)
+            // Mettons à jour l'aperçu.
+            val imagePreview = dialog?.findViewById<ImageView>(R.id.imagePreview)
+            val btnPrendrePhoto = dialog?.findViewById<ImageButton>(R.id.btnPrendrePhoto)
+
+            imagePreview?.let {
+                // Utiliser Glide (ou Coil) est recommandé pour charger l'image
+                Glide.with(requireContext())
+                    .load(photoUri)
+                    .centerCrop()
+                    .into(it)
+                it.isVisible = true // Rendre l'ImageView visible
+            }
+            // On peut masquer le bouton caméra une fois la photo prise
+            btnPrendrePhoto?.isVisible = false
+        } else {
+            // La prise de photo a été annulée ou a échoué.
+            Toast.makeText(requireContext(), "Prise de photo annulée.", Toast.LENGTH_SHORT).show()
+        }
+    }
+
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val builder = AlertDialog.Builder(requireContext())
         val view = layoutInflater.inflate(R.layout.dialog_add_aliment, null)
+
+        val imagePreview = view.findViewById<ImageView>(R.id.imagePreview)
+        val btnPrendrePhoto = view.findViewById<ImageButton>(R.id.btnPrendrePhoto)
 
         // Champs
         val inputNom = view.findViewById<EditText>(R.id.inputNom)
@@ -47,9 +85,43 @@ class DialogCreationAliment(
             inputGlucides.setText(it.glucides.toString())
             inputLipides.setText(it.lipides.toString())
             inputQuantite.setText(it.quantiteParDefaut?.toString() ?: "")
+
+            it.imageUri?.let { uriString ->
+                photoUri = uriString.toUri() // On sauvegarde l'URI
+                imagePreview.isVisible = true
+                Glide.with(this)
+                    .load(photoUri)
+                    .centerCrop()
+                    .into(imagePreview)
+            } ?: run {
+                imagePreview.isVisible = false // Pas d'image, on cache l'aperçu
+            }
         }
 
-        val btnScan = view.findViewById<ImageButton>(R.id.btnScan)
+        btnPrendrePhoto.setOnClickListener {
+            photoUri?.let { oldUri ->
+                try {
+                    requireContext().contentResolver.delete(oldUri, null, null)
+                } catch (e: SecurityException) {
+                    Log.e(
+                        "DialogCreationAliment",
+                        "Échec de la suppression de l'ancienne image : $oldUri",
+                        e
+                    )
+                }
+            }
+
+            val tempFile = File.createTempFile("IMG_", ".jpg", requireContext().externalCacheDir)
+            photoUri = FileProvider.getUriForFile(
+                requireContext(),
+                "${requireContext().packageName}.fileprovider", // Doit correspondre à l'authorities dans le Manifest
+                tempFile
+            )
+            takePicture.launch(photoUri)
+        }
+
+
+            val btnScan = view.findViewById<ImageButton>(R.id.btnScan)
 
         // Créer un ripple programmatique
         val rippleColor = Color.parseColor("#FFFFFF") // couleur du ripple
@@ -65,6 +137,7 @@ class DialogCreationAliment(
         )
 
         btnScan.background = rippleDrawable
+        btnPrendrePhoto.background = rippleDrawable
 
         // === BOUTON SCANNER ===
 
@@ -116,7 +189,8 @@ class DialogCreationAliment(
                     proteines = inputProteines.text.toString().toFloatOrNull() ?: 0f,
                     glucides = inputGlucides.text.toString().toFloatOrNull() ?: 0f,
                     lipides = inputLipides.text.toString().toFloatOrNull() ?: 0f,
-                    quantiteParDefaut = inputQuantite.text.toString().toIntOrNull()
+                    quantiteParDefaut = inputQuantite.text.toString().toIntOrNull(),
+                    imageUri = photoUri?.toString()
                 )
 
                 onAddOrUpdate(aliment) // le Fragment s'occupe maintenant de la BDD

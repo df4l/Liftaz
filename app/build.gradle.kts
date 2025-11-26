@@ -50,6 +50,8 @@ dependencies {
     implementation("androidx.media3:media3-ui:1.8.0")
     implementation("androidx.media3:media3-ui-compose:1.8.0")
 
+    implementation("com.github.bumptech.glide:glide:5.0.5")
+
     implementation("com.mikhaellopez:circularprogressbar:3.1.0")
 
     implementation("com.google.android.gms:play-services-code-scanner:16.0.0")

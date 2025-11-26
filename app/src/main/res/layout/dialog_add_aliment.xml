@@ -2,7 +2,8 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <LinearLayout
         android:orientation="vertical"
@@ -10,8 +11,41 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <!-- Ligne NOM + bouton caméra -->
-        <!-- Bloc Nom + Marque + Caméra -->
+        <FrameLayout
+            android:id="@+id/framePhoto"
+            android:layout_height="150dp"
+            android:layout_width="150dp"
+            android:background="#E0E0E0"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginBottom="16dp"
+            android:layout_gravity="center">
+
+            <ImageView
+                android:id="@+id/imagePreview"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                android:contentDescription="Aperçu de l'aliment" />
+
+            <ImageButton
+                android:id="@+id/btnPrendrePhoto"
+                android:layout_gravity="center"
+                android:padding="12dp"
+                android:contentDescription="Prendre une photo"
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:background="@drawable/bg_circle_purple"
+                android:src="@drawable/ic_camera_40dp"
+                app:tint="@android:color/white"
+                android:scaleType="centerInside"
+                android:elevation="8dp"
+                android:clickable="true"
+                android:focusable="true" />/>
+
+        </FrameLayout>
+
         <LinearLayout
             android:orientation="horizontal"
             android:gravity="center_vertical"

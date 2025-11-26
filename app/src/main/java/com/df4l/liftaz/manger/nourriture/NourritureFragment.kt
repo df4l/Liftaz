@@ -1,6 +1,7 @@
 package com.df4l.liftaz.manger.nourriture
 
 import android.app.AlertDialog
+import android.app.Application
 import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
@@ -9,6 +10,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.core.content.ContextCompat
+import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
@@ -158,7 +160,16 @@ class NourritureFragment : Fragment() {
                 .setMessage("Voulez-vous supprimer « ${a.nom} » ?")
                 .setPositiveButton("Supprimer") { _, _ ->
                     lifecycleScope.launch {
+                        val imageUriString = a.imageUri
                         alimentDao.delete(a)
+
+                        imageUriString?.let {
+                            try {
+                                requireContext().contentResolver.delete(it.toUri(), null, null)
+                            } catch (e: Exception) {
+                                Log.e("NourritureFragment", "Échec de la suppression du fichier image : $it", e)
+                            }
+                        }
                         loadAliments()
                     }
                 }

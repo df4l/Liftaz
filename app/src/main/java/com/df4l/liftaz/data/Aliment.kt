@@ -13,5 +13,6 @@ data class Aliment(
     val proteines: Float,
     val lipides: Float,
     val glucides: Float,
-    val quantiteParDefaut: Int? = null //Exprimée en grammes
+    val quantiteParDefaut: Int? = null, //Exprimée en grammes
+    val imageUri: String? = null
     )
