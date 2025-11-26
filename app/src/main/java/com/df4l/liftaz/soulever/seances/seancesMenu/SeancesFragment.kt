@@ -88,7 +88,7 @@ class SeancesFragment : Fragment() {
                         bundleOf("idSeance" to seance.seance.id)
                     )
                 },
-                onLongClick = { seance ->
+                onDelete = { seance ->
                     lifecycleScope.launch {
                         // Supprimer les ExerciceSeance liés
                         database.exerciceSeanceDao().deleteExercicesForSeance(seance.seance.id)

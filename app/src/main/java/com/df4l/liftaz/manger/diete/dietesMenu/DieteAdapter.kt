@@ -18,7 +18,8 @@ import com.github.mikephil.charting.utils.ColorTemplate
 class DieteAdapter(
     private var dietes: List<Diete>,
     private val onActivate: (Diete) -> Unit,
-    private val onDelete: (Diete) -> Unit
+    private val onDelete: (Diete) -> Unit,
+    private val onLongClic: (Diete) -> Unit
 ) : RecyclerView.Adapter<DieteAdapter.DieteViewHolder>() {
 
     inner class DieteViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -89,6 +90,11 @@ class DieteAdapter(
             isDrawHoleEnabled = false  // Pas de cercle blanc au milieu
             setDrawEntryLabels(false)  // Pas de texte sur les parts
             invalidate()
+        }
+
+        holder.itemView.setOnLongClickListener {
+            onLongClic(diete)
+            true
         }
     }
 

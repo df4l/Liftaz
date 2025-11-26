@@ -44,6 +44,7 @@ import com.google.android.material.textfield.TextInputLayout
 import com.mikhaellopez.circularprogressbar.CircularProgressBar
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
+import kotlin.toString
 
 class CreationDieteFragment : Fragment() {
 
@@ -107,6 +108,7 @@ class CreationDieteFragment : Fragment() {
     private val soirItems = mutableListOf<Any>()
 
     private var idDieteModif: Int? = null
+    private var dieteModifName: String? = null
 
     private fun bindViews(view: View) {
         progressProteines = view.findViewById(R.id.progressProteines)
@@ -152,10 +154,8 @@ class CreationDieteFragment : Fragment() {
         val topSheet: MaterialCardView = view.findViewById(R.id.topSheetLayout)
         topSheetBehavior = TopSheetBehavior.from(topSheet)
 
-        // Rendre le top sheet complètement invisible au démarrage
         topSheetBehavior.setHideable(true)
         topSheetBehavior.setPeekHeight(0)
-        topSheetBehavior.state = TopSheetBehavior.STATE_EXPANDED
 
         // Bouton pour ouvrir/fermer
         val btnShowTopSheet = view.findViewById<FloatingActionButton>(R.id.btnShowTopSheet)
@@ -205,7 +205,19 @@ class CreationDieteFragment : Fragment() {
             }
         }
 
+        idDieteModif = arguments?.getInt("idDieteModif")
+
         lifecycleScope.launch {
+
+            if (idDieteModif != null) {
+                chargerDieteExistante(idDieteModif!!)
+            }
+            else
+            {
+                topSheetBehavior.state = TopSheetBehavior.STATE_EXPANDED
+            }
+
+
             val dernierPoidsUtilisateur =
                 AppDatabase.Companion.getDatabase(requireContext()).entreePoidsDao().getLatestWeight()?.poids
 
@@ -214,9 +226,9 @@ class CreationDieteFragment : Fragment() {
                 // On enregistre le poids pour les calculs g/kg
                 poidsUtilisateur = dernierPoidsUtilisateur
 
-                val pKg = 200 / dernierPoidsUtilisateur
-                val gKg = 200 / dernierPoidsUtilisateur
-                val lKg = 40 / dernierPoidsUtilisateur
+                val pKg = objectifProteines / dernierPoidsUtilisateur
+                val gKg = objectifGlucides / dernierPoidsUtilisateur
+                val lKg = objectifLipides / dernierPoidsUtilisateur
 
                 etProteinesKg.setHint(String.format("%.2f", pKg))
                 etGlucidesKg.setHint(String.format("%.2f", gKg))
@@ -229,7 +241,6 @@ class CreationDieteFragment : Fragment() {
                 etGlucidesKg.hint = "N/D"
                 etLipidesKg.hint = "N/D"
             }
-        }
 
         addTextWatcher(etCalories) { ancienneValeur, nouvelleValeur ->
             Log.d("TextWatcher", "Les calories ont changées de '$ancienneValeur' à '$nouvelleValeur'")
@@ -260,6 +271,66 @@ class CreationDieteFragment : Fragment() {
         sliderProteines.addOnChangeListener(listener)
         sliderGlucides.addOnChangeListener(listener)
         sliderLipides.addOnChangeListener(listener)
+
+        }
+    }
+
+    suspend private fun chargerDieteExistante(idDiete: Int)
+    {
+            val dieteDao = AppDatabase.getDatabase(requireContext()).dieteDao()
+            val dieteElementsDao = AppDatabase.getDatabase(requireContext()).dieteElementsDao()
+            val diete = dieteDao.getDieteById(idDiete)
+            val dieteElementsBdd = dieteElementsDao.getAllForDiete(idDiete)
+
+            //Nom
+            dieteModifName = diete.nom
+
+            //Calories
+            totalCalories = diete.objCalories
+            etCalories.setText(diete.objCalories.toString())
+
+            //Macros
+            updateMacrosObjectivesInFragment(diete.objGlucides, diete.objLipides, diete.objProteines)
+            etProteinesGr.setText(diete.objProteines.toString())
+            etGlucidesGr.setText(diete.objGlucides.toString())
+            etLipidesGr.setText(diete.objLipides.toString())
+            objectifProteines = diete.objProteines
+            objectifGlucides = diete.objGlucides
+            objectifLipides = diete.objLipides
+
+            //Cochonnerie qui permet d'updater les sliders
+            updateMacrosFromEditTextsGrams("proteines", diete.objProteines.toString(), poidsUtilisateur)
+
+            //Elements de la diète
+            dieteElementsBdd.forEach {
+               if(it.typeElement == TypeElement.ALIMENT) {
+                   AppDatabase.getDatabase(requireContext()).alimentDao().getById(it.idElement)?.let { aliment ->
+                       restoreElementDieteToPeriodeRepas(aliment, it.periodeRepas)
+                   }
+               } else {
+                   AppDatabase.getDatabase(requireContext()).recetteDao().getById(it.idElement)?.let { recette ->
+                       restoreElementDieteToPeriodeRepas(recette, it.periodeRepas)
+                   }
+               }
+            }
+
+        matinAdapter.updateData(matinItems)
+        midiAdapter.updateData(midiItems)
+        apresMidiAdapter.updateData(apresMidiItems)
+        soirAdapter.updateData(soirItems)
+
+        updateDietTotals()
+    }
+
+    private fun restoreElementDieteToPeriodeRepas(element: Any, periode: PeriodeRepas)
+    {
+        when(periode)
+        {
+            PeriodeRepas.MATIN -> matinItems.add(element)
+            PeriodeRepas.MIDI -> midiItems.add(element)
+            PeriodeRepas.APRES_MIDI -> apresMidiItems.add(element)
+            PeriodeRepas.SOIR -> soirItems.add(element)
+        }
     }
 
     private fun leadToSetNameAndSaveDiete()
@@ -276,6 +347,9 @@ class CreationDieteFragment : Fragment() {
         {
             val editText = EditText(context)
             editText.hint = "Nom de la diète"
+
+            if(dieteModifName != null)
+                editText.setText(dieteModifName)
 
             val dialog = AlertDialog.Builder(requireContext())
                 .setTitle("Ajouter un nom et sauvegarder la diète")
@@ -303,8 +377,21 @@ class CreationDieteFragment : Fragment() {
             val dieteDao = AppDatabase.Companion.getDatabase(requireContext()).dieteDao()
             val dieteElementsDao = AppDatabase.Companion.getDatabase(requireContext()).dieteElementsDao()
 
-            val idDiete = idDieteModif?.also {
-                null
+            val idDiete = idDieteModif?.also { id ->
+
+                dieteDao.update(
+                    Diete(
+                        id = id,
+                        nom = nom,
+                        objProteines = objectifProteines,
+                        objGlucides = objectifGlucides,
+                        objLipides = objectifLipides,
+                        objCalories = totalCalories
+                    )
+                )
+
+                dieteElementsDao.deleteByIdDiete(id)
+
             } ?: run {
                 dieteDao.insert(
                     Diete(

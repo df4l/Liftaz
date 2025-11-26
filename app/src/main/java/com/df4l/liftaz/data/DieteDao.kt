@@ -20,4 +20,13 @@ interface DieteDao {
 
     @Query("SELECT * FROM dietes")
     suspend fun getAllDietes(): List<Diete>
+
+    @Query("SELECT * FROM dietes WHERE id = :id LIMIT 1")
+    suspend fun getDieteById(id: Int): Diete
+
+    @Query("UPDATE dietes SET actif = 0")
+    suspend fun desactiverTous()
+
+    @Query("UPDATE dietes SET actif = 1 WHERE id = :dieteId")
+    suspend fun activer(dieteId: Int)
 }

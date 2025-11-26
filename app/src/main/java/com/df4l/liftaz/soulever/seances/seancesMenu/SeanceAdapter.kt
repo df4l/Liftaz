@@ -17,7 +17,7 @@ class SeanceAdapter(
     private val musclesMap: Map<Int, String>, // idMuscle -> nomMuscle
     private val exerciceMap: Map<Int, Exercice>, // idExercice -> Exercice
     private val onClick: (SeanceAvecExercices) -> Unit,
-    private val onLongClick: (SeanceAvecExercices) -> Unit
+    private val onDelete: (SeanceAvecExercices) -> Unit
 ) : RecyclerView.Adapter<SeanceAdapter.SeanceViewHolder>() {
 
     inner class SeanceViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -69,7 +69,7 @@ class SeanceAdapter(
                 .setTitle("Supprimer la séance ?")
                 .setMessage("Voulez-vous vraiment supprimer la séance \"${seance.nom}\" et tous ses exercices associés ?")
                 .setPositiveButton("Oui") { dialog, _ ->
-                    onLongClick(seanceAvecExercices)
+                    onDelete(seanceAvecExercices)
                     dialog.dismiss()
                 }
                 .setNegativeButton("Non") { dialog, _ ->

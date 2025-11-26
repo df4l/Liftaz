@@ -20,4 +20,7 @@ interface DieteElementsDao {
 
     @Query("DELETE FROM diete_elements WHERE idDiete = :idDiete")
     suspend fun deleteByIdDiete(idDiete: Int)
+
+    @Query("SELECT * FROM diete_elements WHERE idDiete = :idDiete")
+    suspend fun getAllForDiete(idDiete: Int): List<DieteElements>
 }

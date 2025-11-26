@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
@@ -59,8 +60,13 @@ class DietesFragment : Fragment() {
             val dietes = dieteDao.getAllDietes()
 
             adapter = DieteAdapter(dietes = dietes,
-                onActivate = {
-
+                onActivate = { diete ->
+                    lifecycleScope.launch {
+                        dieteDao.desactiverTous()
+                        dieteDao.activer(diete.id)
+                        loadDietes()
+                        Toast.makeText(requireContext(), "Diète « ${diete.nom} » activée ✅", Toast.LENGTH_SHORT).show()
+                    }
                 },
                 onDelete = {
                     diete ->
@@ -79,6 +85,10 @@ class DietesFragment : Fragment() {
                         }
                         .setNegativeButton("Non", null)
                         .show()
+                }, onLongClic = {
+                    diete -> val bundle = bundleOf("idDieteModif" to diete.id)
+                    findNavController().navigate(R.id.action_dietesFragment_to_creationDieteFragment, bundle)
+
                 })
             recyclerView.adapter = adapter
 
