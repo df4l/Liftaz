@@ -1,17 +1,17 @@
-package com.df4l.liftaz.manger
+package com.df4l.liftaz.manger.suivi
 
+import com.df4l.liftaz.manger.suivi.QuantiteAlimentDialogFragment
 import android.icu.util.Calendar
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.df4l.liftaz.data.Aliment
 import com.df4l.liftaz.data.AppDatabase
 import com.df4l.liftaz.data.Diete
 import com.df4l.liftaz.data.PeriodeRepas
-import com.df4l.liftaz.data.Recette
 import com.df4l.liftaz.data.TypeElement
 import com.df4l.liftaz.databinding.BottomSheetMangerBinding
 import com.df4l.liftaz.manger.nourriture.NourritureAdapter
@@ -30,6 +30,9 @@ class AjouterRepasBottomSheetFragment : BottomSheetDialogFragment() {
     private val dieteItems = mutableListOf<Any>()
     private lateinit var dieteItemsAdapter: NourritureAdapter
 
+    private val selectedItems = mutableListOf<ItemSelectionne>()
+    private lateinit var selectionNourritureAdapter: NourritureSelectionAdapter
+
     // Cette propriété est valide uniquement entre onCreateView et onDestroyView.
     private val binding get() = _binding!!
 
@@ -40,24 +43,24 @@ class AjouterRepasBottomSheetFragment : BottomSheetDialogFragment() {
     ): View {
         _binding = BottomSheetMangerBinding.inflate(inflater, container, false)
 
-        lifecycleScope.launch {
-            dieteActive = AppDatabase.getDatabase(requireContext()).dieteDao().getActiveDiete()
-        }
-
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-
+        selectionNourritureAdapter = NourritureSelectionAdapter(selectedItems)
+        binding.rvSelectionManger.adapter = selectionNourritureAdapter
+        binding.rvSelectionManger.layoutManager = LinearLayoutManager(requireContext())
 
         //Peupler la partie "favoris"
         lifecycleScope.launch {
 
+            dieteActive = AppDatabase.Companion.getDatabase(requireContext()).dieteDao().getActiveDiete()
+
             // Exécute la requête de base de données dans un thread d'arrière-plan
             val listeFavoris = withContext(Dispatchers.IO) {
-                AppDatabase.getDatabase(requireContext()).mangerHistoriqueDao()
+                AppDatabase.Companion.getDatabase(requireContext()).mangerHistoriqueDao()
                     .getTopTenFavoriteFoods()
             }
             if (listeFavoris.isEmpty()) {
@@ -83,8 +86,8 @@ class AjouterRepasBottomSheetFragment : BottomSheetDialogFragment() {
 
                 dieteItemsAdapter = NourritureAdapter(
                     dieteItems,
-                    onItemClick = { Toast.makeText(requireContext(), it.toString(), Toast.LENGTH_SHORT).show() }
-                    )
+                    onItemClick = { item -> addToSelectedItems(item) }
+                )
                 binding.rvDiete.layoutManager = LinearLayoutManager(requireContext())
                 binding.rvDiete.adapter = dieteItemsAdapter
             }
@@ -92,6 +95,38 @@ class AjouterRepasBottomSheetFragment : BottomSheetDialogFragment() {
             {
                 binding.emptyDiete.visibility = View.VISIBLE
                 binding.rvDiete.visibility = View.GONE
+            }
+        }
+    }
+
+    private fun addToSelectedItems(item: Any) {
+        if (item is Aliment || item is RecetteAffichee) {
+            val existingItem = selectedItems.find {
+                when (item) {
+                    is Aliment -> it.item is Aliment && it.item.id == item.id
+                    is RecetteAffichee -> it.item is RecetteAffichee && it.item.id == item.id
+                    else -> it.item == item
+                }
+            }
+
+            if (existingItem != null && (item is RecetteAffichee || (item is Aliment && item.quantiteParDefaut != null))) {
+                // Si la recette existe déjà, on incrémente la quantité de portions
+                existingItem.quantite++
+                selectionNourritureAdapter.updateData(selectedItems)
+            } else if (item is RecetteAffichee || (item is Aliment && item.quantiteParDefaut != null)) {
+                // Si c'est une nouvelle recette, on l'ajoute avec une quantité de 1
+                selectedItems.add(ItemSelectionne(item = item, quantite = 1))
+                selectionNourritureAdapter.updateData(selectedItems)
+            } else if (item is Aliment && item.quantiteParDefaut == null) {
+                // Pour un aliment (nouveau ou existant), on ouvre le dialogue pour demander la quantité
+                val dialog = QuantiteAlimentDialogFragment(item) { quantiteSaisie ->
+                    // Ce code est exécuté quand l'utilisateur confirme la quantité
+                    val alimentAvecQuantite = ItemSelectionne(item = item, quantite = quantiteSaisie)
+                    selectedItems.add(alimentAvecQuantite)
+                    selectionNourritureAdapter.updateData(selectedItems)
+                }
+                // Affiche le dialogue en utilisant le FragmentManager du BottomSheet
+                dialog.show(childFragmentManager, "QuantiteAlimentDialog")
             }
         }
     }
@@ -123,7 +158,7 @@ class AjouterRepasBottomSheetFragment : BottomSheetDialogFragment() {
     suspend private fun getItemsFromDieteForCurrentPeriode(idDiete: Int)
     {
         val currentPeriode = getCurrentPeriodeRepas()
-        val db = AppDatabase.getDatabase(requireContext())
+        val db = AppDatabase.Companion.getDatabase(requireContext())
         val dieteElements = db.dieteElementsDao().getAllForDieteAndPeriode(idDiete, currentPeriode)
 
         dieteItems.clear()
