@@ -23,4 +23,7 @@ interface DieteElementsDao {
 
     @Query("SELECT * FROM diete_elements WHERE idDiete = :idDiete")
     suspend fun getAllForDiete(idDiete: Int): List<DieteElements>
+
+    @Query("SELECT * FROM diete_elements WHERE idDiete = :idDiete AND periodeRepas = :periodeRepas")
+    suspend fun getAllForDieteAndPeriode(idDiete: Int, periodeRepas: PeriodeRepas): List<DieteElements>
 }

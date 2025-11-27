@@ -7,12 +7,25 @@
     android:background="@color/white2"
     >
 
-    <!-- En-tête minimal (peut être juste un "handle" pour le bottom sheet) -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvSelectionManger"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:clipToPadding="false"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:fitsSystemWindows="true"
+        tools:itemCount="2"
+        android:visibility="gone"
+        tools:visibility="visible"/>
+
+
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/tabLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/rvSelectionManger"
         app:tabInlineLabel="true"
         app:tabMode="scrollable">
 
@@ -59,10 +72,24 @@
                 android:id="@+id/tv_favorites_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Ce que tu manges le PLUS"
+                android:text="Manger favori"
                 android:textSize="18sp"
                 android:textStyle="bold"
                 android:textColor="@color/black2" />
+
+            <com.google.android.material.divider.MaterialDivider
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="4dp" />
+
+            <TextView
+                android:id="@+id/empty_favorites"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Rien pour l'instant"
+                android:textColor="@android:color/darker_gray"
+                android:layout_marginTop="4dp"
+                android:visibility="gone" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rv_favorites"
@@ -80,7 +107,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"
-                android:text="Nom de la diète - Matin"
+                android:text="Choix du matin"
                 android:textSize="18sp"
                 android:textStyle="bold"
                 android:textColor="@color/black2" />
@@ -90,8 +117,17 @@
                 android:layout_height="1dp"
                 android:layout_marginTop="4dp" />
 
+            <TextView
+                android:id="@+id/empty_diete"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Rien pour l'instant"
+                android:textColor="@android:color/darker_gray"
+                android:layout_marginTop="4dp"
+                android:visibility="gone" />
+
             <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rv_suggestions"
+                android:id="@+id/rv_diete"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"

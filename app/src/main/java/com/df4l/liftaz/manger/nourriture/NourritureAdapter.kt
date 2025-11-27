@@ -19,7 +19,7 @@ import com.df4l.liftaz.data.Aliment
 class NourritureAdapter(
     private var items: List<Any>,
     private val onItemClick: (Any) -> Unit,
-    private val onDeleteClick: ((Any) -> Unit)? = null   // ⬅️ devient optionnel
+    private val onDeleteClick: ((Any) -> Unit)? = null
 ) : RecyclerView.Adapter<NourritureAdapter.ViewHolder>() {
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {

@@ -1,6 +1,5 @@
 package com.df4l.liftaz.manger
 
-import AjouterRepasBottomSheetFragment
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.MenuItem
