@@ -1,5 +1,6 @@
 package com.df4l.liftaz.manger
 
+import AjouterRepasBottomSheetFragment
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.MenuItem
@@ -55,6 +56,13 @@ class MangerFragment : Fragment() {
 
         binding.fabManger.setOnClickListener { view ->
             showFabMenu(view)
+        }
+
+        binding.btnAddRepas.setOnClickListener {
+            // Crée une instance de notre BottomSheetFragment
+            val bottomSheet = AjouterRepasBottomSheetFragment()
+            // Affiche le BottomSheet en utilisant le childFragmentManager du fragment
+            bottomSheet.show(childFragmentManager, AjouterRepasBottomSheetFragment.TAG)
         }
 
         return binding.root
