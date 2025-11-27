@@ -4,8 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@android:color/white"
-    android:paddingTop="4dp">
+    android:background="@color/white2"
+    >
 
     <!-- En-tête minimal (peut être juste un "handle" pour le bottom sheet) -->
     <com.google.android.material.tabs.TabLayout
@@ -51,17 +51,18 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:paddingHorizontal="16dp">
+            android:paddingHorizontal="16dp"
+            android:paddingTop="16dp">
 
             <!-- Section Favoris -->
             <TextView
                 android:id="@+id/tv_favorites_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Vos favoris"
+                android:text="Ce que tu manges le PLUS"
                 android:textSize="18sp"
                 android:textStyle="bold"
-                android:textColor="@android:color/black" />
+                android:textColor="@color/black2" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rv_favorites"
@@ -82,7 +83,7 @@
                 android:text="Nom de la diète - Matin"
                 android:textSize="18sp"
                 android:textStyle="bold"
-                android:textColor="@android:color/black" />
+                android:textColor="@color/black2" />
 
             <com.google.android.material.divider.MaterialDivider
                 android:layout_width="match_parent"
@@ -111,7 +112,7 @@
         android:paddingHorizontal="16dp"
         android:paddingTop="8dp"
         android:paddingBottom="8dp"
-        android:background="@android:color/white"
+        android:background="@color/white2"
         app:layout_constraintBottom_toTopOf="@+id/btn_save_meal"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
