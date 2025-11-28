@@ -277,42 +277,55 @@ class CreationDieteFragment : Fragment() {
 
     suspend private fun chargerDieteExistante(idDiete: Int)
     {
-            val dieteDao = AppDatabase.getDatabase(requireContext()).dieteDao()
-            val dieteElementsDao = AppDatabase.getDatabase(requireContext()).dieteElementsDao()
-            val diete = dieteDao.getDieteById(idDiete)
-            val dieteElementsBdd = dieteElementsDao.getAllForDiete(idDiete)
+        Log.d("ChargerDiete", "Début du chargement de la diète existante avec l'ID: $idDiete")
 
-            //Nom
-            dieteModifName = diete.nom
+        val dieteDao = AppDatabase.getDatabase(requireContext()).dieteDao()
+        val dieteElementsDao = AppDatabase.getDatabase(requireContext()).dieteElementsDao()
+        val diete = dieteDao.getDieteById(idDiete)
+        val dieteElementsBdd = dieteElementsDao.getAllForDiete(idDiete)
 
-            //Calories
-            totalCalories = diete.objCalories
-            etCalories.setText(diete.objCalories.toString())
+        Log.d("ChargerDiete", "Diète chargée: $diete")
+        Log.d("ChargerDiete", "${dieteElementsBdd.size} éléments trouvés pour cette diète.")
 
-            //Macros
-            updateMacrosObjectivesInFragment(diete.objGlucides, diete.objLipides, diete.objProteines)
-            etProteinesGr.setText(diete.objProteines.toString())
-            etGlucidesGr.setText(diete.objGlucides.toString())
-            etLipidesGr.setText(diete.objLipides.toString())
-            objectifProteines = diete.objProteines
-            objectifGlucides = diete.objGlucides
-            objectifLipides = diete.objLipides
+        //Nom
+        dieteModifName = diete.nom
 
-            //Cochonnerie qui permet d'updater les sliders
-            updateMacrosFromEditTextsGrams("proteines", diete.objProteines.toString(), poidsUtilisateur)
+        //Calories
+        totalCalories = diete.objCalories
+        etCalories.setText(diete.objCalories.toString())
 
-            //Elements de la diète
-            dieteElementsBdd.forEach {
-               if(it.typeElement == TypeElement.ALIMENT) {
-                   AppDatabase.getDatabase(requireContext()).alimentDao().getById(it.idElement)?.let { aliment ->
-                       restoreElementDieteToPeriodeRepas(aliment, it.periodeRepas)
-                   }
-               } else {
-                   AppDatabase.getDatabase(requireContext()).recetteDao().getById(it.idElement)?.let { recette ->
-                       restoreElementDieteToPeriodeRepas(recette, it.periodeRepas)
-                   }
-               }
+        //Macros
+        updateMacrosObjectivesInFragment(diete.objGlucides, diete.objLipides, diete.objProteines)
+        etProteinesGr.setText(diete.objProteines.toString())
+        etGlucidesGr.setText(diete.objGlucides.toString())
+        etLipidesGr.setText(diete.objLipides.toString())
+        objectifProteines = diete.objProteines
+        objectifGlucides = diete.objGlucides
+        objectifLipides = diete.objLipides
+
+        //Cochonnerie qui permet d'updater les sliders
+        updateMacrosFromEditTextsGrams("proteines", diete.objProteines.toString(), poidsUtilisateur)
+
+        //Elements de la diète
+        dieteElementsBdd.forEach { dieteElement ->
+            Log.d("ChargerDiete", "Traitement de l'élément: $dieteElement")
+            if(dieteElement.typeElement == TypeElement.ALIMENT) {
+                AppDatabase.getDatabase(requireContext()).alimentDao().getById(dieteElement.idElement)?.let { aliment ->
+                    Log.d("ChargerDiete", "-> Restauration de l'aliment: ${aliment.nom} dans la période ${dieteElement.periodeRepas}")
+                    restoreElementDieteToPeriodeRepas(aliment, dieteElement.periodeRepas)
+                }
+            } else { // C'est une RECETTE
+                AppDatabase.getDatabase(requireContext()).recetteDao().getById(dieteElement.idElement)?.let { recette ->
+                    // Il faut recréer la RecetteAffichee pour que l'UI fonctionne correctement
+                    val ingredients = AppDatabase.getDatabase(requireContext()).recetteAlimentsDao().getAllForRecette(recette.id)
+                    val allAliments = AppDatabase.getDatabase(requireContext()).alimentDao().getAll() // Nécessaire pour recetteToAffichee
+                    val recetteAffichee = recetteToAffichee(recette, ingredients, allAliments)
+
+                    Log.d("ChargerDiete", "-> Restauration de la recette: ${recetteAffichee.nom} dans la période ${dieteElement.periodeRepas}")
+                    restoreElementDieteToPeriodeRepas(recetteAffichee, dieteElement.periodeRepas)
+                }
             }
+        }
 
         matinAdapter.updateData(matinItems)
         midiAdapter.updateData(midiItems)
@@ -320,6 +333,7 @@ class CreationDieteFragment : Fragment() {
         soirAdapter.updateData(soirItems)
 
         updateDietTotals()
+        Log.d("ChargerDiete", "Chargement de la diète terminé et UI mise à jour.")
     }
 
     private fun restoreElementDieteToPeriodeRepas(element: Any, periode: PeriodeRepas)
@@ -416,26 +430,30 @@ class CreationDieteFragment : Fragment() {
             tousLesItems.forEach { (item, periode) ->
                 when (item)  {
                     is Aliment -> {
-                        dieteElementsDao.insert(
-                            DieteElements(
-                                idDiete = idDiete,
-                                idElement = item.id,
-                                typeElement = TypeElement.ALIMENT,
-                                periodeRepas = periode,
-                                quantiteGrammes = item.quantiteParDefaut!!
-                            )
+                        val dieteElement = DieteElements(
+                            idDiete = idDiete,
+                            idElement = item.id,
+                            typeElement = TypeElement.ALIMENT,
+                            periodeRepas = periode,
+                            // Using safe call with Elvis operator to prevent potential crashes
+                            quantiteGrammes = item.quantiteParDefaut ?: 0
                         )
+                        // Log the object before insertion
+                        Log.d("SauvegardeDiete", "Insertion DieteElement: $dieteElement")
+                        dieteElementsDao.insert(dieteElement)
                     }
                     is RecetteAffichee -> {
-                        dieteElementsDao.insert(
-                            DieteElements(
-                                idDiete = idDiete,
-                                idElement = item.id,
-                                typeElement = TypeElement.RECETTE,
-                                periodeRepas = periode,
-                                quantiteGrammes = item.quantiteTotale.toInt()
-                            )
+                        val dieteElement = DieteElements(
+                            idDiete = idDiete,
+                            idElement = item.id,
+                            typeElement = TypeElement.RECETTE,
+                            periodeRepas = periode,
+                            // Using safe call with Elvis operator to prevent the original crash
+                            quantiteGrammes = item.quantiteTotale?.toInt() ?: 0
                         )
+                        // Log the object before insertion
+                        Log.d("SauvegardeDiete", "Insertion DieteElement: $dieteElement")
+                        dieteElementsDao.insert(dieteElement)
                     }
                 }
             }
@@ -634,10 +652,20 @@ class CreationDieteFragment : Fragment() {
                     }
                 }
                 is RecetteAffichee -> {
-                    totalProteines += item.proteines
-                    totalGlucides += item.glucides
-                    totalLipides += item.lipides
-                    totalCalories += item.calories
+                    if(item.quantitePortion != null)
+                    {
+                        totalProteines += (item.proteines * item.quantitePortion) / item.quantiteTotale
+                        totalGlucides += (item.glucides * item.quantitePortion) / item.quantiteTotale
+                        totalLipides += (item.lipides * item.quantitePortion) / item.quantiteTotale
+                        totalCalories += ((item.calories * item.quantitePortion) / item.quantiteTotale).toInt()
+                    }
+                    else
+                    {
+                        totalProteines += item.proteines
+                        totalGlucides += item.glucides
+                        totalLipides += item.lipides
+                        totalCalories += item.calories
+                    }
                 }
             }
         }

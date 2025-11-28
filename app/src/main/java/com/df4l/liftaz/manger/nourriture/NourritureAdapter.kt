@@ -28,6 +28,7 @@ class NourritureAdapter(
         val txtNutri: TextView = itemView.findViewById(R.id.itemNutri)
         val btnRemove: ImageButton = itemView.findViewById(R.id.btnRemoveNourriture)
         val itemImage: ImageView = itemView.findViewById(R.id.itemImage)
+        val itemTimeManger: TextView = itemView.findViewById(R.id.itemTimeManger)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -107,6 +108,11 @@ class NourritureAdapter(
             holder.itemImage.setBackgroundColor(Color.parseColor("#E0E0E0"))
         }
 
+        if(r.heureManger != null) {
+            holder.itemTimeManger.visibility = View.VISIBLE
+            holder.itemTimeManger.text = r.heureManger
+        }
+
         holder.txtSub.text = subText
 
         val coef =
@@ -120,7 +126,13 @@ class NourritureAdapter(
         val lip = r.lipides * coef
         val cal = (r.calories * coef).toInt()
 
-        holder.txtNutri.text = nutritionalString(prot, glu, lip, cal)
+        if(r.heureManger == null) {
+            holder.txtNutri.text = nutritionalString(prot, glu, lip, cal)
+        }
+        else
+        {
+            holder.txtSub.text = nutritionalString(prot, glu, lip, cal)
+        }
     }
 
     private fun nutritionalString(p: Float, g: Float, l: Float, kcal: Int): SpannableString {
@@ -168,5 +180,6 @@ data class RecetteAffichee(
     val calories: Int,
     val quantiteTotale: Float,
     val quantitePortion: Float? = null,
-    val imageUri: String? = null
+    val imageUri: String? = null,
+    val heureManger: String? = null
 )

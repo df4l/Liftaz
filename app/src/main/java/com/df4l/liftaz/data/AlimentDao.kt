@@ -10,7 +10,7 @@ import androidx.room.Update
 @Dao
 interface AlimentDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insert(aliment: Aliment)
+    suspend fun insert(aliment: Aliment): Long
 
     @Update
     suspend fun update(aliment: Aliment)

@@ -7,12 +7,12 @@ import java.util.Date
 @Entity(tableName = "manger_historique")
 data class MangerHistorique(
     @PrimaryKey(autoGenerate = true)
-    var id: Int,
+    var id: Int = 0,
     var date: Date,
-    var heuresEtMinutes: Int, //TODO: A MODIFIER UN JOUR
     var nomElement: String,
     var calories: Int,
     var proteines: Float,
     var glucides: Float,
-    var lipides: Float
+    var lipides: Float,
+    var quantite: String
 )

@@ -3,6 +3,7 @@ package com.df4l.liftaz.manger.suivi
 import com.df4l.liftaz.manger.suivi.QuantiteAlimentDialogFragment
 import android.icu.util.Calendar
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,7 +12,9 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.df4l.liftaz.data.Aliment
 import com.df4l.liftaz.data.AppDatabase
 import com.df4l.liftaz.data.Diete
+import com.df4l.liftaz.data.MangerHistorique
 import com.df4l.liftaz.data.PeriodeRepas
+import com.df4l.liftaz.data.Recette
 import com.df4l.liftaz.data.TypeElement
 import com.df4l.liftaz.databinding.BottomSheetMangerBinding
 import com.df4l.liftaz.manger.nourriture.NourritureAdapter
@@ -20,6 +23,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.util.Date
 
 class AjouterRepasBottomSheetFragment : BottomSheetDialogFragment() {
 
@@ -52,6 +56,12 @@ class AjouterRepasBottomSheetFragment : BottomSheetDialogFragment() {
         selectionNourritureAdapter = NourritureSelectionAdapter(selectedItems)
         binding.rvSelectionManger.adapter = selectionNourritureAdapter
         binding.rvSelectionManger.layoutManager = LinearLayoutManager(requireContext())
+
+        binding.btnSaveMeal.setOnClickListener {
+            sauvegarderSelection()
+        }
+
+        getCurrentPeriodeRepas()
 
         //Peupler la partie "favoris"
         lifecycleScope.launch {
@@ -140,11 +150,11 @@ class AjouterRepasBottomSheetFragment : BottomSheetDialogFragment() {
                 binding.tvSuggestionsTitle.text = "Manger du matin"
                 PeriodeRepas.MATIN
             }
-            in 12..15 -> {
+            in 12..14 -> {
                 binding.tvSuggestionsTitle.text = "Manger du midi"
                 PeriodeRepas.MIDI
             }
-            in 16..18 -> {
+            in 15..18 -> {
                 binding.tvSuggestionsTitle.text = "Manger de l'après-midi"
                 PeriodeRepas.APRES_MIDI
             }
@@ -212,6 +222,102 @@ class AjouterRepasBottomSheetFragment : BottomSheetDialogFragment() {
             quantitePortion = recette.quantitePortion?.toFloat(),
             imageUri = recette.imageUri
         )
+    }
+
+    fun sauvegarderSelection()
+    {
+        if(selectedItems.isEmpty())
+            return
+
+        var db = AppDatabase.getDatabase(requireContext())
+        var mangerHistoriqueDao = db.mangerHistoriqueDao()
+
+        lifecycleScope.launch {
+            selectedItems.forEach {
+                var date: Date = Calendar.getInstance().time
+                var nomElement: String = ""
+                var calories: Int = 0
+                var proteines: Float = 0f
+                var glucides: Float = 0f
+                var lipides: Float = 0f
+                var quantite: String = ""
+
+                if(it.item is RecetteAffichee || (it.item is Aliment && it.item.quantiteParDefaut != null))
+                {
+                    when(val item = it.item)
+                    {
+                        is Aliment -> {
+                            Log.d(TAG, "Aliment avec quantité par défaut: ${item.nom}, " +
+                                    "ID: ${item.id}, " +
+                                    "Calories: ${item.calories}, " +
+                                    "Protéines: ${item.proteines}, " +
+                                    "Glucides: ${item.glucides}, " +
+                                    "Lipides: ${item.lipides}, " +
+                                    "Quantité par défaut: ${item.quantiteParDefaut}, " +
+                                    "Quantité sélectionnée (nombre de portions): ${it.quantite}")
+                            nomElement = item.nom
+                            calories = ((item.calories * item.quantiteParDefaut!!) / 100) * it.quantite
+                            proteines = ((item.proteines * item.quantiteParDefaut!!) / 100) * it.quantite
+                            glucides = ((item.glucides * item.quantiteParDefaut!!) / 100) * it.quantite
+                            lipides = ((item.lipides * item.quantiteParDefaut!!) / 100) * it.quantite
+                            quantite = "x ${it.quantite}"
+                        }
+                        is RecetteAffichee -> {
+                            Log.d(TAG, "Recette: ${item.nom}, " +
+                                    "ID: ${item.id}, " +
+                                    "Calories: ${item.calories}, " +
+                                    "Protéines: ${item.proteines}, " +
+                                    "Glucides: ${item.glucides}, " +
+                                    "Lipides: ${item.lipides}, " +
+                                    "Quantité totale recette: ${item.quantiteTotale}, " +
+                                    "Quantité portion: ${item.quantitePortion}, " +
+                                    "Quantité sélectionnée (nombre de portions): ${it.quantite}")
+                            nomElement = item.nom
+                            val multiplication = if(item.quantitePortion != null) item.quantitePortion else item.quantiteTotale
+                            calories = (((item.calories * multiplication) / item.quantiteTotale) * it.quantite).toInt()
+                            proteines = (((item.proteines * multiplication) / item.quantiteTotale) * it.quantite)
+                            glucides = (((item.glucides * multiplication) / item.quantiteTotale) * it.quantite)
+                            lipides = (((item.lipides * multiplication) / item.quantiteTotale) * it.quantite)
+                            quantite = "x ${it.quantite}"
+                        }
+                    }
+                }
+                else
+                {
+                    val item = it.item as Aliment
+                    Log.d(TAG, "Aliment sans quantité par défaut: ${item.nom}, " +
+                            "ID: ${item.id}, " +
+                            "Calories: ${item.calories}, " +
+                            "Protéines: ${item.proteines}, " +
+                            "Glucides: ${item.glucides}, " +
+                            "Lipides: ${item.lipides}, " +
+                            "Quantité saisie (en grammes): ${it.quantite}")
+                    nomElement = item.nom
+                    calories = item.calories * (it.quantite / 100)
+                    proteines = item.proteines * (it.quantite / 100)
+                    glucides = item.glucides * (it.quantite / 100)
+                    lipides = item.lipides * (it.quantite / 100)
+                    quantite = "${it.quantite}g"
+                }
+
+                mangerHistoriqueDao.insert(
+                    MangerHistorique(
+                        date = date,
+                        nomElement = nomElement,
+                        calories = calories,
+                        proteines = proteines,
+                        glucides = glucides,
+                        lipides = lipides,
+                        quantite = quantite
+                    )
+                )
+            }
+
+            val result = Bundle()
+            parentFragmentManager.setFragmentResult("repasAjoute", result)
+
+            dismiss()
+        }
     }
 
     override fun onDestroyView() {

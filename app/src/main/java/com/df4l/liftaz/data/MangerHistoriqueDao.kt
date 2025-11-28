@@ -6,6 +6,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
+import java.util.Date
 
 @Dao
 interface MangerHistoriqueDao {
@@ -25,5 +26,12 @@ interface MangerHistoriqueDao {
         ORDER BY COUNT(nomElement) DESC
         LIMIT 10
     """)
-    fun getTopTenFavoriteFoods(): List<String>
+    suspend fun getTopTenFavoriteFoods(): List<String>
+
+    @Query("""
+        SELECT *
+        FROM manger_historique
+        WHERE date / (1000 * 60 * 60 * 24) = :date / (1000 * 60 * 60 * 24)
+    """)
+    suspend fun getHistoriqueForDate(date: Date): List<MangerHistorique>
 }
