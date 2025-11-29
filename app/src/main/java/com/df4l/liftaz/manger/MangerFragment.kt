@@ -144,6 +144,10 @@ class MangerFragment : Fragment() {
         val db = AppDatabase.getDatabase(requireContext())
         val listeRepas = db.mangerHistoriqueDao().getHistoriqueForDate(Date())
 
+        listeRepas.forEach { repas ->
+            Log.d("MangerFragment", "Repas: $repas")
+        }
+
         matinMangerItems.clear()
         midiMangerItems.clear()
         apresMidiMangerItems.clear()

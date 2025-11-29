@@ -26,4 +26,7 @@ interface RecetteDao {
 
     @Query("SELECT imageUri FROM recettes WHERE nom = :nom")
     suspend fun getImageUriParNom(nom: String): String?
+
+    @Query("SELECT * FROM recettes WHERE nom = :nom LIMIT 1")
+    suspend fun getByNom(nom: String): Recette?
 }

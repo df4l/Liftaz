@@ -26,4 +26,7 @@ interface AlimentDao {
 
     @Query("SELECT imageUri FROM aliments WHERE nom = :nom")
     suspend fun getImageUriParNom(nom: String): String?
+
+    @Query("SELECT * FROM aliments WHERE nom = :nom LIMIT 1")
+    suspend fun getByNom(nom: String): Aliment?
 }

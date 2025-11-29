@@ -7,8 +7,11 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
+import androidx.fragment.app.add
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.df4l.liftaz.data.Aliment
 import com.df4l.liftaz.data.AppDatabase
 import com.df4l.liftaz.data.Diete
@@ -28,17 +31,22 @@ import java.util.Date
 class AjouterRepasBottomSheetFragment : BottomSheetDialogFragment() {
 
     private var _binding: BottomSheetMangerBinding? = null
-
-    private val favoriteItems = mutableListOf<Any>()
     private var dieteActive: Diete? = null
     private val dieteItems = mutableListOf<Any>()
     private lateinit var dieteItemsAdapter: NourritureAdapter
 
+    private val favoriteItems = mutableListOf<Any>()
     private val selectedItems = mutableListOf<ItemSelectionne>()
     private lateinit var selectionNourritureAdapter: NourritureSelectionAdapter
 
     // Cette propriété est valide uniquement entre onCreateView et onDestroyView.
     private val binding get() = _binding!!
+
+    // 2. Créez une instance de l'adaptateur
+// La lambda passée en paramètre sera exécutée quand un item est cliqué.
+    private val favoriteFoodAdapter = FavoriteFoodAdapter { clickedItem ->
+        addToSelectedItems(clickedItem)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -57,6 +65,9 @@ class AjouterRepasBottomSheetFragment : BottomSheetDialogFragment() {
         binding.rvSelectionManger.adapter = selectionNourritureAdapter
         binding.rvSelectionManger.layoutManager = LinearLayoutManager(requireContext())
 
+        binding.rvFavorites.layoutManager = LinearLayoutManager(requireContext(), RecyclerView.HORIZONTAL, false)
+        binding.rvFavorites.adapter = favoriteFoodAdapter
+
         binding.btnSaveMeal.setOnClickListener {
             sauvegarderSelection()
         }
@@ -66,13 +77,12 @@ class AjouterRepasBottomSheetFragment : BottomSheetDialogFragment() {
         //Peupler la partie "favoris"
         lifecycleScope.launch {
 
-            dieteActive = AppDatabase.Companion.getDatabase(requireContext()).dieteDao().getActiveDiete()
+            dieteActive = AppDatabase.getDatabase(requireContext()).dieteDao().getActiveDiete()
 
             // Exécute la requête de base de données dans un thread d'arrière-plan
-            val listeFavoris = withContext(Dispatchers.IO) {
-                AppDatabase.Companion.getDatabase(requireContext()).mangerHistoriqueDao()
-                    .getTopTenFavoriteFoods()
-            }
+            val listeFavoris = AppDatabase.getDatabase(requireContext()).mangerHistoriqueDao()
+                .getTopTenFavoriteFoods()
+
             if (listeFavoris.isEmpty()) {
                 binding.emptyFavorites.visibility = View.VISIBLE
                 binding.rvFavorites.visibility = View.GONE
@@ -80,10 +90,20 @@ class AjouterRepasBottomSheetFragment : BottomSheetDialogFragment() {
                 binding.emptyFavorites.visibility = View.GONE
                 binding.rvFavorites.visibility = View.VISIBLE
 
-                //Sert à rien de le faire tant que je sauvegarde rien dans MangerHistorique
-                //TODO: Récupérer les item favoris et les mettre dans favoriteItems
+                // CORRECTION : On utilise la variable membre favoriteItems
+                // et on la vide avant de la remplir.
+                favoriteItems.clear()
+                listeFavoris.forEach { nom ->
+                    val nourriture = getNourritureParNom(AppDatabase.getDatabase(requireContext()), nom)
+                    if(nourriture != null) {
+                        // On ajoute à la variable membre de la classe
+                        favoriteItems.add(nourriture)
+                    }
+                }
 
-
+                // Mettez à jour les données de l'adaptateur existant
+                Log.d("FAVORIS_DEBUG", "Contenu de favoriteItems: $favoriteItems")
+                favoriteFoodAdapter.updateData(favoriteItems)
             }
 
             if(dieteActive != null)
@@ -107,6 +127,17 @@ class AjouterRepasBottomSheetFragment : BottomSheetDialogFragment() {
                 binding.rvDiete.visibility = View.GONE
             }
         }
+    }
+
+    suspend fun getNourritureParNom(db: AppDatabase, nom: String): Any? {
+        // Tente de trouver l'URI dans les recettes d'abord
+        val recette = db.recetteDao().getByNom(nom)
+        if (recette != null) {
+            return getRecetteAsRecetteAffichee(db, recette.id)
+        }
+
+        // Si non trouvé, tente de trouver dans les aliments
+        return db.alimentDao().getByNom(nom)
     }
 
     private fun addToSelectedItems(item: Any) {
