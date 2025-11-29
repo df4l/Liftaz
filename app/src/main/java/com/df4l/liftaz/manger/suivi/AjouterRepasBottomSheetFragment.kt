@@ -3,6 +3,8 @@ package com.df4l.liftaz.manger.suivi
 import com.df4l.liftaz.manger.suivi.QuantiteAlimentDialogFragment
 import android.icu.util.Calendar
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -35,6 +37,9 @@ class AjouterRepasBottomSheetFragment : BottomSheetDialogFragment() {
     private val dieteItems = mutableListOf<Any>()
     private lateinit var dieteItemsAdapter: NourritureAdapter
 
+    private val allNourritureItems = mutableListOf<Any>() // Liste complète pour la recherche
+    private lateinit var rechercheNourritureAdapter: NourritureAdapter
+
     private val favoriteItems = mutableListOf<Any>()
     private val selectedItems = mutableListOf<ItemSelectionne>()
     private lateinit var selectionNourritureAdapter: NourritureSelectionAdapter
@@ -61,12 +66,17 @@ class AjouterRepasBottomSheetFragment : BottomSheetDialogFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // Initialisation de l'adapter pour la sélection
         selectionNourritureAdapter = NourritureSelectionAdapter(selectedItems)
         binding.rvSelectionManger.adapter = selectionNourritureAdapter
         binding.rvSelectionManger.layoutManager = LinearLayoutManager(requireContext())
 
+        // Initialisation de l'adapter pour les favoris
         binding.rvFavorites.layoutManager = LinearLayoutManager(requireContext(), RecyclerView.HORIZONTAL, false)
         binding.rvFavorites.adapter = favoriteFoodAdapter
+
+        // Initialisation pour la recherche
+        setupRecherche()
 
         binding.btnSaveMeal.setOnClickListener {
             sauvegarderSelection()
@@ -74,58 +84,103 @@ class AjouterRepasBottomSheetFragment : BottomSheetDialogFragment() {
 
         getCurrentPeriodeRepas()
 
-        //Peupler la partie "favoris"
         lifecycleScope.launch {
+            // Charger toutes les données nécessaires
+            loadAllData()
 
-            dieteActive = AppDatabase.getDatabase(requireContext()).dieteDao().getActiveDiete()
+            // Mise à jour des vues après le chargement
+            updateFavoritesUI()
+            updateDieteUI()
+        }
+    }
 
-            // Exécute la requête de base de données dans un thread d'arrière-plan
-            val listeFavoris = AppDatabase.getDatabase(requireContext()).mangerHistoriqueDao()
-                .getTopTenFavoriteFoods()
+    private fun setupRecherche() {
+        // 1. Initialiser l'adapter pour les résultats de recherche
+        rechercheNourritureAdapter = NourritureAdapter(emptyList(), { item ->
+            addToSelectedItems(item)
+        })
+        binding.recyclerRechercheNourriture.adapter = rechercheNourritureAdapter
+        binding.recyclerRechercheNourriture.layoutManager = LinearLayoutManager(requireContext())
 
-            if (listeFavoris.isEmpty()) {
-                binding.emptyFavorites.visibility = View.VISIBLE
-                binding.rvFavorites.visibility = View.GONE
-            } else {
-                binding.emptyFavorites.visibility = View.GONE
-                binding.rvFavorites.visibility = View.VISIBLE
+        // 2. Ajouter le TextWatcher sur le champ de recherche
+        binding.etSearchFood.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
 
-                // CORRECTION : On utilise la variable membre favoriteItems
-                // et on la vide avant de la remplir.
-                favoriteItems.clear()
-                listeFavoris.forEach { nom ->
-                    val nourriture = getNourritureParNom(AppDatabase.getDatabase(requireContext()), nom)
-                    if(nourriture != null) {
-                        // On ajoute à la variable membre de la classe
-                        favoriteItems.add(nourriture)
+            override fun afterTextChanged(s: Editable?) {
+                val query = s.toString().lowercase().trim()
+                if (query.isNotEmpty()) {
+                    // Afficher la liste de recherche et masquer le contenu principal
+                    binding.recyclerRechercheNourriture.visibility = View.VISIBLE
+                    binding.nestedScrollView.visibility = View.GONE
+
+                    // Filtrer les données
+                    val filteredList = allNourritureItems.filter {
+                        when (it) {
+                            is Aliment -> it.nom.lowercase().contains(query)
+                            is RecetteAffichee -> it.nom.lowercase().contains(query)
+                            else -> false
+                        }
                     }
+                    rechercheNourritureAdapter.updateData(filteredList)
+                } else {
+                    // Masquer la liste de recherche et afficher le contenu principal
+                    binding.recyclerRechercheNourriture.visibility = View.GONE
+                    binding.nestedScrollView.visibility = View.VISIBLE
+                    rechercheNourritureAdapter.updateData(emptyList()) // Vider la liste
                 }
-
-                // Mettez à jour les données de l'adaptateur existant
-                Log.d("FAVORIS_DEBUG", "Contenu de favoriteItems: $favoriteItems")
-                favoriteFoodAdapter.updateData(favoriteItems)
             }
+        })
+    }
 
-            if(dieteActive != null)
-                getItemsFromDieteForCurrentPeriode(dieteActive!!.id)
+    private suspend fun loadAllData() {
+        val db = AppDatabase.getDatabase(requireContext())
+        dieteActive = db.dieteDao().getActiveDiete()
 
-            if(dieteActive != null && dieteItems.isNotEmpty())
-            {
-                binding.emptyDiete.visibility = View.GONE
-                binding.rvDiete.visibility = View.VISIBLE
+        // Charger tous les aliments et recettes pour la recherche
+        val allAliments = db.alimentDao().getAll()
+        val allRecettes = db.recetteDao().getAll()
+        allNourritureItems.clear()
+        allNourritureItems.addAll(allAliments)
+        allNourritureItems.addAll(allRecettes.map { getRecetteAsRecetteAffichee(db, it.id) })
 
-                dieteItemsAdapter = NourritureAdapter(
-                    dieteItems,
-                    onItemClick = { item -> addToSelectedItems(item) }
-                )
-                binding.rvDiete.layoutManager = LinearLayoutManager(requireContext())
-                binding.rvDiete.adapter = dieteItemsAdapter
-            }
-            else
-            {
-                binding.emptyDiete.visibility = View.VISIBLE
-                binding.rvDiete.visibility = View.GONE
-            }
+        // Charger les favoris
+        val listeFavoris = db.mangerHistoriqueDao().getTopTenFavoriteFoods()
+        favoriteItems.clear()
+        listeFavoris.forEach { nom ->
+            getNourritureParNom(db, nom)?.let { favoriteItems.add(it) }
+        }
+
+        // Charger les suggestions de la diète
+        dieteActive?.let {
+            getItemsFromDieteForCurrentPeriode(it.id)
+        }
+    }
+
+    private fun updateFavoritesUI() {
+        if (favoriteItems.isEmpty()) {
+            binding.emptyFavorites.visibility = View.VISIBLE
+            binding.rvFavorites.visibility = View.GONE
+        } else {
+            binding.emptyFavorites.visibility = View.GONE
+            binding.rvFavorites.visibility = View.VISIBLE
+            favoriteFoodAdapter.updateData(favoriteItems)
+        }
+    }
+
+    private fun updateDieteUI() {
+        if (dieteActive != null && dieteItems.isNotEmpty()) {
+            binding.emptyDiete.visibility = View.GONE
+            binding.rvDiete.visibility = View.VISIBLE
+
+            dieteItemsAdapter = NourritureAdapter(dieteItems, { item ->
+                addToSelectedItems(item)
+            })
+            binding.rvDiete.layoutManager = LinearLayoutManager(requireContext())
+            binding.rvDiete.adapter = dieteItemsAdapter
+        } else {
+            binding.emptyDiete.visibility = View.VISIBLE
+            binding.rvDiete.visibility = View.GONE
         }
     }
 
