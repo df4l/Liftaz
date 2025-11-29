@@ -3,6 +3,7 @@ package com.df4l.liftaz.manger.nourriture
 import android.graphics.Color
 import android.text.SpannableString
 import android.text.style.ForegroundColorSpan
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -132,6 +133,8 @@ class NourritureAdapter(
         else
         {
             holder.txtSub.text = nutritionalString(prot, glu, lip, cal)
+            holder.txtNutri.text = r.quantiteTexte
+
         }
     }
 
@@ -181,5 +184,6 @@ data class RecetteAffichee(
     val quantiteTotale: Float,
     val quantitePortion: Float? = null,
     val imageUri: String? = null,
-    val heureManger: String? = null
+    val heureManger: String? = null,
+    val quantiteTexte: String? = null
 )

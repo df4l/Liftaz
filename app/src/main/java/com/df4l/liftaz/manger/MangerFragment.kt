@@ -145,6 +145,7 @@ class MangerFragment : Fragment() {
 
         listeRepas.forEach{
             //On crée une "recette affichée" à partir de chaque entrée du Manger Historique car ça permet de recycler NourritureAdapter !
+
             var toRecetteAffichee = RecetteAffichee(
                 id = it.id,
                 nom = it.nomElement,
@@ -153,8 +154,9 @@ class MangerFragment : Fragment() {
                 lipides = it.lipides,
                 calories = it.calories,
                 quantiteTotale = 0f,
-                heureManger = getHeureFromDate(it.date)
-                //TODO: Ajouter la quantité string d'abord dans le Layoute et ensuite dans le RecetteAffichee et mettre la logique dans bindRecette
+                heureManger = getHeureFromDate(it.date),
+                quantiteTexte = it.quantite,
+                imageUri = getImageUriParNom(db, it.nomElement)
             )
 
             when(getPeriodeRepasFromDate(it.date))
@@ -205,6 +207,17 @@ class MangerFragment : Fragment() {
             binding.rvSoir.visibility = View.VISIBLE
             binding.emptySoir.visibility = View.GONE
         }
+    }
+
+    suspend fun getImageUriParNom(db: AppDatabase, nom: String): String? {
+        // Tente de trouver l'URI dans les recettes d'abord
+        val imageUriRecette = db.recetteDao().getImageUriParNom(nom)
+        if (imageUriRecette != null) {
+            return imageUriRecette
+        }
+
+        // Si non trouvé, tente de trouver dans les aliments
+        return db.alimentDao().getImageUriParNom(nom)
     }
 
     private fun getHeureFromDate(date: Date): String {
