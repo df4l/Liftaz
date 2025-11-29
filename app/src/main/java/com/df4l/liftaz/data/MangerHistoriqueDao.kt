@@ -34,4 +34,7 @@ interface MangerHistoriqueDao {
         WHERE date / (1000 * 60 * 60 * 24) = :date / (1000 * 60 * 60 * 24)
     """)
     suspend fun getHistoriqueForDate(date: Date): List<MangerHistorique>
+
+    @Query("DELETE FROM manger_historique WHERE id = :id")
+    suspend fun deleteById(id: Int)
 }

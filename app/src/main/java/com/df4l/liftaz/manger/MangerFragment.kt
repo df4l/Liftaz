@@ -75,8 +75,6 @@ class MangerFragment : Fragment() {
 
             setupAdapters()
             rafraichirListeRepas()
-            updateCaloriesAndMacros()
-            defaultAlimentsAndRecettes()
         }
 
         setupCurrentDate()
@@ -92,7 +90,6 @@ class MangerFragment : Fragment() {
 
             // Mettez à jour votre UI ici !
             lifecycleScope.launch {
-                updateCaloriesAndMacros()
                 rafraichirListeRepas()
             }
         }
@@ -109,28 +106,37 @@ class MangerFragment : Fragment() {
 
     suspend private fun setupAdapters()
     {
-        matinAdapter = NourritureAdapter(matinMangerItems, onItemClick={}, onDeleteClick={})
+        matinAdapter = NourritureAdapter(matinMangerItems, onItemClick={}, onDeleteClick={ item -> supprimerFromMangerHistorique(item as RecetteAffichee)})
         binding.rvMatin.layoutManager = LinearLayoutManager(requireContext())
         binding.rvMatin.adapter = matinAdapter
         binding.rvMatin.isNestedScrollingEnabled = false // Pour un défilement fluide dans le ScrollView
 
         // --- Adapter pour le Midi ---
-        midiAdapter = NourritureAdapter(midiMangerItems, onItemClick={}, onDeleteClick={})
+        midiAdapter = NourritureAdapter(midiMangerItems, onItemClick={}, onDeleteClick={ item -> supprimerFromMangerHistorique(item as RecetteAffichee) })
         binding.rvMidi.layoutManager = LinearLayoutManager(requireContext())
         binding.rvMidi.adapter = midiAdapter
         binding.rvMidi.isNestedScrollingEnabled = false
 
         // --- Adapter pour l'Après-midi ---
-        apresMidiAdapter = NourritureAdapter(apresMidiMangerItems, onItemClick={}, onDeleteClick={})
+        apresMidiAdapter = NourritureAdapter(apresMidiMangerItems, onItemClick={}, onDeleteClick={ item -> supprimerFromMangerHistorique(item as RecetteAffichee) })
         binding.rvApresMidi.layoutManager = LinearLayoutManager(requireContext())
         binding.rvApresMidi.adapter = apresMidiAdapter
         binding.rvApresMidi.isNestedScrollingEnabled = false
 
         // --- Adapter pour le Soir ---
-        soirAdapter = NourritureAdapter(soirMangerItems, onItemClick={}, onDeleteClick={})
+        soirAdapter = NourritureAdapter(soirMangerItems, onItemClick={}, onDeleteClick={ item -> supprimerFromMangerHistorique(item as RecetteAffichee) })
         binding.rvSoir.layoutManager = LinearLayoutManager(requireContext())
         binding.rvSoir.adapter = soirAdapter
         binding.rvSoir.isNestedScrollingEnabled = false
+    }
+
+    private fun supprimerFromMangerHistorique(item: RecetteAffichee)
+    {
+        lifecycleScope.launch {
+            val db = AppDatabase.getDatabase(requireContext())
+            db.mangerHistoriqueDao().deleteById(item.id)
+            rafraichirListeRepas()
+        }
     }
 
     suspend private fun rafraichirListeRepas()
@@ -142,6 +148,10 @@ class MangerFragment : Fragment() {
         midiMangerItems.clear()
         apresMidiMangerItems.clear()
         soirMangerItems.clear()
+        caloriesConsommees = 0
+        proteinesConsommees = 0
+        glucidesConsommees = 0
+        lipidesConsommees = 0
 
         listeRepas.forEach{
             //On crée une "recette affichée" à partir de chaque entrée du Manger Historique car ça permet de recycler NourritureAdapter !
@@ -158,6 +168,11 @@ class MangerFragment : Fragment() {
                 quantiteTexte = it.quantite,
                 imageUri = getImageUriParNom(db, it.nomElement)
             )
+
+            caloriesConsommees += it.calories
+            proteinesConsommees += it.proteines.toInt()
+            glucidesConsommees += it.glucides.toInt()
+            lipidesConsommees += it.lipides.toInt()
 
             when(getPeriodeRepasFromDate(it.date))
             {
@@ -207,6 +222,8 @@ class MangerFragment : Fragment() {
             binding.rvSoir.visibility = View.VISIBLE
             binding.emptySoir.visibility = View.GONE
         }
+
+        updateCaloriesAndMacros()
     }
 
     suspend fun getImageUriParNom(db: AppDatabase, nom: String): String? {
