@@ -119,5 +119,6 @@ class NourritureSelectionAdapter(
 
 data class ItemSelectionne(
     val item: Any, // L'objet (Aliment ou RecetteAffichee)
-    var quantite: Int = 1 // La quantité, initialisée à 1 par défaut
+    var quantite: Int = 1, // La quantité, initialisée à 1 par défaut
+    val isQuickAdd: Boolean? = false
 )

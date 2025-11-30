@@ -153,10 +153,20 @@ class AjouterRepasBottomSheetFragment : BottomSheetDialogFragment() {
             val proteines = ajoutRapideBinding?.etQuickAddProteines?.text.toString().toFloatOrNull() ?: 0f
             val glucides = ajoutRapideBinding?.etQuickAddGlucides?.text.toString().toFloatOrNull() ?: 0f
             val lipides = ajoutRapideBinding?.etQuickAddLipides?.text.toString().toFloatOrNull() ?: 0f
+            val quantite = ajoutRapideBinding?.etQuickAddQuantite?.text.toString().toFloatOrNull() ?: 0f
 
-            if (nom.isNotBlank() && calories > 0) {
+            if (nom.isNotBlank() && calories > 0 && proteines >= 0 && glucides >= 0 && lipides >= 0 && quantite > 0) {
 
-                Toast.makeText(requireContext(), "$nom ajouté à la sélection", Toast.LENGTH_SHORT).show()
+                //TODO: Créer un recette affichée et l'ajouter dans le bazar
+                var item = RecetteAffichee(-1, nom = nom,
+                    calories = calories,
+                    proteines = proteines,
+                    glucides = glucides,
+                    lipides = lipides,
+                    quantiteTotale = quantite)
+
+                selectedItems.add(ItemSelectionne(item = item, quantite = 1, isQuickAdd = true))
+                selectionNourritureAdapter.updateData(selectedItems)
 
                 // Optionnel : vider les champs après l'ajout
                 ajoutRapideBinding?.etQuickAddNom?.text?.clear()
@@ -164,9 +174,10 @@ class AjouterRepasBottomSheetFragment : BottomSheetDialogFragment() {
                 ajoutRapideBinding?.etQuickAddProteines?.text?.clear()
                 ajoutRapideBinding?.etQuickAddGlucides?.text?.clear()
                 ajoutRapideBinding?.etQuickAddLipides?.text?.clear()
+                ajoutRapideBinding?.etQuickAddQuantite?.text?.clear()
 
             } else {
-                Toast.makeText(requireContext(), "Veuillez remplir au moins le nom et les calories", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Veuillez remplir tous les champs", Toast.LENGTH_SHORT).show()
             }
         }
     }
