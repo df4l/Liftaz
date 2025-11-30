@@ -20,9 +20,10 @@ import com.df4l.liftaz.data.PeriodeRepas
 import com.df4l.liftaz.data.TypeElement
 import com.df4l.liftaz.databinding.BottomSheetMangerBinding
 import com.df4l.liftaz.databinding.LayoutTabAjoutRapideBinding
-import com.df4l.liftaz.databinding.LayoutTabScanBarcodeBinding
 import com.df4l.liftaz.manger.nourriture.NourritureAdapter
+import com.df4l.liftaz.manger.nourriture.OpenFoodFactsAPI
 import com.df4l.liftaz.manger.nourriture.RecetteAffichee
+import com.df4l.liftaz.manger.nourriture.aliments.BarcodeScanner
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.tabs.TabLayout
 import kotlinx.coroutines.Dispatchers
@@ -45,7 +46,7 @@ class AjouterRepasBottomSheetFragment : BottomSheetDialogFragment() {
     private lateinit var selectionNourritureAdapter: NourritureSelectionAdapter
 
     private var ajoutRapideBinding: LayoutTabAjoutRapideBinding? = null
-    private var scanBarcodeBinding: LayoutTabScanBarcodeBinding? = null
+    lateinit var barcodeScanner: BarcodeScanner
 
     // Cette propriété est valide uniquement entre onCreateView et onDestroyView.
     private val binding get() = _binding!!
@@ -86,6 +87,8 @@ class AjouterRepasBottomSheetFragment : BottomSheetDialogFragment() {
 
         setupTabs()
 
+        barcodeScanner = BarcodeScanner(requireContext())
+
         binding.btnSaveMeal.setOnClickListener {
             sauvegarderSelection()
         }
@@ -108,7 +111,7 @@ class AjouterRepasBottomSheetFragment : BottomSheetDialogFragment() {
                 when (tab?.position) {
                     0 -> showRechercheView() // Onglet "Rechercher"
                     1 -> showAjoutRapideView() // Onglet "Ajout rapide"
-                    2 -> showScannerView() // Onglet "Scanner"
+                    2 -> scanCode()
                 }
             }
 
@@ -125,6 +128,28 @@ class AjouterRepasBottomSheetFragment : BottomSheetDialogFragment() {
         showRechercheView()
     }
 
+    private fun scanCode()
+    {
+            lifecycleScope.launch {
+                try {
+                    val scannedCode = barcodeScanner.startScan()
+                    if (!scannedCode.isNullOrEmpty()) {
+                        Toast.makeText(requireContext(), "Code scannée : $scannedCode (FONCTIONNALITE PAS TERMINEE ENCORE)", Toast.LENGTH_SHORT).show()
+
+
+
+                        binding.tabLayout.getTabAt(0)?.select()
+                    } else {
+                        Toast.makeText(requireContext(), "Scan annulé ou code vide", Toast.LENGTH_SHORT).show()
+                        binding.tabLayout.getTabAt(0)?.select()
+                    }
+                } catch (e: Exception) {
+                    Toast.makeText(requireContext(), "Erreur lors du scan ou de la récupération : ${e.message}", Toast.LENGTH_LONG).show()
+                    binding.tabLayout.getTabAt(0)?.select()
+                }
+            }
+    }
+
     private fun showRechercheView() {
         // Affiche les vues de recherche/suggestions et cache le conteneur des autres onglets
         binding.nestedScrollView.visibility = View.VISIBLE
@@ -132,7 +157,6 @@ class AjouterRepasBottomSheetFragment : BottomSheetDialogFragment() {
         binding.tabContentContainer.visibility = View.GONE
         binding.tabContentContainer.removeAllViews() // Nettoyer le conteneur
         ajoutRapideBinding = null // Libérer la référence du binding
-        scanBarcodeBinding = null // Libérer la référence du binding
     }
 
     private fun showAjoutRapideView() {
@@ -180,32 +204,6 @@ class AjouterRepasBottomSheetFragment : BottomSheetDialogFragment() {
                 Toast.makeText(requireContext(), "Veuillez remplir tous les champs", Toast.LENGTH_SHORT).show()
             }
         }
-    }
-
-    // **NOUVELLE FONCTION pour afficher la vue "Scanner"**
-    private fun showScannerView() {
-        // Cache les vues de recherche/suggestions et affiche le conteneur des onglets
-        binding.nestedScrollView.visibility = View.GONE
-        binding.searchBarLayout.visibility = View.GONE
-        binding.recyclerRechercheNourriture.visibility = View.GONE
-        binding.tabContentContainer.visibility = View.VISIBLE
-        binding.tabContentContainer.removeAllViews()
-
-        // Inflater le layout du scanner
-        scanBarcodeBinding = LayoutTabScanBarcodeBinding.inflate(layoutInflater, binding.tabContentContainer, true)
-
-        // TODO: Implémenter la logique du scanner de code-barres ici.
-        // Cela impliquera d'utiliser CameraX pour afficher un aperçu dans
-        // scanBarcodeBinding.cameraPreviewView et d'analyser les images pour
-        // trouver un code-barres. Vous pouvez réutiliser ou adapter la logique
-        // de votre classe BarcodeScanner.kt et DialogCreationAliment.kt.
-
-        Toast.makeText(requireContext(), "Logique du scanner à implémenter.", Toast.LENGTH_LONG).show()
-
-        // Exemple de ce que vous feriez une fois un code-barres scanné et les données récupérées :
-        // 1. Appeler l'API OpenFoodFacts
-        // 2. Créer un objet Aliment à partir de la réponse
-        // 3. Appeler addToSelectedItems(alimentTrouve)
     }
 
 
