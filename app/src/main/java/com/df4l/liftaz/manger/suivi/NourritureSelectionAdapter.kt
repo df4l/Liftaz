@@ -16,8 +16,7 @@ import com.df4l.liftaz.manger.nourriture.RecetteAffichee
 
 class NourritureSelectionAdapter(
     private var items: List<ItemSelectionne>,
-    private val onItemClick: ((Any) -> Unit)?= null,
-    private val onQuantityChanged: ((item: Any, newQuantity: Int) -> Unit) ?= null
+    private val onDeleteClick: ((Any) -> Unit)
 ) : RecyclerView.Adapter<NourritureSelectionAdapter.ViewHolder>() {
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -28,6 +27,7 @@ class NourritureSelectionAdapter(
 
         val quantityPortionPrefix: TextView = itemView.findViewById(R.id.quantityPortionPrefix)
         val gramsSuffix: TextView = itemView.findViewById(R.id.quantityGramsSuffix)
+        val btnRemoveSelection: ImageView = itemView.findViewById(R.id.btnRemoveSelection)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -57,6 +57,10 @@ class NourritureSelectionAdapter(
         {
             holder.gramsSuffix.visibility = View.VISIBLE
             holder.quantityPortionPrefix.visibility = View.GONE
+        }
+
+        holder.btnRemoveSelection.setOnClickListener {
+            onDeleteClick.invoke(item)
         }
 
         holder.quantityEditText.setText("${quantite}")

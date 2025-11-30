@@ -67,7 +67,10 @@ class AjouterRepasBottomSheetFragment : BottomSheetDialogFragment() {
         super.onViewCreated(view, savedInstanceState)
 
         // Initialisation de l'adapter pour la sélection
-        selectionNourritureAdapter = NourritureSelectionAdapter(selectedItems)
+        selectionNourritureAdapter = NourritureSelectionAdapter(selectedItems, onDeleteClick = { itemToDelete ->
+            selectedItems.removeIf { it.item == itemToDelete }
+            selectionNourritureAdapter.updateData(selectedItems)
+        })
         binding.rvSelectionManger.adapter = selectionNourritureAdapter
         binding.rvSelectionManger.layoutManager = LinearLayoutManager(requireContext())
 

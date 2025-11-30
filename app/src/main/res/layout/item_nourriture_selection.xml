@@ -91,6 +91,15 @@
             android:layout_marginStart="4dp"
             android:visibility="visible" /> <!-- Visible par défaut ou selon votre logique -->
 
+        <ImageButton
+            android:id="@+id/btnRemoveSelection"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@android:drawable/ic_menu_close_clear_cancel"
+            android:contentDescription="Supprimer"
+            android:layout_marginLeft="8dp"/>
+
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
