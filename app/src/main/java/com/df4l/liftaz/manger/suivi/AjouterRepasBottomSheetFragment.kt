@@ -1,6 +1,5 @@
 package com.df4l.liftaz.manger.suivi
 
-import com.df4l.liftaz.manger.suivi.QuantiteAlimentDialogFragment
 import android.icu.util.Calendar
 import android.os.Bundle
 import android.text.Editable
@@ -10,7 +9,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.fragment.app.add
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -19,12 +17,14 @@ import com.df4l.liftaz.data.AppDatabase
 import com.df4l.liftaz.data.Diete
 import com.df4l.liftaz.data.MangerHistorique
 import com.df4l.liftaz.data.PeriodeRepas
-import com.df4l.liftaz.data.Recette
 import com.df4l.liftaz.data.TypeElement
 import com.df4l.liftaz.databinding.BottomSheetMangerBinding
+import com.df4l.liftaz.databinding.LayoutTabAjoutRapideBinding
+import com.df4l.liftaz.databinding.LayoutTabScanBarcodeBinding
 import com.df4l.liftaz.manger.nourriture.NourritureAdapter
 import com.df4l.liftaz.manger.nourriture.RecetteAffichee
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import com.google.android.material.tabs.TabLayout
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -43,6 +43,9 @@ class AjouterRepasBottomSheetFragment : BottomSheetDialogFragment() {
     private val favoriteItems = mutableListOf<Any>()
     private val selectedItems = mutableListOf<ItemSelectionne>()
     private lateinit var selectionNourritureAdapter: NourritureSelectionAdapter
+
+    private var ajoutRapideBinding: LayoutTabAjoutRapideBinding? = null
+    private var scanBarcodeBinding: LayoutTabScanBarcodeBinding? = null
 
     // Cette propriété est valide uniquement entre onCreateView et onDestroyView.
     private val binding get() = _binding!!
@@ -81,6 +84,8 @@ class AjouterRepasBottomSheetFragment : BottomSheetDialogFragment() {
         // Initialisation pour la recherche
         setupRecherche()
 
+        setupTabs()
+
         binding.btnSaveMeal.setOnClickListener {
             sauvegarderSelection()
         }
@@ -96,6 +101,102 @@ class AjouterRepasBottomSheetFragment : BottomSheetDialogFragment() {
             updateDieteUI()
         }
     }
+
+    private fun setupTabs() {
+        binding.tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
+            override fun onTabSelected(tab: TabLayout.Tab?) {
+                when (tab?.position) {
+                    0 -> showRechercheView() // Onglet "Rechercher"
+                    1 -> showAjoutRapideView() // Onglet "Ajout rapide"
+                    2 -> showScannerView() // Onglet "Scanner"
+                }
+            }
+
+            override fun onTabUnselected(tab: TabLayout.Tab?) {
+                // Rien à faire ici pour le moment
+            }
+
+            override fun onTabReselected(tab: TabLayout.Tab?) {
+                // Optionnel : peut être utilisé pour remonter en haut d'une liste par exemple
+            }
+        })
+
+        // Affiche la vue par défaut (Rechercher) au démarrage
+        showRechercheView()
+    }
+
+    private fun showRechercheView() {
+        // Affiche les vues de recherche/suggestions et cache le conteneur des autres onglets
+        binding.nestedScrollView.visibility = View.VISIBLE
+        binding.searchBarLayout.visibility = View.VISIBLE
+        binding.tabContentContainer.visibility = View.GONE
+        binding.tabContentContainer.removeAllViews() // Nettoyer le conteneur
+        ajoutRapideBinding = null // Libérer la référence du binding
+        scanBarcodeBinding = null // Libérer la référence du binding
+    }
+
+    private fun showAjoutRapideView() {
+        // Cache les vues de recherche/suggestions et affiche le conteneur des onglets
+        binding.nestedScrollView.visibility = View.GONE
+        binding.searchBarLayout.visibility = View.GONE
+        binding.recyclerRechercheNourriture.visibility = View.GONE
+        binding.tabContentContainer.visibility = View.VISIBLE
+        binding.tabContentContainer.removeAllViews() // Nettoyer avant d'ajouter
+
+        // Inflater le layout d'ajout rapide
+        ajoutRapideBinding = LayoutTabAjoutRapideBinding.inflate(layoutInflater, binding.tabContentContainer, true)
+
+        // Logique pour le bouton "Ajouter à la sélection"
+        ajoutRapideBinding?.btnQuickAddToSelection?.setOnClickListener {
+            val nom = ajoutRapideBinding?.etQuickAddNom?.text.toString()
+            val calories = ajoutRapideBinding?.etQuickAddCalories?.text.toString().toIntOrNull() ?: 0
+            val proteines = ajoutRapideBinding?.etQuickAddProteines?.text.toString().toFloatOrNull() ?: 0f
+            val glucides = ajoutRapideBinding?.etQuickAddGlucides?.text.toString().toFloatOrNull() ?: 0f
+            val lipides = ajoutRapideBinding?.etQuickAddLipides?.text.toString().toFloatOrNull() ?: 0f
+
+            if (nom.isNotBlank() && calories > 0) {
+
+                Toast.makeText(requireContext(), "$nom ajouté à la sélection", Toast.LENGTH_SHORT).show()
+
+                // Optionnel : vider les champs après l'ajout
+                ajoutRapideBinding?.etQuickAddNom?.text?.clear()
+                ajoutRapideBinding?.etQuickAddCalories?.text?.clear()
+                ajoutRapideBinding?.etQuickAddProteines?.text?.clear()
+                ajoutRapideBinding?.etQuickAddGlucides?.text?.clear()
+                ajoutRapideBinding?.etQuickAddLipides?.text?.clear()
+
+            } else {
+                Toast.makeText(requireContext(), "Veuillez remplir au moins le nom et les calories", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    // **NOUVELLE FONCTION pour afficher la vue "Scanner"**
+    private fun showScannerView() {
+        // Cache les vues de recherche/suggestions et affiche le conteneur des onglets
+        binding.nestedScrollView.visibility = View.GONE
+        binding.searchBarLayout.visibility = View.GONE
+        binding.recyclerRechercheNourriture.visibility = View.GONE
+        binding.tabContentContainer.visibility = View.VISIBLE
+        binding.tabContentContainer.removeAllViews()
+
+        // Inflater le layout du scanner
+        scanBarcodeBinding = LayoutTabScanBarcodeBinding.inflate(layoutInflater, binding.tabContentContainer, true)
+
+        // TODO: Implémenter la logique du scanner de code-barres ici.
+        // Cela impliquera d'utiliser CameraX pour afficher un aperçu dans
+        // scanBarcodeBinding.cameraPreviewView et d'analyser les images pour
+        // trouver un code-barres. Vous pouvez réutiliser ou adapter la logique
+        // de votre classe BarcodeScanner.kt et DialogCreationAliment.kt.
+
+        Toast.makeText(requireContext(), "Logique du scanner à implémenter.", Toast.LENGTH_LONG).show()
+
+        // Exemple de ce que vous feriez une fois un code-barres scanné et les données récupérées :
+        // 1. Appeler l'API OpenFoodFacts
+        // 2. Créer un objet Aliment à partir de la réponse
+        // 3. Appeler addToSelectedItems(alimentTrouve)
+    }
+
 
     private fun setupRecherche() {
         // 1. Initialiser l'adapter pour les résultats de recherche
