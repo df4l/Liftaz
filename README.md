@@ -8,6 +8,7 @@ Application de suivi de muscu par un lifteur, pour les lifteurs
  
 Pas de programmes préenregistrés, pas d'options inutiles.
 L'envie de développer cette application est née de cette impression que toutes les applis de muscu regorgent de paramètres superflus, de fonctionnalités qui impressionnent au premier regard mais ne servent à rien une fois confrontées à la réalité de l'entrainement.
+
 Qui a sérieusement besoin de connaitre son apport journalier en vitamine B12 au microgramme prés ?
 
 Liftaz se concentre sur l'essentiel :
