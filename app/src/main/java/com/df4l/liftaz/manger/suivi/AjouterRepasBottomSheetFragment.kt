@@ -135,9 +135,7 @@ class AjouterRepasBottomSheetFragment : BottomSheetDialogFragment() {
                     val scannedCode = barcodeScanner.startScan()
                     if (!scannedCode.isNullOrEmpty()) {
                         Toast.makeText(requireContext(), "Code scannée : $scannedCode (FONCTIONNALITE PAS TERMINEE ENCORE)", Toast.LENGTH_SHORT).show()
-
-
-
+                        //TODO: Je ne peux PLUS supporter les choses de la diète pour l'instant, je suis CRAMÉ ! La fonctionnalité n'est pas la plus indispensable, je verrais après avoir terminé le fragment des stats
                         binding.tabLayout.getTabAt(0)?.select()
                     } else {
                         Toast.makeText(requireContext(), "Scan annulé ou code vide", Toast.LENGTH_SHORT).show()

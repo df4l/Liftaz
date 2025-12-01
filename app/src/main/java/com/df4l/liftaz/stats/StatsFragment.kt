@@ -254,7 +254,7 @@ class StatsFragment : Fragment(R.layout.fragment_stats) {
         chart.setPinchZoom(false)
 
         // Fix cropping bottom
-        chart.setExtraOffsets(0f, 0f, 0f, 18f)
+        chart.setExtraOffsets(0f, 0f, 28f, 18f)
 
         chart.invalidate()
     }
