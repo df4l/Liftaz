@@ -25,7 +25,8 @@ import androidx.room.TypeConverters
     RecetteAliments::class,
     MangerHistorique::class,
     //Stats
-    EntreePoids::class
+    EntreePoids::class,
+    Graphique::class
                      ], version = 1, exportSchema = false)
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
@@ -51,6 +52,8 @@ abstract class AppDatabase : RoomDatabase() {
 
     //Stats
     abstract fun entreePoidsDao(): EntreePoidsDao
+    abstract fun graphiqueDao(): GraphiqueDao
+
 
     companion object {
         @Volatile

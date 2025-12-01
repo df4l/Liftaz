@@ -20,9 +20,11 @@ import com.github.mikephil.charting.formatter.ValueFormatter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import java.util.concurrent.TimeUnit
 
 class StatsFragment : Fragment(R.layout.fragment_stats) {
 
@@ -197,6 +199,30 @@ class StatsFragment : Fragment(R.layout.fragment_stats) {
     }
 
     private fun setupWeightChart() {
+        CoroutineScope(Dispatchers.IO).launch {
+            val cal = Calendar.getInstance()
+            cal.add(Calendar.DAY_OF_YEAR, -6)
+            cal.set(Calendar.HOUR_OF_DAY, 0)
+            cal.set(Calendar.MINUTE, 0)
+            cal.set(Calendar.SECOND, 0)
+            cal.set(Calendar.MILLISECOND, 0)
+            val startDate = cal.time
+
+            val dao = AppDatabase.getDatabase(requireContext()).entreePoidsDao()
+            val entriesFromDb = dao.getEntriesSince(startDate)
+
+            val chartEntries = entriesFromDb.mapIndexed { index, entreePoids ->
+                // Utiliser l'index comme valeur X
+                Entry(index.toFloat(), entreePoids.poids, entreePoids.date) // Stocker la date dans l'objet "data"
+            }
+
+            withContext(Dispatchers.Main) {
+                updateChartUI(chartEntries)
+            }
+        }
+    }
+
+    private fun updateChartUI(entries: List<Entry>) {
         val chart: LineChart = binding.lineChartWeight
 
         chart.setBackgroundColor(appWhite)
@@ -205,23 +231,64 @@ class StatsFragment : Fragment(R.layout.fragment_stats) {
         chart.axisLeft.setDrawGridLines(false)
         chart.axisRight.isEnabled = false
 
-        val dates = generateLastSevenDays()
-
         chart.xAxis.apply {
-            textSize = 16f
-            textColor = appBlack
-            granularity = 1f
             position = com.github.mikephil.charting.components.XAxis.XAxisPosition.BOTTOM
+            textColor = appBlack
+            textSize = 12f
+            labelRotationAngle = -45f
+            setDrawGridLines(false)
+
+            // --- MODIFICATIONS IMPORTANTES ---
+
+            // 1. Définir le nombre exact de labels que nous attendons.
+            // S'il y a 7 jours, il y aura 7 labels.
+            // Utilisez la taille de la liste d'entrées pour être dynamique.
+            labelCount = entries.size
+            isGranularityEnabled = true // S'assurer que la granularité est active
+
+            // 2. Définir l'espacement minimum. Un jour.
+            granularity = TimeUnit.DAYS.toMillis(1).toFloat()
+
+            // 3. Spécifier les valeurs min/max de l'axe pour lui donner un cadre clair
+            if (entries.isNotEmpty()) {
+                axisMinimum = entries.first().x
+                axisMaximum = entries.last().x
+            }
+
             valueFormatter = object : ValueFormatter() {
+                private val sdf = SimpleDateFormat("dd/MM", Locale.getDefault())
+
                 override fun getAxisLabel(value: Float, axis: com.github.mikephil.charting.components.AxisBase?): String {
-                    val i = value.toInt() - 1
-                    return if (i in dates.indices) dates[i] else ""
+                    // L'index de notre entrée
+                    val index = value.toInt()
+
+                    // Récupérer la liste des entrées du premier dataset
+                    val chartEntries = (chart.data.getDataSetByIndex(0) as? LineDataSet)?.values
+
+                    // Vérifier si l'index est valide et récupérer la date depuis l'objet "data"
+                    return if (chartEntries != null && index >= 0 && index < chartEntries.size) {
+                        val entryData = chartEntries[index].data
+                        if (entryData is Date) {
+                            sdf.format(entryData)
+                        } else {
+                            "" // Pas de date trouvée
+                        }
+                    } else {
+                        "" // Index hors limites
+                    }
                 }
             }
         }
 
-        val weights = listOf(75.5f, 75.8f, 75.2f, 75.0f, 74.8f, 75.1f, 74.9f)
-        val entries = weights.mapIndexed { i, v -> Entry((i + 1).toFloat(), v) }
+        if (entries.isNotEmpty()) {
+            val minPoids = entries.minOf { it.y } - 2f
+            val maxPoids = entries.maxOf { it.y } + 2f
+            chart.axisLeft.axisMinimum = minPoids
+            chart.axisLeft.axisMaximum = maxPoids
+        } else {
+            chart.axisLeft.axisMinimum = 73f
+            chart.axisLeft.axisMaximum = 77f
+        }
 
         val dataSet = LineDataSet(entries, "Poids (kg)").apply {
             color = requireContext().getColor(R.color.purple_500)
@@ -236,8 +303,6 @@ class StatsFragment : Fragment(R.layout.fragment_stats) {
         chart.axisLeft.apply {
             textSize = 16f
             textColor = appBlack
-            axisMinimum = 73f
-            axisMaximum = 77f
         }
 
         chart.description.isEnabled = false
@@ -256,7 +321,7 @@ class StatsFragment : Fragment(R.layout.fragment_stats) {
         // Fix cropping bottom
         chart.setExtraOffsets(0f, 0f, 28f, 18f)
 
-        chart.invalidate()
+        chart.invalidate() // Rafraîchir le graphique
     }
 
     private fun generateLastSevenDays(): List<String> {

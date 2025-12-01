@@ -6,6 +6,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
+import java.util.Date
 
 @Dao
 interface EntreePoidsDao {
@@ -20,6 +21,9 @@ interface EntreePoidsDao {
 
     @Query("SELECT * FROM entree_poids ORDER BY id ASC")
     suspend fun getAll(): List<EntreePoids>
+
+    @Query("SELECT * FROM entree_poids WHERE date >= :startDate ORDER BY date ASC")
+    suspend fun getEntriesSince(startDate: Date): List<EntreePoids>
 
     @Query("SELECT * FROM entree_poids ORDER BY date DESC LIMIT 1")
     suspend fun getLatestWeight(): EntreePoids?
