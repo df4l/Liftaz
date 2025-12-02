@@ -37,4 +37,18 @@ interface MangerHistoriqueDao {
 
     @Query("DELETE FROM manger_historique WHERE id = :id")
     suspend fun deleteById(id: Int)
+
+    @Query("""
+    SELECT date, SUM(calories) as totalCalories
+    FROM manger_historique
+    WHERE date >= :startDate
+    GROUP BY date / (1000 * 60 * 60 * 24)
+    ORDER BY date ASC
+""")
+    suspend fun getCaloriesSumSince(startDate: Date): List<CaloriesPerDay>
 }
+
+data class CaloriesPerDay(
+    val date: Date,
+    val totalCalories: Int
+)

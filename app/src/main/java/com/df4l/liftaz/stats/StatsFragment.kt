@@ -127,51 +127,117 @@ class StatsFragment : Fragment(R.layout.fragment_stats) {
     private fun setupCorrelationChart() {
         val chart: LineChart = binding.correlationChart
 
+        // Initialisation du style du graphique (inchangé)
         chart.setBackgroundColor(appWhite)
         chart.setDrawGridBackground(false)
         chart.xAxis.setDrawGridLines(false)
         chart.axisLeft.setDrawGridLines(false)
         chart.axisRight.setDrawGridLines(false)
         chart.description.isEnabled = false
-
-        // Pas de légende sur le deuxième graphique
         chart.legend.isEnabled = false
+        chart.setTouchEnabled(true)
+        chart.isDragEnabled = false
+        chart.setScaleEnabled(false)
+        chart.setPinchZoom(false)
 
-        val dates = generateLastSevenDays()
+        // Lancement de la coroutine pour charger les données
+        CoroutineScope(Dispatchers.IO).launch {
+            // 1. Définir la période (derniers 7 jours)
+            val cal = Calendar.getInstance()
+            cal.add(Calendar.DAY_OF_YEAR, -6)
+            cal.set(Calendar.HOUR_OF_DAY, 0)
+            cal.set(Calendar.MINUTE, 0)
+            cal.set(Calendar.SECOND, 0)
+            cal.set(Calendar.MILLISECOND, 0)
+            val startDate = cal.time
 
+            // 2. Récupérer les données de la BDD
+            val db = AppDatabase.getDatabase(requireContext())
+            val weightEntriesFromDb = db.entreePoidsDao().getEntriesSince(startDate)
+            val caloriesPerDayFromDb = db.mangerHistoriqueDao().getCaloriesSumSince(startDate)
+
+            // 3. Mapper les données pour le graphique
+            // Créons une map pour accéder facilement aux calories par jour
+            val caloriesMap = caloriesPerDayFromDb.associateBy(
+                { TimeUnit.MILLISECONDS.toDays(it.date.time) }, // Clé: le jour
+                { it.totalCalories.toFloat() } // Valeur: les calories
+            )
+
+            val weightChartEntries = mutableListOf<Entry>()
+            val caloriesChartEntries = mutableListOf<Entry>()
+
+            weightEntriesFromDb.forEachIndexed { index, entreePoids ->
+                val xValue = index.toFloat()
+                // Ajout de l'entrée de poids
+                weightChartEntries.add(Entry(xValue, entreePoids.poids, entreePoids.date))
+
+                // Recherche des calories correspondantes pour le même jour
+                val day = TimeUnit.MILLISECONDS.toDays(entreePoids.date.time)
+                val caloriesForDay = caloriesMap[day]
+                if (caloriesForDay != null) {
+                    caloriesChartEntries.add(Entry(xValue, caloriesForDay, entreePoids.date))
+                }
+            }
+
+            // 4. Mettre à jour l'UI sur le thread principal
+            withContext(Dispatchers.Main) {
+                updateCorrelationChartUI(weightChartEntries, caloriesChartEntries)
+            }
+        }
+    }
+
+    // Nouvelle fonction pour mettre à jour l'UI du graphique de corrélation
+    private fun updateCorrelationChartUI(wEntries: List<Entry>, cEntries: List<Entry>) {
+        val chart: LineChart = binding.correlationChart
+
+        // Configuration des axes
         chart.xAxis.apply {
-            textSize = 16f
+            textSize = 12f
             textColor = appBlack
             position = com.github.mikephil.charting.components.XAxis.XAxisPosition.BOTTOM
+            labelRotationAngle = -45f
             granularity = 1f
+            labelCount = wEntries.size
+            isGranularityEnabled = true
+
+            if (wEntries.isNotEmpty()) {
+                axisMinimum = wEntries.first().x
+                axisMaximum = wEntries.last().x
+            }
+
             valueFormatter = object : ValueFormatter() {
+                private val sdf = SimpleDateFormat("dd/MM", Locale.getDefault())
                 override fun getAxisLabel(value: Float, axis: com.github.mikephil.charting.components.AxisBase?): String {
-                    val i = value.toInt() - 1
-                    return if (i in dates.indices) dates[i] else ""
+                    val index = value.toInt()
+                    return if (index >= 0 && index < wEntries.size) {
+                        val entryData = wEntries[index].data
+                        if (entryData is Date) sdf.format(entryData) else ""
+                    } else {
+                        ""
+                    }
                 }
             }
         }
 
+        val minPoids = if (wEntries.isNotEmpty()) wEntries.minOf { it.y } - 1f else 70f
+        val maxPoids = if (wEntries.isNotEmpty()) wEntries.maxOf { it.y } + 1f else 80f
         chart.axisLeft.apply {
-            textSize = 16f
+            textSize = 12f
             textColor = appBlack
-            axisMinimum = 73f
-            axisMaximum = 77f
+            axisMinimum = minPoids
+            axisMaximum = maxPoids
         }
 
+        val minCals = if (cEntries.isNotEmpty()) cEntries.minOf { it.y } - 100f else 1500f
+        val maxCals = if (cEntries.isNotEmpty()) cEntries.maxOf { it.y } + 100f else 2500f
         chart.axisRight.apply {
-            textSize = 16f
+            textSize = 12f
             textColor = appBlack
-            axisMinimum = 1500f
-            axisMaximum = 2500f
+            axisMinimum = minCals
+            axisMaximum = maxCals
         }
 
-        val weightData = listOf(75.5f, 75.8f, 75.2f, 75.0f, 74.8f, 75.1f, 74.9f)
-        val calData = listOf(2200f, 2400f, 1900f, 2000f, 2100f, 2300f, 1950f)
-
-        val wEntries = weightData.mapIndexed { i, v -> Entry((i + 1).toFloat(), v) }
-        val cEntries = calData.mapIndexed { i, v -> Entry((i + 1).toFloat(), v) }
-
+        // Configuration des datasets
         val weightSet = LineDataSet(wEntries, "Poids (kg)").apply {
             color = requireContext().getColor(R.color.purple_500)
             setCircleColor(requireContext().getColor(R.color.purple_500))
@@ -190,17 +256,15 @@ class StatsFragment : Fragment(R.layout.fragment_stats) {
             axisDependency = com.github.mikephil.charting.components.YAxis.AxisDependency.RIGHT
         }
 
+        // Légende
+        chart.legend.isEnabled = true
+        chart.legend.textColor = appBlack
+
         chart.data = LineData(weightSet, calSet)
 
         val marker = StatsMarker(requireContext())
         marker.chartView = chart
         chart.marker = marker
-
-        // Désactivation du zoom et du drag
-        chart.setTouchEnabled(true)
-        chart.isDragEnabled = false
-        chart.setScaleEnabled(false)
-        chart.setPinchZoom(false)
 
         chart.invalidate()
     }
@@ -269,7 +333,7 @@ class StatsFragment : Fragment(R.layout.fragment_stats) {
             isGranularityEnabled = true // S'assurer que la granularité est active
 
             // 2. Définir l'espacement minimum. Un jour.
-            granularity = TimeUnit.DAYS.toMillis(1).toFloat()
+            granularity = 1f
 
             // 3. Spécifier les valeurs min/max de l'axe pour lui donner un cadre clair
             if (entries.isNotEmpty()) {
