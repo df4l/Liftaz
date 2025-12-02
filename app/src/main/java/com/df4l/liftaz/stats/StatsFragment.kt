@@ -25,6 +25,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import java.util.concurrent.TimeUnit
+import kotlin.math.roundToInt
 
 class StatsFragment : Fragment(R.layout.fragment_stats) {
 
@@ -79,11 +80,17 @@ class StatsFragment : Fragment(R.layout.fragment_stats) {
                     bodyFat = bodyFat
                 )
 
-                // Sauvegarde en BDD
+                // Sauvegarde en BDD et mise à jour de l'UI
                 CoroutineScope(Dispatchers.IO).launch {
                     val dao = AppDatabase.getDatabase(requireContext()).entreePoidsDao()
                     dao.insert(entree)
-                    updateLatestEntry()
+                    updateLatestEntry() // Met à jour le poids actuel affiché
+
+                    // --- AJOUT IMPORTANT ---
+                    // On revient sur le thread principal pour mettre à jour le graphique
+                    withContext(Dispatchers.Main) {
+                        setupWeightChart() // Recharge et redessine le graphique et la tendance
+                    }
                 }
             }
             .setNegativeButton("Annuler", null)
@@ -224,6 +231,21 @@ class StatsFragment : Fragment(R.layout.fragment_stats) {
 
     private fun updateChartUI(entries: List<Entry>) {
         val chart: LineChart = binding.lineChartWeight
+
+        if (entries.size >= 2) {
+            val firstWeight = entries.first().y
+            val lastWeight = entries.last().y
+
+            val weightDiffKg = lastWeight - firstWeight
+            val weightDiffGrams = (weightDiffKg * 1000).roundToInt()
+            val sign = if (weightDiffGrams >= 0) "+" else ""
+
+            binding.tvPoidsTendance.text = "Tendance sur la semaine : %s%d g".format(sign, weightDiffGrams)
+            binding.tvPoidsTendance.setTextColor(appBlack) // Utilisation d'une couleur neutre
+            binding.tvPoidsTendance.visibility = View.VISIBLE
+        } else {
+            binding.tvPoidsTendance.visibility = View.GONE
+        }
 
         chart.setBackgroundColor(appWhite)
         chart.setDrawGridBackground(false)
