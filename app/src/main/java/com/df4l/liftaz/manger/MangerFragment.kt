@@ -75,8 +75,6 @@ class MangerFragment : Fragment() {
 
             setupAdapters()
             rafraichirListeRepas()
-
-            defaultAlimentsAndRecettes()
         }
 
         setupCurrentDate()

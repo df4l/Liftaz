@@ -27,6 +27,8 @@ Une fonctionnalité exclusive : si vous sentez la flemme arriver en plein set, c
 
 - Permettre la création de graphiques personnalisés avec un choix de jeux de données (Poids, calories consommées, performance sur X exercice, ...)
 - Intégration d’un scan alimentaire rapide dans le BottomSheet principal de la section “Manger"
+- Donner l'accès à un historique de ce qui a été mangé et soulevé pour tous les jours
+- Possibilité de se connecter à une balance via Bluetooth pour réceptionner directement les infos, avec un framework facilitant l'implémentation des différentes marques et modèles
 
 # Crédits
 
