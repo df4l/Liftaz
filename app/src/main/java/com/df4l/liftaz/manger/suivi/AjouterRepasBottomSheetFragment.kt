@@ -490,10 +490,11 @@ class AjouterRepasBottomSheetFragment : BottomSheetDialogFragment() {
                             "Lipides: ${item.lipides}, " +
                             "Quantité saisie (en grammes): ${it.quantite}")
                     nomElement = item.nom
-                    calories = item.calories * (it.quantite / 100)
-                    proteines = item.proteines * (it.quantite / 100)
-                    glucides = item.glucides * (it.quantite / 100)
-                    lipides = item.lipides * (it.quantite / 100)
+                    val ratio = it.quantite.toFloat() / 100f
+                    calories = (item.calories * ratio).toInt()
+                    proteines = item.proteines * ratio
+                    glucides = item.glucides * ratio
+                    lipides = item.lipides * ratio
                     quantite = "${it.quantite}g"
                 }
 
