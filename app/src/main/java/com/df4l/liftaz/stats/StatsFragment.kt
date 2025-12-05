@@ -6,13 +6,16 @@ import android.os.Bundle
 import android.view.View
 import android.widget.EditText
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import com.df4l.liftaz.R
 import com.df4l.liftaz.data.AppDatabase
 import com.df4l.liftaz.data.EntreePoids
 import com.df4l.liftaz.databinding.FragmentStatsBinding
 import com.github.mikephil.charting.charts.LineChart
-import com.github.mikephil.charting.components.Legend
+import com.github.mikephil.charting.components.AxisBase
+import com.github.mikephil.charting.components.XAxis
+import com.github.mikephil.charting.components.YAxis
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
@@ -56,13 +59,14 @@ class StatsFragment : Fragment(R.layout.fragment_stats) {
         val inputPoids = view.findViewById<EditText>(R.id.etPoids)
         val inputBodyFat = view.findViewById<EditText>(R.id.etBodyFat)
 
-        androidx.appcompat.app.AlertDialog.Builder(requireContext())
+        AlertDialog.Builder(requireContext())
             .setTitle("Ajouter une mesure")
             .setView(view)
             .setPositiveButton("Ajouter") { _, _ ->
                 val poidsText = inputPoids.text.toString().trim()
                 if (poidsText.isEmpty()) {
-                    Toast.makeText(requireContext(), "Le poids est obligatoire", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), "Le poids est obligatoire", Toast.LENGTH_SHORT)
+                        .show()
                     return@setPositiveButton
                 }
 
@@ -90,6 +94,7 @@ class StatsFragment : Fragment(R.layout.fragment_stats) {
                     // On revient sur le thread principal pour mettre à jour le graphique
                     withContext(Dispatchers.Main) {
                         setupWeightChart() // Recharge et redessine le graphique et la tendance
+                        setupCorrelationChart() // Met également à jour le graphique de corrélation
                     }
                 }
             }
@@ -142,9 +147,9 @@ class StatsFragment : Fragment(R.layout.fragment_stats) {
 
         // Lancement de la coroutine pour charger les données
         CoroutineScope(Dispatchers.IO).launch {
-            // 1. Définir la période (derniers 7 jours)
+            // 1. Définir la période (derniers 14 jours)
             val cal = Calendar.getInstance()
-            cal.add(Calendar.DAY_OF_YEAR, -6)
+            cal.add(Calendar.DAY_OF_YEAR, -13) // Changé de -6 à -13 pour avoir 14 jours
             cal.set(Calendar.HOUR_OF_DAY, 0)
             cal.set(Calendar.MINUTE, 0)
             cal.set(Calendar.SECOND, 0)
@@ -179,9 +184,26 @@ class StatsFragment : Fragment(R.layout.fragment_stats) {
                 }
             }
 
+            // Calculer la moyenne des calories
+            val averageCalories = if (caloriesPerDayFromDb.isNotEmpty()) {
+                caloriesPerDayFromDb.sumOf { it.totalCalories } / caloriesPerDayFromDb.size
+            } else {
+                0
+            }
+
+
             // 4. Mettre à jour l'UI sur le thread principal
             withContext(Dispatchers.Main) {
                 updateCorrelationChartUI(weightChartEntries, caloriesChartEntries)
+
+                // Afficher la moyenne des calories
+                if (averageCalories > 0) {
+                    binding.tvCaloriesTendance.text =
+                        "Moyenne sur 14 jours : %d kcal / jour".format(averageCalories)
+                    binding.tvCaloriesTendance.visibility = View.VISIBLE
+                } else {
+                    binding.tvCaloriesTendance.visibility = View.GONE
+                }
             }
         }
     }
@@ -194,7 +216,7 @@ class StatsFragment : Fragment(R.layout.fragment_stats) {
         chart.xAxis.apply {
             textSize = 12f
             textColor = appBlack
-            position = com.github.mikephil.charting.components.XAxis.XAxisPosition.BOTTOM
+            position = XAxis.XAxisPosition.BOTTOM
             labelRotationAngle = -45f
             granularity = 1f
             labelCount = wEntries.size
@@ -207,7 +229,10 @@ class StatsFragment : Fragment(R.layout.fragment_stats) {
 
             valueFormatter = object : ValueFormatter() {
                 private val sdf = SimpleDateFormat("dd/MM", Locale.getDefault())
-                override fun getAxisLabel(value: Float, axis: com.github.mikephil.charting.components.AxisBase?): String {
+                override fun getAxisLabel(
+                    value: Float,
+                    axis: AxisBase?
+                ): String {
                     val index = value.toInt()
                     return if (index >= 0 && index < wEntries.size) {
                         val entryData = wEntries[index].data
@@ -244,7 +269,7 @@ class StatsFragment : Fragment(R.layout.fragment_stats) {
             lineWidth = 2f
             circleRadius = 4f
             setDrawValues(false)
-            axisDependency = com.github.mikephil.charting.components.YAxis.AxisDependency.LEFT
+            axisDependency = YAxis.AxisDependency.LEFT
         }
 
         val calSet = LineDataSet(cEntries, "Calories (kcal)").apply {
@@ -253,7 +278,7 @@ class StatsFragment : Fragment(R.layout.fragment_stats) {
             lineWidth = 2f
             circleRadius = 4f
             setDrawValues(false)
-            axisDependency = com.github.mikephil.charting.components.YAxis.AxisDependency.RIGHT
+            axisDependency = YAxis.AxisDependency.RIGHT
         }
 
         // Légende
@@ -284,7 +309,11 @@ class StatsFragment : Fragment(R.layout.fragment_stats) {
 
             val chartEntries = entriesFromDb.mapIndexed { index, entreePoids ->
                 // Utiliser l'index comme valeur X
-                Entry(index.toFloat(), entreePoids.poids, entreePoids.date) // Stocker la date dans l'objet "data"
+                Entry(
+                    index.toFloat(),
+                    entreePoids.poids,
+                    entreePoids.date
+                ) // Stocker la date dans l'objet "data"
             }
 
             withContext(Dispatchers.Main) {
@@ -304,7 +333,8 @@ class StatsFragment : Fragment(R.layout.fragment_stats) {
             val weightDiffGrams = (weightDiffKg * 1000).roundToInt()
             val sign = if (weightDiffGrams >= 0) "+" else ""
 
-            binding.tvPoidsTendance.text = "Tendance sur la semaine : %s%d g".format(sign, weightDiffGrams)
+            binding.tvPoidsTendance.text =
+                "Tendance sur la semaine : %s%d g".format(sign, weightDiffGrams)
             binding.tvPoidsTendance.setTextColor(appBlack) // Utilisation d'une couleur neutre
             binding.tvPoidsTendance.visibility = View.VISIBLE
         } else {
@@ -318,7 +348,7 @@ class StatsFragment : Fragment(R.layout.fragment_stats) {
         chart.axisRight.isEnabled = false
 
         chart.xAxis.apply {
-            position = com.github.mikephil.charting.components.XAxis.XAxisPosition.BOTTOM
+            position = XAxis.XAxisPosition.BOTTOM
             textColor = appBlack
             textSize = 12f
             labelRotationAngle = -45f
@@ -344,12 +374,15 @@ class StatsFragment : Fragment(R.layout.fragment_stats) {
             valueFormatter = object : ValueFormatter() {
                 private val sdf = SimpleDateFormat("dd/MM", Locale.getDefault())
 
-                override fun getAxisLabel(value: Float, axis: com.github.mikephil.charting.components.AxisBase?): String {
+                override fun getAxisLabel(
+                    value: Float,
+                    axis: AxisBase?
+                ): String {
                     // L'index de notre entrée
                     val index = value.toInt()
 
                     // Récupérer la liste des entrées du premier dataset
-                    val chartEntries = (chart.data.getDataSetByIndex(0) as? LineDataSet)?.values
+                    val chartEntries = (chart.data?.getDataSetByIndex(0) as? LineDataSet)?.values
 
                     // Vérifier si l'index est valide et récupérer la date depuis l'objet "data"
                     return if (chartEntries != null && index >= 0 && index < chartEntries.size) {
