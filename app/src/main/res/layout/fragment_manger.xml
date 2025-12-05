@@ -6,277 +6,7 @@
     android:layout_height="match_parent"
     tools:context=".manger.MangerFragment">
 
-    <ScrollView
-        android:id="@+id/scrollView"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:fillViewport="true"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toTopOf="@+id/btnAddRepas"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="16dp">
-
-            <!-- Date -->
-            <TextView
-                android:id="@+id/tvDate"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Samedi 15 Novembre"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                android:gravity="center"
-                android:layout_marginTop="42dp" />
-
-            <!-- Cercle -->
-            <com.mikhaellopez.circularprogressbar.CircularProgressBar
-                android:id="@+id/cpbCalories"
-                android:layout_width="150dp"
-                android:layout_height="150dp"
-                android:layout_gravity="center"
-                android:layout_marginTop="6dp"
-                app:cpb_progress="1200"
-                app:cpb_progress_max="2000"
-                app:cpb_background_progressbar_width="8dp"
-                app:cpb_background_progressbar_color="@color/light_gray"
-                app:cpb_progressbar_color="@color/purple_500"
-                app:cpb_progressbar_width="12dp"
-                app:cpb_progress_direction="to_right" />
-
-            <TextView
-                android:id="@+id/tvCaloriesRestantes"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="2000\ncalories\nrestantes"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:gravity="center"
-                android:layout_gravity="center"
-                android:layout_marginTop="-105dp" />
-
-            <!-- Macros -->
-            <LinearLayout
-                android:id="@+id/layoutMacros"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center"
-                android:layout_marginTop="69dp"
-                android:weightSum="3">
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:text="Protéines"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content" />
-
-                    <ImageView
-                        android:src="@drawable/ic_jambonneau_40dp"
-                        android:layout_width="40dp"
-                        android:layout_height="40dp"
-                        app:tint="#ec99b5" />
-
-                    <TextView
-                        android:id="@+id/tvProteinesManger"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="60g (1.2 g/kg)" />
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:text="Glucides"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content" />
-
-                    <ImageView
-                        android:src="@drawable/ic_banane_40dp"
-                        android:layout_width="40dp"
-                        android:layout_height="40dp"
-                        app:tint="#86e8cd" />
-
-                    <TextView
-                        android:id="@+id/tvGlucidesManger"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="50g" />
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:text="Lipides"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content" />
-
-                    <ImageView
-                        android:src="@drawable/ic_fromage_40dp"
-                        android:layout_width="40dp"
-                        android:layout_height="40dp"
-                        app:tint="#f2d678" />
-
-                    <TextView
-                        android:id="@+id/tvLipidesManger"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="20g" />
-                </LinearLayout>
-
-            </LinearLayout>
-
-            <!-- MATIN -->
-            <TextView
-                android:id="@+id/tvMatin"
-                android:text="Matin"
-                android:textStyle="bold"
-                android:textSize="16sp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="32dp" />
-
-            <com.google.android.material.divider.MaterialDivider
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_marginTop="4dp" />
-
-            <TextView
-                android:id="@+id/emptyMatin"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Rien pour l'instant"
-                android:textColor="@android:color/darker_gray"
-                android:layout_marginTop="4dp"
-                android:visibility="gone" />
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rvMatin"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:nestedScrollingEnabled="false" />
-
-            <!-- MIDI -->
-            <TextView
-                android:id="@+id/tvMidi"
-                android:text="Midi"
-                android:textStyle="bold"
-                android:textSize="16sp"
-                android:layout_marginTop="32dp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
-
-            <com.google.android.material.divider.MaterialDivider
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_marginTop="4dp" />
-
-            <TextView
-                android:id="@+id/emptyMidi"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Rien pour l'instant"
-                android:textColor="@android:color/darker_gray"
-                android:visibility="gone" />
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rvMidi"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:nestedScrollingEnabled="false" />
-
-            <!-- APRES MIDI -->
-            <TextView
-                android:id="@+id/tvApresMidi"
-                android:text="Après-midi"
-                android:textStyle="bold"
-                android:textSize="16sp"
-                android:layout_marginTop="32dp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
-
-            <com.google.android.material.divider.MaterialDivider
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_marginTop="4dp" />
-
-            <TextView
-                android:id="@+id/emptyApresMidi"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Rien pour l'instant"
-                android:textColor="@android:color/darker_gray"
-                android:visibility="gone" />
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rvApresMidi"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:nestedScrollingEnabled="false" />
-
-            <!-- SOIR -->
-            <TextView
-                android:id="@+id/tvSoir"
-                android:text="Soir"
-                android:textStyle="bold"
-                android:textSize="16sp"
-                android:layout_marginTop="32dp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
-
-            <com.google.android.material.divider.MaterialDivider
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_marginTop="4dp" />
-
-            <TextView
-                android:id="@+id/emptySoir"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Rien pour l'instant"
-                android:textColor="@android:color/darker_gray"
-                android:visibility="gone" />
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rvSoir"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:nestedScrollingEnabled="false" />
-
-        </LinearLayout>
-    </ScrollView>
-
-    <!-- Bouton bas -->
-    <Button
-        android:id="@+id/btnAddRepas"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Ajouter un repas"
-        android:textAllCaps="false"
-        android:layout_marginHorizontal="24dp"
-        android:layout_marginBottom="92dp"
-        app:layout_constraintBottom_toBottomOf="parent" />
-
+    <!-- Bouton flottant en haut -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab_manger"
         android:layout_width="wrap_content"
@@ -296,5 +26,332 @@
         android:backgroundTint="@color/white2"
         app:backgroundTint="@color/white2"
         />
+
+    <!-- Date -->
+    <TextView
+        android:id="@+id/tvDate"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="42dp"
+        android:gravity="center"
+        android:text="Samedi 15 Novembre"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- Vue "en-tête" contenant le cercle et les macros -->
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/header_scroll"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:fillViewport="true"
+        app:layout_constraintTop_toBottomOf="@id/tvDate"
+        app:layout_constraintBottom_toTopOf="@id/btnAddRepas"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="16dp">
+
+            <!-- Cercle -->
+            <com.mikhaellopez.circularprogressbar.CircularProgressBar
+                android:id="@+id/cpbCalories"
+                android:layout_width="150dp"
+                android:layout_height="150dp"
+                android:layout_gravity="center"
+                android:layout_marginTop="6dp"
+                app:cpb_background_progressbar_color="@color/light_gray"
+                app:cpb_background_progressbar_width="8dp"
+                app:cpb_progress="1200"
+                app:cpb_progress_direction="to_right"
+                app:cpb_progress_max="2000"
+                app:cpb_progressbar_color="@color/purple_500"
+                app:cpb_progressbar_width="12dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/tvCaloriesRestantes"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="2000\ncalories\nrestantes"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="@id/cpbCalories"
+                app:layout_constraintEnd_toEndOf="@id/cpbCalories"
+                app:layout_constraintStart_toStartOf="@id/cpbCalories"
+                app:layout_constraintTop_toTopOf="@id/cpbCalories" />
+
+            <!-- Macros -->
+            <LinearLayout
+                android:id="@+id/layoutMacros"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:weightSum="3"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/cpbCalories">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Protéines" />
+
+                    <ImageView
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:src="@drawable/ic_jambonneau_40dp"
+                        app:tint="#ec99b5" />
+
+                    <TextView
+                        android:id="@+id/tvProteinesManger"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="60g (1.2 g/kg)" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Glucides" />
+
+                    <ImageView
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:src="@drawable/ic_banane_40dp"
+                        app:tint="#86e8cd" />
+
+                    <TextView
+                        android:id="@+id/tvGlucidesManger"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="50g" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Lipides" />
+
+                    <ImageView
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:src="@drawable/ic_fromage_40dp"
+                        app:tint="#f2d678" />
+
+                    <TextView
+                        android:id="@+id/tvLipidesManger"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="20g" />
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <!-- MATIN -->
+            <TextView
+                android:id="@+id/tvMatin"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="32dp"
+                android:text="Matin"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/layoutMacros" />
+
+            <com.google.android.material.divider.MaterialDivider
+                android:id="@+id/dividerMatin"
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_marginTop="4dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tvMatin" />
+
+            <TextView
+                android:id="@+id/emptyMatin"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Rien pour l'instant"
+                android:textColor="@android:color/darker_gray"
+                android:visibility="gone"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/dividerMatin" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvMatin"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:nestedScrollingEnabled="true"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/dividerMatin" />
+
+            <!-- MIDI -->
+            <TextView
+                android:id="@+id/tvMidi"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="32dp"
+                android:text="Midi"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/rvMatin" />
+
+            <com.google.android.material.divider.MaterialDivider
+                android:id="@+id/dividerMidi"
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_marginTop="4dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tvMidi" />
+
+            <TextView
+                android:id="@+id/emptyMidi"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Rien pour l'instant"
+                android:textColor="@android:color/darker_gray"
+                android:visibility="gone"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/dividerMidi" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvMidi"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:nestedScrollingEnabled="true"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/dividerMidi" />
+
+            <!-- APRES MIDI -->
+            <TextView
+                android:id="@+id/tvApresMidi"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="32dp"
+                android:text="Après-midi"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/rvMidi" />
+
+            <com.google.android.material.divider.MaterialDivider
+                android:id="@+id/dividerApresMidi"
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_marginTop="4dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tvApresMidi" />
+
+            <TextView
+                android:id="@+id/emptyApresMidi"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Rien pour l'instant"
+                android:textColor="@android:color/darker_gray"
+                android:visibility="gone"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/dividerApresMidi" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvApresMidi"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:nestedScrollingEnabled="true"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/dividerApresMidi" />
+
+            <!-- SOIR -->
+            <TextView
+                android:id="@+id/tvSoir"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="32dp"
+                android:text="Soir"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/rvApresMidi" />
+
+            <com.google.android.material.divider.MaterialDivider
+                android:id="@+id/dividerSoir"
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_marginTop="4dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tvSoir" />
+
+            <TextView
+                android:id="@+id/emptySoir"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Rien pour l'instant"
+                android:textColor="@android:color/darker_gray"
+                android:visibility="gone"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/dividerSoir" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvSoir"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:nestedScrollingEnabled="true"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/dividerSoir" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.core.widget.NestedScrollView>
+
+    <!-- Bouton bas -->
+    <Button
+        android:id="@+id/btnAddRepas"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="24dp"
+        android:layout_marginBottom="92dp"
+        android:text="Ajouter un repas"
+        android:textAllCaps="false"
+        app:layout_constraintBottom_toBottomOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
