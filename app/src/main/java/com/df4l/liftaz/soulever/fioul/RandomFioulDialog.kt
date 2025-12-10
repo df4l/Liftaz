@@ -118,7 +118,7 @@ object RandomFioulDialog {
                         val button = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
                         button.isEnabled = false
 
-                        object : CountDownTimer(3000, 1000) {
+                        object : CountDownTimer(5000, 1000) {
                             override fun onTick(millis: Long) {
                                 button.text = "Fermer (${millis / 1000})"
                             }
