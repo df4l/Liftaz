@@ -1,6 +1,8 @@
 package com.df4l.liftaz.manger.suivi
 
 import android.graphics.Color
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -43,6 +45,8 @@ class NourritureSelectionAdapter(
         val item = itemSelectionne.item // On récupère l'objet (Aliment ou RecetteAffichee)
         val quantite = itemSelectionne.quantite // Et sa quantité
 
+        holder.quantityEditText.removeTextChangedListener(holder.itemView.tag as? TextWatcher)
+
         when(item) {
             is Aliment -> bindAliment(holder, item)
             is RecetteAffichee -> bindRecette(holder, item)
@@ -63,7 +67,26 @@ class NourritureSelectionAdapter(
             onDeleteClick.invoke(item)
         }
 
-        holder.quantityEditText.setText("${quantite}")
+        holder.quantityEditText.setText(quantite.toString())
+        holder.quantityEditText.setSelection(holder.quantityEditText.text.length) // Place le curseur à la fin
+
+        // Créer et ajouter le nouveau TextWatcher
+        val textWatcher = object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                // S'assurer que la position est toujours valide pour éviter les crashs
+                val currentPosition = holder.adapterPosition
+                if (currentPosition != RecyclerView.NO_POSITION) {
+                    items[currentPosition].quantite = s.toString().toIntOrNull() ?: 0
+                }
+            }
+
+            override fun afterTextChanged(s: Editable?) {}
+        }
+
+        holder.quantityEditText.addTextChangedListener(textWatcher)
+        holder.itemView.tag = textWatcher
     }
 
     private fun bindAliment(holder: ViewHolder, a: Aliment) {
