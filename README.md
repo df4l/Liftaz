@@ -1,15 +1,17 @@
-# Liftaz
-
-Application de suivi de muscu par un lifteur, pour les lifteurs
+<p align="center">
+   <h1>Liftaz</h1>
+  <img src="https://raw.githubusercontent.com/df4l/Liftaz/refs/heads/main/app/src/main/res/mipmap-xxxhdpi/ic_launcher_round.webp" width="250" height="250" alt="liftaz logo"><br>
+  Application de suivi de muscu par un lifteur, pour les lifteurs
+</p>
 
 # Ce qui rend Liftaz unique
 
 ### 🚫 Zéro SLOP
  
-Pas de programmes préenregistrés, pas d'options inutiles.
-L'envie de développer cette application est née de cette impression que toutes les applis de muscu regorgent de paramètres superflus, de fonctionnalités qui impressionnent au premier regard mais ne servent à rien une fois confrontées à la réalité de l'entrainement.
+Pas de programmes préenregistrés, pas d’options superflues.
+L’idée de développer cette application est née d’un constat simple : la plupart des applis de musculation débordent de paramètres inutiles, de fonctionnalités qui impressionnent au premier coup d’œil mais ne servent plus à rien une fois confrontées à la réalité de l’entraînement.
 
-Qui a sérieusement besoin de connaitre son apport journalier en vitamine B12 au microgramme prés ?
+Sérieusement, qui a besoin de connaître son apport journalier en vitamine B12 au microgramme près ? Qui a besoin qu’on lui calcule la vitesse angulaire de son squat pour comprendre qu'il a soulevé lourd ?
 
 Liftaz se concentre sur l'essentiel :
 - La fonte que vous soulevez
