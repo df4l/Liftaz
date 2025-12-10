@@ -3,6 +3,7 @@ package com.df4l.liftaz.soulever.fioul
 import android.app.Activity
 import android.app.AlertDialog
 import android.app.Dialog
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -13,9 +14,11 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.Spinner
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.ui.graphics.vector.path
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.lifecycleScope
+import com.android.identity.util.UUID
 import com.df4l.liftaz.R
 import com.df4l.liftaz.data.AppDatabase
 import com.df4l.liftaz.data.FioulType
@@ -23,16 +26,23 @@ import com.df4l.liftaz.data.MotivationFioul
 import com.df4l.liftaz.data.Muscle
 import com.df4l.liftaz.soulever.muscles.MuscleListAdapter
 import com.df4l.liftaz.soulever.muscles.SpinnerMuscleAdapter
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.io.File
+import java.io.FileOutputStream
 import java.time.LocalDate
 import java.util.Date
+import kotlin.io.path.copyTo
+import kotlin.io.path.exists
 
 class AddFioulMotivationDialog(
     private val onFioulAdded: (MotivationFioul) -> Unit
 ) : DialogFragment() {
 
     private var selectedType: FioulType? = null
-    private var selectedUri: Uri? = null
+    // L'URI du fichier copié en interne
+    private var internalFileUri: Uri? = null
     private var textContent: String = ""
     private var title: String = ""
 
@@ -50,16 +60,13 @@ class AddFioulMotivationDialog(
         btnVideo = view.findViewById(R.id.btnVideo)
         spinnerMuscle = view.findViewById(R.id.spinnerMuscle)
 
-        // Charger les muscles
         loadMusclesIntoSpinner()
 
-        // Sélection image
         btnImage.setOnClickListener {
             selectedType = FioulType.IMAGE
             selectMedia("image/*")
         }
 
-        // Sélection vidéo
         btnVideo.setOnClickListener {
             selectedType = FioulType.VIDEO
             selectMedia("video/*")
@@ -73,23 +80,30 @@ class AddFioulMotivationDialog(
                 val type = selectedType ?: FioulType.TEXTE
 
                 if (title.isNotEmpty()) {
-
                     val selectedMuscle = spinnerMuscle.selectedItem as Muscle
                     val muscleId = if (selectedMuscle.id == -1) null else selectedMuscle.id
 
                     val fuel = MotivationFioul(
                         title = title,
                         type = type,
-                        contentUri = selectedUri?.toString(),
+                        // ✨ Utiliser l'URI du fichier interne
+                        contentUri = internalFileUri?.toString(),
                         textContent = textContent.ifBlank { null },
                         dateAdded = Date(),
-                        muscleId = muscleId // ⭐ Ajout facultatif
+                        muscleId = muscleId
                     )
-
                     onFioulAdded(fuel)
                 }
             }
-            .setNegativeButton("Annuler") { dialog, _ -> dialog.dismiss() }
+            .setNegativeButton("Annuler") { dialog, _ ->
+                // ✨ Si l'utilisateur annule, supprimer le fichier qui a pu être copié
+                internalFileUri?.let {
+                    lifecycleScope.launch {
+                        deleteFileFromInternalStorage(it)
+                    }
+                }
+                dialog.dismiss()
+            }
 
         return builder.create()
     }
@@ -109,8 +123,6 @@ class AddFioulMotivationDialog(
         val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
             addCategory(Intent.CATEGORY_OPENABLE)
             this.type = type
-            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-            addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
         }
         mediaLauncher.launch(intent)
     }
@@ -119,24 +131,54 @@ class AddFioulMotivationDialog(
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
                 result.data?.data?.let { uri ->
-                    selectedUri = uri
-
-                    try {
-                        val contentResolver = requireContext().contentResolver
-                        val takeFlags = result.data?.flags?.and(
-                            Intent.FLAG_GRANT_READ_URI_PERMISSION or
-                                    Intent.FLAG_GRANT_WRITE_URI_PERMISSION
-                        ) ?: 0
-
-                        contentResolver.takePersistableUriPermission(uri, takeFlags)
-                    } catch (e: Exception) {
-                        Log.w("AddFioulDialog", "Échec permission persistante : ${e.message}")
+                    // ✨ Lancer la copie du fichier dans le stockage interne
+                    lifecycleScope.launch {
+                        internalFileUri = copyFileToInternalStorage(uri, requireContext())
+                        updateButtonColors()
                     }
-
-                    updateButtonColors()
                 }
             }
         }
+
+    // ✨ NOUVELLE FONCTION : Copie le fichier vers le stockage interne
+    private suspend fun copyFileToInternalStorage(sourceUri: Uri, context: Context): Uri? {
+        return withContext(Dispatchers.IO) {
+            try {
+                // Crée un nom de fichier unique pour éviter les conflits
+                val fileName = "fioul_${UUID.randomUUID()}"
+                val destinationFile = File(context.filesDir, fileName)
+
+                context.contentResolver.openInputStream(sourceUri)?.use { inputStream ->
+                    FileOutputStream(destinationFile).use { outputStream ->
+                        inputStream.copyTo(outputStream)
+                    }
+                }
+                Log.d("AddFioulDialog", "Fichier copié vers : ${destinationFile.absolutePath}")
+                Uri.fromFile(destinationFile) // Retourne l'URI du nouveau fichier
+            } catch (e: Exception) {
+                Log.e("AddFioulDialog", "Échec de la copie du fichier", e)
+                null
+            }
+        }
+    }
+
+    // ✨ NOUVELLE FONCTION : Supprime un fichier à partir de son URI
+    private suspend fun deleteFileFromInternalStorage(fileUri: Uri) {
+        withContext(Dispatchers.IO) {
+            try {
+                val file = File(fileUri.path!!)
+                if (file.exists()) {
+                    if (file.delete()) {
+                        Log.d("AddFioulDialog", "Fichier temporaire supprimé : ${file.path}")
+                    } else {
+                        Log.w("AddFioulDialog", "Échec de la suppression du fichier temporaire : ${file.path}")
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e("AddFioulDialog", "Erreur lors de la suppression du fichier temporaire", e)
+            }
+        }
+    }
 
     private fun updateButtonColors() {
         val green = ContextCompat.getColor(requireContext(), R.color.teal_700)
