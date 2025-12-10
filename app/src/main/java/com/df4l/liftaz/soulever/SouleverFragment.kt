@@ -168,7 +168,7 @@ class SouleverFragment : Fragment() {
                     today
                 ).toInt()
 
-                daysSince % (seance.intervalleJours ?: 1) == 0 && today != dateAjout
+                daysSince % (seance.intervalleJours ?: 1) == 0
             }
         }
     }
