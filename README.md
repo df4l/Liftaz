@@ -1,7 +1,6 @@
-#Liftaz
-
+# Liftaz
    <p align="center">
-  <img src="https://raw.githubusercontent.com/df4l/Liftaz/refs/heads/main/app/src/main/res/mipmap-xxxhdpi/ic_launcher_round.webp" width="100" height="100" alt="liftaz logo"><br>
+  <img src="https://raw.githubusercontent.com/df4l/Liftaz/refs/heads/main/app/src/main/res/mipmap-xxxhdpi/ic_launcher_round.webp" width="192" height="192" alt="liftaz logo"><br>
   Application de suivi de muscu par un lifteur, pour les lifteurs
 </p>
 
