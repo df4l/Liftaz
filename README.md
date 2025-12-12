@@ -27,10 +27,11 @@ Une fonctionnalité exclusive : si vous sentez la flemme arriver en plein set, c
 
 # À faire
 
-- Permettre la création de graphiques personnalisés avec un choix de jeux de données (Poids, calories consommées, performance sur X exercice, ...)
-- Intégration d’un scan alimentaire rapide dans le BottomSheet principal de la section “Manger"
-- Donner l'accès à un historique de ce qui a été mangé et soulevé pour tous les jours
-- Possibilité de se connecter à une balance via Bluetooth pour réceptionner directement les infos, avec un framework facilitant l'implémentation des différentes marques et modèles
+- Offrir la possibilité de générer des graphiques personnalisés à partir de différents jeux de données (poids, calories consommées, performances sur un exercice, etc.)
+- Intégrer un scan alimentaire rapide directement dans le BottomSheet principal de la section « Manger ».
+- Fournir un accès à l’historique complet des aliments consommés et des charges soulevées pour chaque journée.
+- Permettre la création de variantes d’une même diète en fonction des différents moments de la journée.
+- Afficher le temps de repos entre les séries ainsi que la durée passée à réaliser chaque série.
 
 # Crédits
 
