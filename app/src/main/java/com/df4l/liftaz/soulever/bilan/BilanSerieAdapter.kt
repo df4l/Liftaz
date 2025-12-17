@@ -101,24 +101,29 @@ class BilanSerieAdapter(
         // 4) Progression
         // -------------------------------------------
         val progKg = s.progressionKg ?: 0f
-        val progReps = (s.progressionReps ?: 0).toInt()
+        val progReps = (s.progressionReps ?: 0f)
+        val isSamePerformance = progKg == 0f && progReps == 0f
 
         val txtProgression: String =
             if (s.ancienPoids == null) {
                 "Nouveau"
+            } else if (isSamePerformance) {
+                "✓" // Coche verte pour une performance égale
             } else if (!poidsDuCorps) {
                 when {
                     progKg > 0f -> "+${progKg} kg"
                     progKg < 0f -> "${progKg} kg"
-                    else -> "0"
+                    else -> "0" // Devrait être couvert par isSamePerformance
                 }
             } else {
                 when {
-                    progKg != null && progKg != 0f -> {
+                    progKg != 0f -> {
                         // Affiche la progression en kg si elle est non nulle
                         when {
-                            progReps > 0 && progKg > 0 -> "+${progReps} reps (+${progKg.toInt()} kg)"
-                            else -> "${progReps} reps (${progKg.toInt()} kg)"
+                            progReps > 0f -> "+${progReps.toInt()} reps (+${progKg.toInt()} kg)"
+                            // Correction ici : pas de 'else if', juste la condition
+                            progReps == 0f && progKg > 0f -> "✓ (+${progKg.toInt()} kg)"
+                            else -> "${progReps.toInt()} reps (${progKg.toInt()} kg)"
                         }
                     }
 
@@ -127,7 +132,7 @@ class BilanSerieAdapter(
                         when {
                             progReps > 0 -> "+${progReps} reps"
                             progReps < 0 -> "${progReps} reps"
-                            else -> "0"
+                            else -> "0" // Devrait être couvert par isSamePerformance
                         }
                     }
                 }
@@ -140,6 +145,8 @@ class BilanSerieAdapter(
         // -------------------------------------------
         val color = when{
             s.ancienPoids == null -> Color.GRAY
+            // Ajout de la condition pour la coche verte
+            isSamePerformance -> Color.parseColor("#4CAF50")
             (!poidsDuCorps && progKg > 0f) || (poidsDuCorps && (progReps > 0 || progKg > 0)) ->
                 Color.parseColor("#4CAF50")
             (!poidsDuCorps && progKg < 0f) || (poidsDuCorps && (progReps < 0 || progKg < 0)) ->
