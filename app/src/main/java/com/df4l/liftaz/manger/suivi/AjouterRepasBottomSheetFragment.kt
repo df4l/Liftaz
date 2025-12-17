@@ -206,39 +206,49 @@ class AjouterRepasBottomSheetFragment : BottomSheetDialogFragment() {
 
 
     private fun setupRecherche() {
-        // 1. Initialiser l'adapter pour les résultats de recherche
+        // 1. Initialiser l'adapter
         rechercheNourritureAdapter = NourritureAdapter(emptyList(), { item ->
             addToSelectedItems(item)
         })
         binding.recyclerRechercheNourriture.adapter = rechercheNourritureAdapter
         binding.recyclerRechercheNourriture.layoutManager = LinearLayoutManager(requireContext())
 
-        // 2. Ajouter le TextWatcher sur le champ de recherche
+        // 2. TextWatcher amélioré
         binding.etSearchFood.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
 
             override fun afterTextChanged(s: Editable?) {
-                val query = s.toString().lowercase().trim()
+                // On nettoie la recherche utilisateur (minuscule + sans accents)
+                val query = s.toString().sansAccents().trim()
+
                 if (query.isNotEmpty()) {
-                    // Afficher la liste de recherche et masquer le contenu principal
                     binding.recyclerRechercheNourriture.visibility = View.VISIBLE
                     binding.nestedScrollView.visibility = View.GONE
 
-                    // Filtrer les données
-                    val filteredList = allNourritureItems.filter {
-                        when (it) {
-                            is Aliment -> it.nom.lowercase().contains(query)
-                            is RecetteAffichee -> it.nom.lowercase().contains(query)
+                    val filteredList = allNourritureItems.filter { item ->
+                        when (item) {
+                            is Aliment -> {
+                                // On nettoie le nom de l'aliment
+                                val nomNormalise = item.nom.sansAccents()
+                                // On nettoie la marque (si elle existe, sinon chaîne vide)
+                                // ATTENTION: Vérifiez que votre objet Aliment a bien un champ 'marque'
+                                val marqueNormalisee = item.marque?.sansAccents() ?: ""
+
+                                // On garde si le nom OU la marque contient la recherche
+                                nomNormalise.contains(query) || marqueNormalisee.contains(query)
+                            }
+                            is RecetteAffichee -> {
+                                item.nom.sansAccents().contains(query)
+                            }
                             else -> false
                         }
                     }
                     rechercheNourritureAdapter.updateData(filteredList)
                 } else {
-                    // Masquer la liste de recherche et afficher le contenu principal
                     binding.recyclerRechercheNourriture.visibility = View.GONE
                     binding.nestedScrollView.visibility = View.VISIBLE
-                    rechercheNourritureAdapter.updateData(emptyList()) // Vider la liste
+                    rechercheNourritureAdapter.updateData(emptyList())
                 }
             }
         })
@@ -526,5 +536,11 @@ class AjouterRepasBottomSheetFragment : BottomSheetDialogFragment() {
     companion object {
         // Le Tag est utile pour trouver le fragment si nécessaire
         const val TAG = "AjouterRepasBottomSheetFragment"
+    }
+
+    private fun String.sansAccents(): String {
+        val nfdNormalizedString = java.text.Normalizer.normalize(this, java.text.Normalizer.Form.NFD)
+        val pattern = "\\p{InCombiningDiacriticalMarks}+".toRegex()
+        return pattern.replace(nfdNormalizedString, "").lowercase()
     }
 }
