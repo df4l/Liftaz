@@ -46,6 +46,19 @@ interface MangerHistoriqueDao {
     ORDER BY date ASC
 """)
     suspend fun getCaloriesSumSince(startDate: Date): List<CaloriesPerDay>
+
+    @Query("""
+        SELECT SUM(calories)
+        FROM manger_historique
+        WHERE date BETWEEN :startDate AND :endDate
+    """)
+    suspend fun getCaloriesSumBetween(startDate: Date, endDate: Date): Long?
+
+    @Query("""
+    SELECT COUNT(DISTINCT (date / (1000 * 60 * 60 * 24)))
+    FROM manger_historique    WHERE date BETWEEN :startDate AND :endDate
+""")
+    suspend fun countDaysWithCaloriesBetween(startDate: Date, endDate: Date): Int
 }
 
 data class CaloriesPerDay(

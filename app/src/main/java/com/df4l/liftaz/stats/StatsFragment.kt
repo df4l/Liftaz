@@ -3,10 +3,12 @@ package com.df4l.liftaz.stats
 import android.graphics.Color
 import android.icu.util.Calendar
 import android.os.Bundle
+import android.text.SpannableStringBuilder
 import android.view.View
 import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import androidx.core.text.bold
 import androidx.fragment.app.Fragment
 import com.df4l.liftaz.R
 import com.df4l.liftaz.data.AppDatabase
@@ -28,6 +30,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import java.util.concurrent.TimeUnit
+import kotlin.math.abs
 import kotlin.math.roundToInt
 
 class StatsFragment : Fragment(R.layout.fragment_stats) {
@@ -161,6 +164,8 @@ class StatsFragment : Fragment(R.layout.fragment_stats) {
             val weightEntriesFromDb = db.entreePoidsDao().getEntriesSince(startDate)
             val caloriesPerDayFromDb = db.mangerHistoriqueDao().getCaloriesSumSince(startDate)
 
+            calculateAndDisplayMaintenance(startDate)
+
             // 3. Mapper les données pour le graphique
             // Créons une map pour accéder facilement aux calories par jour
             val caloriesMap = caloriesPerDayFromDb.associateBy(
@@ -184,27 +189,90 @@ class StatsFragment : Fragment(R.layout.fragment_stats) {
                 }
             }
 
-            // Calculer la moyenne des calories
-            val averageCalories = if (caloriesPerDayFromDb.isNotEmpty()) {
-                caloriesPerDayFromDb.sumOf { it.totalCalories } / caloriesPerDayFromDb.size
-            } else {
-                0
-            }
-
-
             // 4. Mettre à jour l'UI sur le thread principal
             withContext(Dispatchers.Main) {
                 updateCorrelationChartUI(weightChartEntries, caloriesChartEntries)
-
-                // Afficher la moyenne des calories
-                if (averageCalories > 0) {
-                    binding.tvCaloriesTendance.text =
-                        "Moyenne sur 14 jours : %d kcal / jour".format(averageCalories)
-                    binding.tvCaloriesTendance.visibility = View.VISIBLE
-                } else {
-                    binding.tvCaloriesTendance.visibility = View.GONE
-                }
             }
+        }
+    }
+
+    private suspend fun calculateAndDisplayMaintenance(startDate14DaysAgo: Date) {
+        val db = AppDatabase.getDatabase(requireContext())
+        val weightDao = db.entreePoidsDao()
+        val foodDao = db.mangerHistoriqueDao()
+
+        // Définir les périodes S1 et S2
+        val cal = Calendar.getInstance()
+        cal.time = startDate14DaysAgo
+        val week1_start = cal.time
+        cal.add(Calendar.DAY_OF_YEAR, 6)
+        val week1_end = cal.time
+        cal.add(Calendar.DAY_OF_YEAR, 1)
+        val week2_start = cal.time
+        cal.add(Calendar.DAY_OF_YEAR, 6)
+        val week2_end = cal.time
+
+        // Récupérer les données
+        val week1_weights = weightDao.getEntriesBetween(week1_start, week1_end).map { it.poids }
+        val week2_weights = weightDao.getEntriesBetween(week2_start, week2_end).map { it.poids }
+
+        val totalCalories14Days = foodDao.getCaloriesSumBetween(week1_start, week2_end)
+        // --- CORRECTION ---
+        // Compter le nombre de jours où des calories ont été enregistrées
+        val daysWithCaloriesCount = foodDao.countDaysWithCaloriesBetween(week1_start, week2_end)
+
+
+        // Calculs
+        val avgWeight1 = if (week1_weights.isNotEmpty()) week1_weights.average().toFloat() else 0f
+        val avgWeight2 = if (week2_weights.isNotEmpty()) week2_weights.average().toFloat() else 0f
+
+        // --- CORRECTION ---
+        // Diviser par le nombre de jours réels avec données, au lieu de 14
+        val avgCalories = if (totalCalories14Days != null && totalCalories14Days > 0 && daysWithCaloriesCount > 0) {
+            (totalCalories14Days / daysWithCaloriesCount).toInt()
+        } else {
+            0
+        }
+
+        val resultText = SpannableStringBuilder()
+
+        if (avgWeight1 > 0 && avgWeight2 > 0 && avgCalories > 0) {
+            val weightChange = avgWeight2 - avgWeight1
+            val maintenanceEstimation: String
+
+            resultText.append("Poids S1: ${"%.1f".format(avgWeight1)} kg | Poids S2: ${"%.1f".format(avgWeight2)} kg\n")
+            resultText.append("Calories moy./jour: $avgCalories kcal\n\n")
+
+            when {
+                // Poids stable
+                abs(weightChange) < 0.25 -> {
+                    maintenanceEstimation = "~ $avgCalories kcal"
+                    resultText.append("Votre poids est stable. Maintien estimé : ")
+                }
+                // Perte de poids
+                weightChange < -0.25 -> {
+                    // val surplus = if (abs(weightChange) in 0.25..0.45) "200-500" else "500+" // La variable n'est pas utilisée, on peut la commenter
+                    maintenanceEstimation = "~ ${avgCalories + 200} kcal"
+                    resultText.append("Vous avez perdu du poids. Maintien estimé : ")
+                }
+                // Prise de poids
+                weightChange > 0.25 -> {
+                    // val deficit = if (weightChange in 0.25..0.45) "200-500" else "500+" // La variable n'est pas utilisée, on peut la commenter
+                    maintenanceEstimation = "~ ${avgCalories - 200} kcal"
+                    resultText.append("Vous avez pris du poids. Maintien estimé : ")
+                }
+                else -> maintenanceEstimation = "N/A"
+            }
+
+            resultText.bold { append(maintenanceEstimation) }
+
+        } else {
+            resultText.append("Données insuffisantes sur les 14 derniers jours pour estimer le maintien calorique.")
+        }
+
+        withContext(Dispatchers.Main) {
+            binding.tvCaloriesTendance.text = resultText
+            binding.tvCaloriesTendance.visibility = View.VISIBLE
         }
     }
 

@@ -191,13 +191,13 @@
             </androidx.cardview.widget.CardView>
 
             <TextView
-                android:id="@+id/tvCaloriesTendance"
-                android:layout_width="wrap_content"
+                android:id="@+id/tvCaloriesTendance"                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:layout_marginBottom="160dp"
                 android:textSize="14sp"
-                tools:text="Moyenne : 2200 kcal / jour" />
+                tools:text="Tendance calorique et maintien" />
+
         </LinearLayout>
     </ScrollView>
 

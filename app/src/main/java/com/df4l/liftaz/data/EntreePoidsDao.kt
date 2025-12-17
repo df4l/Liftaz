@@ -27,4 +27,7 @@ interface EntreePoidsDao {
 
     @Query("SELECT * FROM entree_poids ORDER BY date DESC LIMIT 1")
     suspend fun getLatestWeight(): EntreePoids?
+
+    @Query("SELECT * FROM entree_poids WHERE date BETWEEN :startDate AND :endDate ORDER BY date ASC")
+    suspend fun getEntriesBetween(startDate: Date, endDate: Date): List<EntreePoids>
 }
