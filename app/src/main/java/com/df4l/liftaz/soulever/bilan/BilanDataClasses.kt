@@ -16,6 +16,8 @@ data class ExerciceBilan(
     val idExercice: Int,
     val nom: String,
     val muscle: String,
+    val series: List<SerieBilan>,
     val poidsDuCorps: Boolean,
-    val series: List<SerieBilan>
+    val totalVolume: Float,
+    val totalVolumeAncien: Float
 )

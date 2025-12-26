@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.df4l.liftaz.data.Elastique
 import com.df4l.liftaz.data.EntreePoidsDao
 import com.df4l.liftaz.data.ExerciceDao
+import com.df4l.liftaz.data.ExerciceSeanceDao
 import com.df4l.liftaz.data.MuscleDao
 import com.df4l.liftaz.data.SeanceHistoriqueDao
 import com.df4l.liftaz.data.SerieDao
@@ -18,6 +19,7 @@ class BilanViewModel(
     private val exerciceDao: ExerciceDao,
     private val muscleDao: MuscleDao,
     private val entreePoidsDao: EntreePoidsDao,
+    private val exerciceSeanceDao: ExerciceSeanceDao,
     private val allElastiques: List<Elastique>,
     private val idSeance: Int,
     private val idSeanceHistoriqueActuelle: Int
@@ -33,6 +35,11 @@ class BilanViewModel(
 
     private suspend fun loadBilan() {
         val dernierPoidsUtilisateur = entreePoidsDao.getLatestWeight()?.poids
+
+        // 1. Récupérer l'ordre des exercices pour cette séance
+        val exosSeance = exerciceSeanceDao.getExercicesForSeance(idSeance)
+        // Créer une map : idExercice -> indexOrdre
+        val ordreMap = exosSeance.associate { it.idExercice to it.indexOrdre }
 
         val seancePrecedente =
             seanceHistoriqueDao.getPreviousSeanceHistorique(idSeance)
@@ -54,9 +61,23 @@ class BilanViewModel(
         for ((idExercice, seriesAct) in groupesActuels) {
 
             val anc = groupesAnciens[idExercice]
-
             val exercice = exerciceDao.getExerciceById(idExercice)
             val muscleNom = muscleDao.getNomMuscleById(exercice.idMuscleCible)
+
+            var volumeTotalExercice = 0f
+
+            var volumeTotalAncien = 0f
+
+            anc?.forEach { serieAnc ->
+                val chargeAncienne = if (exercice.poidsDuCorps) {
+                    // Note: on utilise le poids utilisateur actuel faute d'historique précis date par date
+                    // mais c'est généralement suffisant pour une comparaison à court terme.
+                    computeEffectiveLoad(dernierPoidsUtilisateur, decodeElastiques(serieAnc.elastiqueBitMask))
+                } else {
+                    serieAnc.poids
+                }
+                volumeTotalAncien += (serieAnc.nombreReps * chargeAncienne)
+            }
 
             val series = seriesAct.map { serieAct ->
                 val serieAnc = anc?.find { it.numeroSerie == serieAct.numeroSerie }
@@ -66,13 +87,27 @@ class BilanViewModel(
                 val ancienReps = serieAnc?.nombreReps ?: 0f
                 val ancienMask = serieAnc?.elastiqueBitMask ?: 0
 
+                val chargeEffectiveNouveau = if (exercice.poidsDuCorps) {
+                    computeEffectiveLoad(dernierPoidsUtilisateur, decodeElastiques(serieAct.elastiqueBitMask))
+                } else {
+                    serieAct.poids
+                }
+
+                val chargeEffectiveAncien = if (exercice.poidsDuCorps) {
+                    computeEffectiveLoad(dernierPoidsUtilisateur, decodeElastiques(ancienMask))
+                } else {
+                    ancienPoids
+                }
+
+                // ⬇️ AJOUT : Calcul du volume cumulé
+                volumeTotalExercice += (serieAct.nombreReps * chargeEffectiveNouveau)
+
                 // Progressions
                 val progressionKg =
                     if (!exercice.poidsDuCorps) {
                         (serieAct.poids * serieAct.nombreReps) - (ancienPoids * ancienReps)
-                    } else if (dernierPoidsUtilisateur != null)
-                    {
-                        (serieAct.nombreReps * computeEffectiveLoad(dernierPoidsUtilisateur, decodeElastiques(serieAct.elastiqueBitMask))) - (ancienReps * computeEffectiveLoad(dernierPoidsUtilisateur, decodeElastiques(ancienMask)))
+                    } else if (dernierPoidsUtilisateur != null) {
+                        (serieAct.nombreReps * chargeEffectiveNouveau) - (ancienReps * chargeEffectiveAncien)
                     } else 0f
 
                 val progressionReps =
@@ -100,9 +135,13 @@ class BilanViewModel(
                 nom = exercice.nom,
                 muscle = muscleNom,
                 series = series,
-                poidsDuCorps = exercice.poidsDuCorps
+                poidsDuCorps = exercice.poidsDuCorps,
+                totalVolume = volumeTotalExercice, // ⬇️ Assigner le volume
+               totalVolumeAncien = volumeTotalAncien
             )
         }
+
+        resultat.sortBy { ordreMap[it.idExercice] ?: 999 }
 
         bilan.postValue(resultat)
     }

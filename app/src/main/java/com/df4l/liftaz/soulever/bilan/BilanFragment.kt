@@ -47,7 +47,8 @@ class BilanFragment : Fragment() {
                 db.exerciceDao(),
                 db.muscleDao(),
                 db.entreePoidsDao(),
-                elastiques,  // ⬅️ ICI OK maintenant
+                db.exerciceSeanceDao(), // ⬇️ AJOUT : Passage du DAO
+                elastiques,
                 idSeance,
                 idSeanceHistoriqueActuelle
             )
