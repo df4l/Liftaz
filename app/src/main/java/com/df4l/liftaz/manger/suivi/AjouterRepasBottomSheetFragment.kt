@@ -219,32 +219,38 @@ class AjouterRepasBottomSheetFragment : BottomSheetDialogFragment() {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
 
             override fun afterTextChanged(s: Editable?) {
-                // On nettoie la recherche utilisateur (minuscule + sans accents)
                 val query = s.toString().sansAccents().trim()
 
                 if (query.isNotEmpty()) {
                     binding.recyclerRechercheNourriture.visibility = View.VISIBLE
                     binding.nestedScrollView.visibility = View.GONE
 
-                    val filteredList = allNourritureItems.filter { item ->
-                        when (item) {
-                            is Aliment -> {
-                                // On nettoie le nom de l'aliment
-                                val nomNormalise = item.nom.sansAccents()
-                                // On nettoie la marque (si elle existe, sinon chaîne vide)
-                                // ATTENTION: Vérifiez que votre objet Aliment a bien un champ 'marque'
-                                val marqueNormalisee = item.marque?.sansAccents() ?: ""
+                    // Lancer la recherche en asynchrone
+                    lifecycleScope.launch(Dispatchers.IO) {
+                        val db = AppDatabase.getDatabase(requireContext())
 
-                                // On garde si le nom OU la marque contient la recherche
-                                nomNormalise.contains(query) || marqueNormalisee.contains(query)
-                            }
-                            is RecetteAffichee -> {
-                                item.nom.sansAccents().contains(query)
-                            }
-                            else -> false
+                        // Recherche optimisée : on ne cherche que ce qui correspond au texte
+                        // Idéalement, utilisez db.alimentDao().searchByName("%$query%")
+                        // Mais pour dépanner rapidement avec votre logique actuelle :
+
+                        val resultats = mutableListOf<Any>()
+
+                        // 1. Chercher Aliments
+                        val aliments = db.alimentDao().getAll() // Optimisation future : searchByName
+                            .filter { it.nom.sansAccents().contains(query) }
+                        resultats.addAll(aliments)
+
+                        // 2. Chercher Recettes (le plus lourd)
+                        val recettes = db.recetteDao().getAll() // Optimisation future : searchByName
+                            .filter { it.nom.sansAccents().contains(query) }
+
+                        // On ne calcule le détail QUE pour les recettes trouvées
+                        resultats.addAll(recettes.map { getRecetteAsRecetteAffichee(db, it.id) })
+
+                        withContext(Dispatchers.Main) {
+                            rechercheNourritureAdapter.updateData(resultats)
                         }
                     }
-                    rechercheNourritureAdapter.updateData(filteredList)
                 } else {
                     binding.recyclerRechercheNourriture.visibility = View.GONE
                     binding.nestedScrollView.visibility = View.VISIBLE
@@ -259,11 +265,11 @@ class AjouterRepasBottomSheetFragment : BottomSheetDialogFragment() {
         dieteActive = db.dieteDao().getActiveDiete()
 
         // Charger tous les aliments et recettes pour la recherche
-        val allAliments = db.alimentDao().getAll()
-        val allRecettes = db.recetteDao().getAll()
-        allNourritureItems.clear()
-        allNourritureItems.addAll(allAliments)
-        allNourritureItems.addAll(allRecettes.map { getRecetteAsRecetteAffichee(db, it.id) })
+        //val allAliments = db.alimentDao().getAll()
+        //val allRecettes = db.recetteDao().getAll()
+        //allNourritureItems.clear()
+        //allNourritureItems.addAll(allAliments)
+        //allNourritureItems.addAll(allRecettes.map { getRecetteAsRecetteAffichee(db, it.id) })
 
         // Charger les favoris
         val listeFavoris = db.mangerHistoriqueDao().getTopTenFavoriteFoods()
