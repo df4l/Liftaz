@@ -25,13 +25,14 @@ Aucune connexion ni création de compte requise. Tout fonctionne directement dep
 
 Une fonctionnalité exclusive : si vous sentez la flemme arriver en plein set, cochez la case prévue à cet effet. Liftaz vous affichera alors une vidéo, une image ou une anecdote douloureuse du passé pour vous redonner un vrai coup de boost.
 
-# À faire
+# À faire, par ordre d'importance
 
-- Offrir la possibilité de générer des graphiques personnalisés à partir de différents jeux de données (poids, calories consommées, performances sur un exercice, etc.)
-- Intégrer un scan alimentaire rapide directement dans le BottomSheet principal de la section « Manger ».
-- Fournir un accès à l’historique complet des aliments consommés et des charges soulevées pour chaque journée.
+- Ajouter un système de filtres pour les aliments et les recettes.
 - Permettre la création de variantes d’une même diète en fonction des différents moments de la journée.
 - Afficher le temps de repos entre les séries ainsi que la durée passée à réaliser chaque série.
+- Offrir la possibilité de générer des graphiques personnalisés à partir de différents jeux de données (poids, calories consommées, performances sur un exercice, etc.)
+- Fournir un accès à l’historique complet des aliments consommés et des charges soulevées pour chaque journée.
+- Intégrer un scan alimentaire rapide directement dans le BottomSheet principal de la section « Manger ».
 
 # Crédits
 
