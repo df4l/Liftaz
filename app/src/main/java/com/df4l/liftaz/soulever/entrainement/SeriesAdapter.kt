@@ -46,17 +46,29 @@ class SeriesAdapter(
         fun bind(serie: SerieUi.Fonte, index: Int) {
             textSerieNumber.text = "Série $index"
 
+            if (serie.touchedByUser) {
+                // L'utilisateur a déjà modifié, on affiche ses valeurs
+                editWeight.setText(if (serie.poids > 0f) serie.poids.toHint() else "")
+                editReps.setText(if (serie.reps > 0f) serie.reps.toHint() else "")
+            } else {
+                // L'utilisateur n'a pas touché, on efface le texte pour n'afficher que le hint
+                editWeight.setText("")
+                editReps.setText("")
+            }
+
+            // Le hint est toujours basé sur la valeur initiale (celle de la séance précédente)
             editWeight.setHint(serie.poids.toHint())
             editReps.setHint(serie.reps.toHint())
-            //checkboxFlemme.isChecked = serie.flemme
 
             // Update model when user edits values
             editWeight.addTextChangedListener {
                 serie.poids = it.toString().toFloatOrNull() ?: 0f
+                serie.touchedByUser = true
                 onSeriesChanged()
             }
             editReps.addTextChangedListener {
                 serie.reps = it.toString().toFloatOrNull() ?: 0f
+                serie.touchedByUser = true
                 onSeriesChanged()
             }
             checkboxFlemme.setOnCheckedChangeListener { _, checked ->
@@ -103,14 +115,23 @@ class SeriesAdapter(
 
             textSerieNumber.text = "Série $index"
 
-            editReps.setText("")
+            if (serie.touchedByUser) {
+                // L'utilisateur a déjà modifié, on affiche sa valeur
+                editReps.setText(if (serie.reps > 0f) serie.reps.toHint() else "")
+            } else {
+                // L'utilisateur n'a pas touché, on efface le texte pour n'afficher que le hint
+                editReps.setText("")
+            }
+
+            // Le hint est toujours basé sur la valeur initiale
             editReps.setHint(serie.reps.toHint())
-            //checkboxFlemme.isChecked = serie.flemme
+
             viewElastiques.couleurs = getCouleursForBitmask(elastiques, serie.bitmaskElastiques)
 
             // Met à jour les données
             editReps.addTextChangedListener {
                 serie.reps = it.toString().toFloatOrNull() ?: 0f
+                serie.touchedByUser = true
                 onSeriesChanged()
 
             }
@@ -232,6 +253,6 @@ class SeriesAdapter(
 
 
 sealed class SerieUi {
-    data class Fonte(var poids: Float, var reps: Float, var flemme: Boolean) : SerieUi()
-    data class PoidsDuCorps(var reps: Float, var bitmaskElastiques: Int, var flemme: Boolean) : SerieUi()
+    data class Fonte(var poids: Float, var reps: Float, var flemme: Boolean, var touchedByUser: Boolean = false) : SerieUi()
+    data class PoidsDuCorps(var reps: Float, var bitmaskElastiques: Int, var flemme: Boolean, var touchedByUser: Boolean = false) : SerieUi()
 }
