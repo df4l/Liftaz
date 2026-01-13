@@ -60,6 +60,11 @@ class SeriesAdapter(
             editWeight.setHint(serie.poids.toHint())
             editReps.setHint(serie.reps.toHint())
 
+            if(!serie.touchedByUser) {
+                serie.poids = 0f
+                serie.reps = 0f
+            }
+
             // Update model when user edits values
             editWeight.addTextChangedListener {
                 serie.poids = it.toString().toFloatOrNull() ?: 0f
@@ -183,6 +188,7 @@ class SeriesAdapter(
                     .setAdapter(adapter, null)
                     .setPositiveButton("OK") { _, _ ->
                         viewElastiques.couleurs = getCouleursForBitmask(elastiques, serie.bitmaskElastiques)
+                        serie.touchedByUser = true
                         onSeriesChanged()
                     }
                     .setNegativeButton("Annuler", null)

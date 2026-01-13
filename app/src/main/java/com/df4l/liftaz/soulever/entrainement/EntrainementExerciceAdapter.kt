@@ -65,21 +65,26 @@ class EntrainementExerciceAdapter(
         }
 
         private fun updateProgression(item: ExerciceSeanceItem) {
-            // 1. On ne calcule le volume actuel que pour les séries "touchées" par l'utilisateur
-            // OU on considère que si rien n'est touché, le volume actuel est de 0.
             val actuel = item.series.sumOf { serie ->
-                val isTouched = when(serie) {
-                    is SerieUi.Fonte -> serie.touchedByUser
-                    is SerieUi.PoidsDuCorps -> serie.touchedByUser
+                // 1. Vérification si la série doit être comptée
+                val isReady = when (serie) {
+                    is SerieUi.Fonte -> {
+                        // Pour la Fonte : on attend que poids ET reps soient > 0
+                        serie.touchedByUser && serie.poids > 0f && serie.reps > 0f
+                    }
+                    is SerieUi.PoidsDuCorps -> {
+                        // Pour le PDC : on attend juste que les reps soient > 0
+                        serie.touchedByUser && serie.reps > 0f
+                    }
                 }
 
-                val flemme = when(serie) {
+                val hasFlemme = when(serie) {
                     is SerieUi.Fonte -> serie.flemme
                     is SerieUi.PoidsDuCorps -> serie.flemme
                 }
 
-                if (flemme|| !isTouched) {
-                    0.0 // Si pas touché ou flemme, ça ne compte pas dans le volume actuel
+                if (hasFlemme || !isReady) {
+                    0.0
                 } else {
                     when (serie) {
                         is SerieUi.Fonte -> (serie.poids * serie.reps).toDouble()
@@ -94,9 +99,8 @@ class EntrainementExerciceAdapter(
 
             val precedent = item.poidsSouleve
 
-            // 2. Logique d'affichage
             if (precedent > 0f) {
-                // Si l'utilisateur n'a encore rien saisi, on affiche un message neutre
+                // Si le volume actuel est encore à 0 (car aucune série n'est "Ready"), on reste discret
                 if (actuel == 0f) {
                     textProgression.text = "--"
                     textProgression.setTextColor(itemView.context.getColor(android.R.color.darker_gray))
@@ -106,7 +110,8 @@ class EntrainementExerciceAdapter(
                 val diff = actuel - precedent
                 val sign = if (diff >= 0) "+" else ""
 
-                textProgression.text = String.format("%s%.1f kg (%s%.1f%%)", sign, diff, sign)
+                // Affichage complet avec pourcentage
+                textProgression.text = String.format("%s%.1f kg", sign, diff)
 
                 if (diff >= 0) {
                     textProgression.setTextColor(itemView.context.getColor(android.R.color.holo_green_dark))
