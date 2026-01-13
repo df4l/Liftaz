@@ -20,6 +20,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.df4l.liftaz.R
 import com.df4l.liftaz.data.AppDatabase
+import com.df4l.liftaz.data.Elastique
 import com.df4l.liftaz.data.SeanceHistorique
 import com.df4l.liftaz.data.Serie
 import com.df4l.liftaz.soulever.fioul.RandomFioulDialog
@@ -134,7 +135,8 @@ class EntrainementFragment : Fragment() {
         lifecycleScope.launch {
             val db = AppDatabase.getDatabase(requireContext())
 
-            val seance = db.seanceDao().getSeance(seanceId)
+            val dernierPoidsUtilisateur = db.entreePoidsDao().getLatestWeight()?.poids
+            val elastiques = db.elastiqueDao().getAll()
             val exercicesSeance = db.exerciceSeanceDao().getExercicesForSeance(seanceId)
 
             // ✅ On récupère la dernière séance si elle existe
@@ -152,6 +154,30 @@ class EntrainementFragment : Fragment() {
                 val muscleNom = db.muscleDao().getNomMuscleById(exercice.idMuscleCible)
 
                 val series = mutableListOf<SerieUi>()
+
+                var nbSeriesRelevees = 0
+                var quantiteTotaleSoulevee = 0f
+
+                if(lastSeries != null)
+                    nbSeriesRelevees = lastSeries.filter { it.idExercice == exSeance.idExercice }.size
+                else
+                    nbSeriesRelevees = exSeance.nbSeries
+
+                for(i in 1..nbSeriesRelevees)
+                {
+                    val previousSerie = lastSeries?.find { it.idExercice == exSeance.idExercice && it.numeroSerie == i }
+                    var nbPoids = 0f
+                    var nbReps = 0f
+                    if(exercice.poidsDuCorps) {
+                        nbPoids = computeEffectiveLoad(dernierPoidsUtilisateur, decodeElastiques(previousSerie?.elastiqueBitMask ?: 0, elastiques))
+                        nbReps = previousSerie?.nombreReps ?: 0f
+                        quantiteTotaleSoulevee += nbPoids * nbReps
+                    } else {
+                        nbPoids = previousSerie?.poids ?: 0f
+                        nbReps = previousSerie?.nombreReps ?: 0f
+                        quantiteTotaleSoulevee += nbPoids * nbReps
+                    }
+                }
 
                 for (i in 1..exSeance.nbSeries) {
                     val previousSerie = lastSeries?.find { it.idExercice == exSeance.idExercice && it.numeroSerie == i }
@@ -177,13 +203,32 @@ class EntrainementFragment : Fragment() {
                     ExerciceSeanceItem(
                         exerciceName = exercice.nom,
                         muscleName = muscleNom,
-                        series = series
+                        series = series,
+                        poidsSouleve = quantiteTotaleSoulevee,
+                        poidsUtilisateur = dernierPoidsUtilisateur ?: 0f
                     )
                 )
             }
 
             exerciceAdapter.submitList(items)
         }
+    }
+
+    private fun decodeElastiques(bitmask: Int, allElastiques: List<Elastique>): List<Elastique> {
+        return allElastiques.filter { elast ->
+            (bitmask and elast.valeurBitmask) != 0
+        }
+    }
+
+    fun computeEffectiveLoad(userWeight: Float?, elastiques: List<Elastique>): Float {
+        if (userWeight == null) return 0f
+
+        // Somme des valeurs des élastiques en tenant compte de leur effet :
+        //   +ve = rend plus difficile (ajoute au poids)
+        //   -ve = rend plus facile (réduit le poids effectif)
+        val elastiqueEffect = elastiques.sumOf { it.resistanceMinKg.toDouble() }.toFloat()
+
+        return userWeight - elastiqueEffect
     }
 
     private fun sauvegarderSeance() {

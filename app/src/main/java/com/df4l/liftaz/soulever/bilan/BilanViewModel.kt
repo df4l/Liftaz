@@ -115,7 +115,7 @@ class BilanViewModel(
                         serieAct.nombreReps - ancienReps
                     } else 0f
 
-                Log.d("BILAN_DEBUG", "SerieBilan(num=${serieAct.numeroSerie}, ancienPoids=$ancienPoids, ancienReps=$ancienReps, nouveauPoids=${serieAct.poids}, nouveauReps=${serieAct.nombreReps}, progressionKg=$progressionKg, progressionReps=$progressionReps, ancienBitMaskElastique=${if (exercice.poidsDuCorps) ancienMask else 0}, nouveauBitMaskElastique=${if (exercice.poidsDuCorps) serieAct.elastiqueBitMask else 0})")
+                //Log.d("BILAN_DEBUG", "SerieBilan(num=${serieAct.numeroSerie}, ancienPoids=$ancienPoids, ancienReps=$ancienReps, nouveauPoids=${serieAct.poids}, nouveauReps=${serieAct.nombreReps}, progressionKg=$progressionKg, progressionReps=$progressionReps, ancienBitMaskElastique=${if (exercice.poidsDuCorps) ancienMask else 0}, nouveauBitMaskElastique=${if (exercice.poidsDuCorps) serieAct.elastiqueBitMask else 0})")
 
                 SerieBilan(
                     numero = serieAct.numeroSerie,
