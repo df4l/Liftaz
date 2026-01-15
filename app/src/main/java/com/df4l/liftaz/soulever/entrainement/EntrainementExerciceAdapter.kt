@@ -46,8 +46,9 @@ class EntrainementExerciceAdapter(
             updateProgression(item)
 
             seriesAdapter = SeriesAdapter(item.series, elastiques, onSeriesChanged = {
-                updateProgression(item)
-                onSeriesChanged }, onFlemmeTriggered)
+                updateProgression(item) // Met à jour le texte de progression (+2kg etc)
+                onSeriesChanged()       // Appelle la fonction mettreAJourEtatBouton du fragment
+            }, onFlemmeTriggered)
             recyclerSeries.layoutManager = LinearLayoutManager(itemView.context)
             recyclerSeries.adapter = seriesAdapter
 

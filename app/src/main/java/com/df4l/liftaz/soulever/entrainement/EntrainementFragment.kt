@@ -95,26 +95,24 @@ class EntrainementFragment : Fragment() {
     }
 
     fun toutesLesSeriesRemplies(): Boolean {
-        return recyclerExercices.children.all { exoView ->
-            val recyclerSeries = exoView.findViewById<RecyclerView>(R.id.recyclerSeries)
-            recyclerSeries.children.all { serieView ->
-                val editReps = serieView.findViewById<EditText>(R.id.editReps)
-                val editPoids = serieView.findViewById<EditText?>(R.id.editPoids) // null pour PoidsDuCorps
-                val checkboxFlemme = serieView.findViewById<CheckBox>(R.id.checkboxFlemme)
+        // On récupère la liste des exercices depuis l'adapter
+        val items = exerciceAdapter.getItems()
 
-                if (checkboxFlemme.isChecked) {
-                    true
+        if (items.isEmpty()) return false
+
+        // On vérifie chaque exercice
+        return items.all { exercice ->
+            // On vérifie chaque série de l'exercice
+            exercice.series.all { serie ->
+                if (serie is SerieUi.Fonte) {
+                    // Pour la fonte : soit flemme, soit (poids > 0 et reps > 0)
+                    // Note: j'utilise touchedByUser pour s'assurer que l'utilisateur a validé l'intention
+                    serie.flemme || (serie.poids > 0f && serie.reps > 0f)
+                } else if (serie is SerieUi.PoidsDuCorps) {
+                    // Pour le PDC : soit flemme, soit reps > 0
+                    serie.flemme || (serie.reps > 0f)
                 } else {
-                    val reps = editReps.text.toString().toFloatOrNull() ?: 0f
-                    val poids = editPoids?.text?.toString()?.toFloatOrNull() // null si poids du corps
-
-                    if (editPoids == null) {
-                        // Poids du corps → seulement les reps comptent
-                        reps > 0f
-                    } else {
-                        // Exercice avec poids
-                        reps > 0f && (poids ?: 0f) > 0f
-                    }
+                    false
                 }
             }
         }
