@@ -12,5 +12,6 @@ data class ExerciceSeance(
     var indexOrdre: Int,
     var nbSeries: Int,
     var minReps: Int,
-    var maxReps: Int
+    var maxReps: Int,
+    var idSuperset: Int? = null
 )

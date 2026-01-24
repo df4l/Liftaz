@@ -24,5 +24,6 @@ data class DieteElements(
     var idElement: Int,
     var typeElement: TypeElement,
     var periodeRepas: PeriodeRepas,
-    var quantiteGrammes: Int
+    var quantiteGrammes: Int,
+    var indexVariante: Int = 0
 )

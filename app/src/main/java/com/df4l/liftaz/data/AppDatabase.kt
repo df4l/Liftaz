@@ -5,6 +5,8 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
 
 @Database(entities = [
     //Soulever
@@ -27,7 +29,7 @@ import androidx.room.TypeConverters
     //Stats
     EntreePoids::class,
     Graphique::class
-                     ], version = 1, exportSchema = false)
+                     ], version = 2, exportSchema = false)
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
 
@@ -59,6 +61,13 @@ abstract class AppDatabase : RoomDatabase() {
         @Volatile
         private var Instance: AppDatabase? = null
 
+        val MIGRATION_1_2 = object : Migration(1, 2) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("ALTER TABLE exercices_seance ADD COLUMN idSuperset INTEGER")
+                database.execSQL("ALTER TABLE diete_elements ADD COLUMN indexVariante INTEGER NOT NULL DEFAULT 0")
+            }
+        }
+
         fun getDatabase(context: Context): AppDatabase {
             // if the Instance is not null, return it, otherwise create a new database instance.
             return com.df4l.liftaz.data.AppDatabase.Companion.Instance ?: synchronized(this) {
@@ -68,7 +77,9 @@ abstract class AppDatabase : RoomDatabase() {
                      * permanently deletes all data from the tables in your database when it
                      * attempts to perform a migration with no defined migration path.
                      */
-                    .fallbackToDestructiveMigration(true)
+                    //Retire la destruction des données!!!
+                    //.fallbackToDestructiveMigration(true)
+                    .addMigrations(MIGRATION_1_2)
                     .build()
                     .also { com.df4l.liftaz.data.AppDatabase.Companion.Instance = it }
             }
