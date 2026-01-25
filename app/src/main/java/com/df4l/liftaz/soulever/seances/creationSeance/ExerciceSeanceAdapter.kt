@@ -13,7 +13,8 @@ import com.df4l.liftaz.R
 
 class ExerciceSeanceAdapter(
     private val exercices: MutableList<ExerciceSeanceUi>,
-    private val onAddClick: (position: Int) -> Unit
+    private val onAddClick: (position: Int) -> Unit,
+    private val onLongPress: (position: Int) -> Unit
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     inner class AvecFonteViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -76,29 +77,32 @@ class ExerciceSeanceAdapter(
                 h.maxRepsWatcher?.let { h.maxReps.removeTextChangedListener(it) }
 
                 // Affichage initial
-                h.series.setText(item.series.takeIf { it != 0 }?.toString() ?: "")
+                val seriesValue = if (item.idSuperset != null) {
+                    item.superSetData?.series ?: 0
+                } else {
+                    item.series
+                }
+
+                h.series.setText(seriesValue.takeIf { it != 0 }?.toString() ?: "")
                 h.minReps.setText(item.minReps.takeIf { it != 0 }?.toString() ?: "")
                 h.maxReps.setText(item.maxReps.takeIf { it != 0 }?.toString() ?: "")
 
                 // TextWatcher pour mise à jour en direct
                 h.seriesWatcher = h.series.doOnTextChanged { text, _, _, _ ->
-                    item.series = text.toString().toIntOrNull() ?: 0
+                    val value = text.toString().toIntOrNull() ?: 0
+
+                    if (item.idSuperset != null) {
+                        item.superSetData?.series = value
+                        notifySupersetChanged(item.idSuperset!!)
+                    } else {
+                        item.series = value
+                    }
                 }
                 h.minRepsWatcher = h.minReps.doOnTextChanged { text, _, _, _ ->
                     item.minReps = text.toString().toIntOrNull() ?: 0
                 }
                 h.maxRepsWatcher = h.maxReps.doOnTextChanged { text, _, _, _ ->
                     item.maxReps = text.toString().toIntOrNull() ?: 0
-                }
-
-                h.btnDelete.setOnClickListener {
-                    exercices.removeAt(position)
-                    notifyItemRemoved(position)
-                    notifyItemRangeChanged(position, exercices.size - position)
-                }
-
-                h.buttonAddExercice.setOnClickListener {
-                    onAddClick(position + 1)
                 }
             }
 
@@ -112,28 +116,73 @@ class ExerciceSeanceAdapter(
                 h.repsWatcher?.let { h.reps.removeTextChangedListener(it) }
 
                 // Affichage initial
-                h.series.setText(item.series.takeIf { it != 0 }?.toString() ?: "")
+                val seriesValue = if (item.idSuperset != null) {
+                    item.superSetData?.series ?: 0
+                } else {
+                    item.series
+                }
+
+                h.series.setText(seriesValue.takeIf { it != 0 }?.toString() ?: "")
                 h.reps.setText(item.reps.takeIf { it != 0 }?.toString() ?: "")
 
                 // TextWatcher
                 h.seriesWatcher = h.series.doOnTextChanged { text, _, _, _ ->
                     val value = text.toString().toIntOrNull() ?: 0
-                    item.series = value
+
+                    if (item.idSuperset != null) {
+                        item.superSetData?.series = value
+                        notifySupersetChanged(item.idSuperset!!)
+                    } else {
+                        item.series = value
+                    }
                 }
                 h.repsWatcher = h.reps.doOnTextChanged { text, _, _, _ ->
                     val value = text.toString().toIntOrNull() ?: 0
                     item.reps = value
                 }
+            }
+        }
 
-                h.btnDelete.setOnClickListener {
-                    exercices.removeAt(position)
-                    notifyItemRemoved(position)
-                    notifyItemRangeChanged(position, exercices.size - position)
-                }
+        val item = exercices[position]
 
-                h.buttonAddExercice.setOnClickListener {
-                    onAddClick(position + 1)
-                }
+        val btnDelete = when (holder) {
+            is AvecFonteViewHolder -> holder.btnDelete
+            is PoidsDuCorpsViewHolder -> holder.btnDelete
+            else -> null
+        }
+
+        val buttonAddExercice = when (holder) {
+            is AvecFonteViewHolder -> holder.buttonAddExercice
+            is PoidsDuCorpsViewHolder -> holder.buttonAddExercice
+            else -> null
+        }
+
+        btnDelete?.setOnClickListener {
+            exercices.removeAt(holder.bindingAdapterPosition)
+            notifyItemRemoved(holder.bindingAdapterPosition)
+            notifyItemRangeChanged(holder.bindingAdapterPosition, exercices.size - holder.bindingAdapterPosition)
+        }
+
+        buttonAddExercice?.setOnClickListener {
+            onAddClick(holder.bindingAdapterPosition + 1)
+        }
+
+        holder.itemView.setOnLongClickListener {
+            onLongPress(holder.bindingAdapterPosition)
+            true
+        }
+
+        if (item.idSuperset != null && item.superSetColor != null) {
+            holder.itemView.setBackgroundColor(item.superSetColor!!)
+        } else {
+            holder.itemView.setBackgroundResource(android.R.color.transparent)
+        }
+    }
+
+    private fun notifySupersetChanged(supersetId: Int) {
+        exercices.forEachIndexed { index, ex ->
+            if (ex.idSuperset == supersetId) {
+                notifyItemChanged(index)
             }
         }
     }
@@ -142,6 +191,10 @@ class ExerciceSeanceAdapter(
 }
 
 sealed class ExerciceSeanceUi {
+    var idSuperset: Int? = null
+    var superSetColor: Int? = null
+    var superSetData: SupersetData? = null
+
     data class AvecFonte(
         val idExercice: Int,
         val nom: String,
@@ -159,3 +212,7 @@ sealed class ExerciceSeanceUi {
         var reps: Int = 0
     ) : ExerciceSeanceUi()
 }
+
+data class SupersetData(
+    var series: Int = 0
+)

@@ -1,6 +1,8 @@
 package com.df4l.liftaz.soulever.seances.creationSeance
 
 import android.app.DatePickerDialog
+import android.content.Context
+import android.content.res.Configuration
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -37,6 +39,9 @@ import java.time.LocalDate
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Locale
+import android.graphics.Color
+import androidx.core.graphics.toColor
+import kotlin.random.Random
 
 class CreationSeanceFragment : Fragment() {
 
@@ -100,7 +105,7 @@ class CreationSeanceFragment : Fragment() {
         val intervalLayout = view.findViewById<LinearLayout>(R.id.layoutIntervalle)
         val numberSlider = view.findViewById<Slider>(R.id.sliderIntervalle)
         val textProchaines = view.findViewById<TextView>(R.id.textProchainesSeances)
-        var intervalleTexte = view.findViewById<TextView>(R.id.IntervalleTexte)
+        val intervalleTexte = view.findViewById<TextView>(R.id.IntervalleTexte)
 
         radioGroup.setOnCheckedChangeListener { _, checkedId ->
             when (checkedId) {
@@ -171,9 +176,18 @@ class CreationSeanceFragment : Fragment() {
         recyclerView = binding.recyclerView
         recyclerView.layoutManager = LinearLayoutManager(context)
 
-        exerciceSeanceAdapter = ExerciceSeanceAdapter(exerciceSeanceList) { position ->
-            addExerciceToSeance(position)
-        }
+        exerciceSeanceAdapter = ExerciceSeanceAdapter(
+            exerciceSeanceList,
+            onAddClick = { position ->
+                addExerciceToSeance(position, true)
+                toggleBottomAddButton()
+            },
+            onLongPress = { position ->
+                toggleSuperset(position)
+                toggleBottomAddButton()
+            }
+        )
+
         recyclerView.adapter = exerciceSeanceAdapter
 
         idSeanceModif = arguments?.getInt("idSeance")
@@ -184,6 +198,61 @@ class CreationSeanceFragment : Fragment() {
             Log.d("DEBUG_SEANCE", "Edition de la séance à l'ID $idSeanceModif")
         }
 
+    }
+
+    fun isDarkMode(context: Context): Boolean {
+        val nightModeFlags =
+            context.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
+
+        return nightModeFlags == Configuration.UI_MODE_NIGHT_YES
+    }
+
+    fun randomPaleColor(): Int {
+        val hue = Random.nextFloat() * 360f      // teinte
+        val saturation = 0.25f + Random.nextFloat() * 0.15f  // faible saturation
+
+        var value = 0f
+        if(!isDarkMode(requireContext()))
+            value = 0.9f + Random.nextFloat() * 0.1f          // très clair
+        else
+            value = 0.2f + Random.nextFloat() * 0.2f //très sombre
+
+        return Color.HSVToColor(floatArrayOf(hue, saturation, value))
+    }
+
+
+    private fun toggleSuperset(position: Int) {
+        val exercice = exerciceSeanceList[position]
+
+        if (exercice.idSuperset == null) {
+            // ✅ devient un superset
+            exercice.idSuperset = System.currentTimeMillis().toInt()
+            exercice.superSetColor = randomPaleColor()
+            exercice.superSetData = SupersetData()
+        } else {
+            // ❌ on enlève le superset
+            exercice.idSuperset = null
+            exercice.superSetColor = null
+            exercice.superSetData = null
+        }
+
+        exerciceSeanceAdapter.notifyItemChanged(position)
+    }
+
+    private val supersetColorMap = mutableMapOf<Int, Int>()
+    private fun getOrCreateSupersetColor(supersetId: Int): Int {
+        return supersetColorMap.getOrPut(supersetId) {
+            randomPaleColor()
+        }
+    }
+    private val supersetDataMap = mutableMapOf<Int, SupersetData>()
+    private fun getOrCreateSupersetData(
+        supersetId: Int,
+        initialSeries: Int
+    ): SupersetData {
+        return supersetDataMap.getOrPut(supersetId) {
+            SupersetData(series = initialSeries)
+        }
     }
 
     private fun chargerSeanceExistante(id: Int) {
@@ -210,28 +279,43 @@ class CreationSeanceFragment : Fragment() {
 
             // exercices
             exerciceSeanceList.clear()
+
+            supersetColorMap.clear()
+            supersetDataMap.clear()
+
             exercicesSeance.forEach {
                 val ex = exerciceDao.getExerciceById(it.idExercice)
                 val muscle = muscleDao.getMuscle(ex.idMuscleCible).first()
 
-                if (ex.poidsDuCorps) {
-                    exerciceSeanceList += ExerciceSeanceUi.PoidsDuCorps(
+                val ajoutEx = if (ex.poidsDuCorps) {
+                    ExerciceSeanceUi.PoidsDuCorps(
                         idExercice = ex.id,
                         nom = ex.nom,
                         muscle = muscle.nom,
                         series = it.nbSeries,
-                        reps = it.minReps
+                        reps = it.minReps,
                     )
                 } else {
-                    exerciceSeanceList += ExerciceSeanceUi.AvecFonte(
+                    ExerciceSeanceUi.AvecFonte(
                         idExercice = ex.id,
                         nom = ex.nom,
                         muscle = muscle.nom,
                         series = it.nbSeries,
                         minReps = it.minReps,
-                        maxReps = it.maxReps
+                        maxReps = it.maxReps,
                     )
                 }
+
+                if (it.idSuperset != null) {
+                    val supersetId = it.idSuperset!!
+
+                    ajoutEx.idSuperset = supersetId
+                    ajoutEx.superSetColor = getOrCreateSupersetColor(supersetId)
+                    ajoutEx.superSetData =
+                        getOrCreateSupersetData(supersetId, it.nbSeries)
+                }
+
+                exerciceSeanceList += ajoutEx
 
                 Log.d("DEBUG_SEANCE", "Exercice ${ex.nom} series=${it.nbSeries} min=${it.minReps} max=${it.maxReps}")
 
@@ -254,7 +338,18 @@ class CreationSeanceFragment : Fragment() {
         textView2.text = "Séance à effectuer tous les $interval jours"
     }
 
+    fun toggleBottomAddButton()
+    {
+        if(exerciceSeanceList.isEmpty()) {
+            binding.ajouterExerciceImportBottom.root.visibility = View.GONE
+            return
+        }
 
+        if(exerciceSeanceList.last().idSuperset == null)
+            binding.ajouterExerciceImportBottom.root.visibility = View.GONE
+        else
+            binding.ajouterExerciceImportBottom.root.visibility = View.VISIBLE
+    }
 
     override fun onDestroyView() {
         super.onDestroyView()
@@ -342,14 +437,21 @@ class CreationSeanceFragment : Fragment() {
                             "AvecFonte idExercice=${exUi.idExercice}, series=${exUi.series}, minReps=${exUi.minReps}, maxReps=${exUi.maxReps}"
                         )
 
+                        val nbSeries = if (exUi.idSuperset == null) {
+                            exUi.series
+                        } else {
+                            exUi.superSetData?.series ?: exUi.series
+                        }
+
                         exerciceSeanceDao.insert(
                             ExerciceSeance(
                                 idSeance = idSeance,
                                 idExercice = exUi.idExercice,
                                 indexOrdre = index,
-                                nbSeries = exUi.series,
+                                nbSeries = nbSeries,
                                 minReps = exUi.minReps,
-                                maxReps = exUi.maxReps
+                                maxReps = exUi.maxReps,
+                                idSuperset = exUi.idSuperset
                             )
                         )
                     }
@@ -360,14 +462,21 @@ class CreationSeanceFragment : Fragment() {
                             "PoidsDuCorps idExercice=${exUi.idExercice}, series=${exUi.series}, reps=${exUi.reps}"
                         )
 
+                        val nbSeries = if (exUi.idSuperset == null) {
+                            exUi.series
+                        } else {
+                            exUi.superSetData?.series ?: exUi.series
+                        }
+
                         exerciceSeanceDao.insert(
                             ExerciceSeance(
                                 idSeance = idSeance,
                                 idExercice = exUi.idExercice,
                                 indexOrdre = index,
-                                nbSeries = exUi.series,
+                                nbSeries = nbSeries,
                                 minReps = exUi.reps,
-                                maxReps = exUi.reps
+                                maxReps = exUi.reps,
+                                idSuperset = exUi.idSuperset
                             )
                         )
                     }
@@ -382,7 +491,7 @@ class CreationSeanceFragment : Fragment() {
         }
     }
 
-    private fun addExerciceToSeance(position: Int) {
+    private fun addExerciceToSeance(position: Int, calledFromAdapter: Boolean = false) {
         ShowExercicesListDialog(
             context = requireContext(),
             lifecycleScope = viewLifecycleOwner.lifecycleScope,
@@ -405,6 +514,13 @@ class CreationSeanceFragment : Fragment() {
                         nom = exercice.nom,
                         muscle = muscle.nom,
                     )
+                }
+
+                if(calledFromAdapter && exerciceSeanceList[position-1].idSuperset != null)
+                {
+                    nouvelExercice.idSuperset = exerciceSeanceList[position-1].idSuperset
+                    nouvelExercice.superSetColor = exerciceSeanceList[position-1].superSetColor
+                    nouvelExercice.superSetData = exerciceSeanceList[position-1].superSetData
                 }
 
                 exerciceSeanceList.add(position, nouvelExercice)

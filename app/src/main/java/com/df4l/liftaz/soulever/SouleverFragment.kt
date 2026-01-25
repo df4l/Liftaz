@@ -187,29 +187,61 @@ class SouleverFragment : Fragment() {
 
             // RÉCUPÉRER LES EXERCICES LIÉS À LA SÉANCE
             lifecycleScope.launch {
-                val exercicesSeance = database.exerciceSeanceDao().getExercicesForSeance(seanceDuJour!!.id)
+                val exercicesSeance =
+                    database.exerciceSeanceDao().getExercicesForSeance(seanceDuJour!!.id)
 
-                val previewItems = exercicesSeance.map { se ->
-                    val exercice = exerciceDao.getExerciceById(se.idExercice)
-                    val muscleName = muscleDao.getNomMuscleById(exercice.idMuscleCible)
+                val previewItems = mutableListOf<ExercicePreviewItem>()
 
-                    val repsText = if (exercice.poidsDuCorps) {
-                        // Ex : 4 x 12
-                        "${se.nbSeries} x ${se.minReps}"
-                    } else {
-                        // Ex : 4 x 8-12
-                        "${se.nbSeries} x ${se.minReps}-${se.maxReps}"
+                // Grouper par superset (null inclus)
+                val grouped = exercicesSeance.groupBy { it.idSuperset }
+
+                grouped.forEach { (supersetId, items) ->
+
+                    // 🔹 CAS 1 : SUPSERSET
+                    if (supersetId != null) {
+
+                        val muscles = items.map { se ->
+                            val ex = exerciceDao.getExerciceById(se.idExercice)
+                            muscleDao.getNomMuscleById(ex.idMuscleCible)
+                        }.distinct()
+
+                        val first = items.first()
+
+                        val repsText = "${first.nbSeries} séries"
+
+                        previewItems += ExercicePreviewItem(
+                            nomExercice = "Superset",
+                            nomMuscle = muscles.joinToString(" + "),
+                            texteSeriesEtReps = repsText
+                        )
+
                     }
+                    // 🔹 CAS 2 : EXERCICES NORMAUX
+                    else {
+                        items.forEach { se ->
+                            val ex = exerciceDao.getExerciceById(se.idExercice)
+                            val muscleName =
+                                muscleDao.getNomMuscleById(ex.idMuscleCible)
 
-                    ExercicePreviewItem(
-                        nomExercice = exercice.nom,
-                        nomMuscle = muscleName,
-                        texteSeriesEtReps = repsText
-                    )
+                            val repsText = if (ex.poidsDuCorps) {
+                                "${se.nbSeries} x ${se.minReps}"
+                            } else {
+                                "${se.nbSeries} x ${se.minReps}-${se.maxReps}"
+                            }
+
+                            previewItems += ExercicePreviewItem(
+                                nomExercice = ex.nom,
+                                nomMuscle = muscleName,
+                                texteSeriesEtReps = repsText
+                            )
+                        }
+                    }
                 }
 
-                binding.recyclerPreviewExercices.layoutManager = LinearLayoutManager(requireContext())
-                binding.recyclerPreviewExercices.adapter = PreviewExerciceAdapter(previewItems)
+                binding.recyclerPreviewExercices.layoutManager =
+                    LinearLayoutManager(requireContext())
+                binding.recyclerPreviewExercices.adapter =
+                    PreviewExerciceAdapter(previewItems)
             }
 
             binding.btnStart.setOnClickListener {

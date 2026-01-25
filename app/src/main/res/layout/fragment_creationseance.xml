@@ -166,13 +166,32 @@
 
     </LinearLayout>
 
-
     <include
         layout="@layout/bouton_plus"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/ajouterExerciceImport"
         app:layout_constraintTop_toBottomOf="@id/layoutIntervalle"
+        android:layout_marginTop="16dp"/>
+
+    <!-- RecyclerView pour les exercices -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginBottom="100dp"
+        app:layout_constraintTop_toBottomOf="@id/ajouterExerciceImport"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <include
+        layout="@layout/bouton_plus"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="invisible"
+        android:id="@+id/ajouterExerciceImportBottom"
+        app:layout_constraintTop_toBottomOf="@id/recyclerView"
         android:layout_marginTop="16dp"/>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -194,17 +213,6 @@
         android:backgroundTint="@color/white2"
         app:backgroundTint="@color/white2"
         />
-
-    <!-- RecyclerView pour les exercices -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerView"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:paddingBottom="100dp"
-        app:layout_constraintTop_toBottomOf="@id/ajouterExerciceImport"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
 
     <!-- Bouton "Confirmer" flottant -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
