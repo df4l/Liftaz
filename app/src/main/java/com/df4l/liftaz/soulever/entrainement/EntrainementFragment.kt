@@ -8,11 +8,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
-import android.widget.CheckBox
-import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
-import androidx.core.view.children
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
@@ -21,6 +18,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.df4l.liftaz.R
 import com.df4l.liftaz.data.AppDatabase
 import com.df4l.liftaz.data.Elastique
+import com.df4l.liftaz.data.Exercice
 import com.df4l.liftaz.data.SeanceHistorique
 import com.df4l.liftaz.data.Serie
 import com.df4l.liftaz.soulever.fioul.RandomFioulDialog
@@ -147,65 +145,176 @@ class EntrainementFragment : Fragment() {
 
             val items = mutableListOf<ExerciceSeanceItem>()
 
+            val supersetsDejaTraites = mutableSetOf<Int>()
+
             for (exSeance in exercicesSeance) {
-                val exercice = db.exerciceDao().getExerciceById(exSeance.idExercice)
-                val muscleNom = db.muscleDao().getNomMuscleById(exercice.idMuscleCible)
 
-                val series = mutableListOf<SerieUi>()
+                val supersetId = exSeance.idSuperset
 
-                var nbSeriesRelevees = 0
-                var quantiteTotaleSoulevee = 0f
+                if(supersetId == null) {
+                    val exercice = db.exerciceDao().getExerciceById(exSeance.idExercice)
+                    val muscleNom = db.muscleDao().getNomMuscleById(exercice.idMuscleCible)
 
-                if(lastSeries != null)
-                    nbSeriesRelevees = lastSeries.filter { it.idExercice == exSeance.idExercice }.size
+                    val series = mutableListOf<SerieUi>()
+
+                    var nbSeriesRelevees = 0
+                    var quantiteTotaleSoulevee = 0f
+
+                    if (lastSeries != null)
+                        nbSeriesRelevees =
+                            lastSeries.filter { it.idExercice == exSeance.idExercice }.size
+                    else
+                        nbSeriesRelevees = exSeance.nbSeries
+
+                    for (i in 1..nbSeriesRelevees) {
+                        val previousSerie =
+                            lastSeries?.find { it.idExercice == exSeance.idExercice && it.numeroSerie == i }
+                        var nbPoids = 0f
+                        var nbReps = 0f
+                        if (exercice.poidsDuCorps) {
+                            nbPoids = computeEffectiveLoad(
+                                dernierPoidsUtilisateur,
+                                decodeElastiques(previousSerie?.elastiqueBitMask ?: 0, elastiques)
+                            )
+                            nbReps = previousSerie?.nombreReps ?: 0f
+                            quantiteTotaleSoulevee += nbPoids * nbReps
+                        } else {
+                            nbPoids = previousSerie?.poids ?: 0f
+                            nbReps = previousSerie?.nombreReps ?: 0f
+                            quantiteTotaleSoulevee += nbPoids * nbReps
+                        }
+                    }
+
+                    for (i in 1..exSeance.nbSeries) {
+                        val previousSerie =
+                            lastSeries?.find { it.idExercice == exSeance.idExercice && it.numeroSerie == i }
+
+                        series.add(
+                            if (exercice.poidsDuCorps) {
+                                SerieUi.PoidsDuCorps(
+                                    reps = previousSerie?.nombreReps ?: 0f,
+                                    bitmaskElastiques = previousSerie?.elastiqueBitMask ?: 0,
+                                    flemme = false
+                                )
+                            } else {
+                                SerieUi.Fonte(
+                                    poids = previousSerie?.poids ?: 0f,
+                                    reps = previousSerie?.nombreReps ?: 0f,
+                                    flemme = false
+                                )
+                            }
+                        )
+                    }
+
+                    items.add(
+                        ExerciceSeanceItem(
+                            exerciceName = exercice.nom,
+                            muscleName = muscleNom,
+                            series = series,
+                            poidsSouleve = quantiteTotaleSoulevee,
+                            poidsUtilisateur = dernierPoidsUtilisateur ?: 0f
+                        )
+                    )
+                }
                 else
-                    nbSeriesRelevees = exSeance.nbSeries
-
-                for(i in 1..nbSeriesRelevees)
                 {
-                    val previousSerie = lastSeries?.find { it.idExercice == exSeance.idExercice && it.numeroSerie == i }
-                    var nbPoids = 0f
-                    var nbReps = 0f
-                    if(exercice.poidsDuCorps) {
-                        nbPoids = computeEffectiveLoad(dernierPoidsUtilisateur, decodeElastiques(previousSerie?.elastiqueBitMask ?: 0, elastiques))
-                        nbReps = previousSerie?.nombreReps ?: 0f
-                        quantiteTotaleSoulevee += nbPoids * nbReps
-                    } else {
-                        nbPoids = previousSerie?.poids ?: 0f
-                        nbReps = previousSerie?.nombreReps ?: 0f
-                        quantiteTotaleSoulevee += nbPoids * nbReps
+                    if (supersetsDejaTraites.contains(supersetId)) {
+                        // On a déjà créé les items pour ce superset
+                        continue
+                    }
+
+                    supersetsDejaTraites.add(supersetId)
+
+                    val exercicesDuSuperset = exercicesSeance.filter {
+                        it.idSuperset == supersetId
+                    }
+
+                    val nbToursSuperset = exercicesDuSuperset.minOf { it.nbSeries }
+
+                    var listeExercices: List<Exercice> = emptyList()
+                    val poidsParExercices = MutableList(exercicesDuSuperset.size) { 0f }
+
+                    for (numeroSerie in 1..nbToursSuperset) {
+
+                        var stringExercices = ""
+
+                        val seriesDuTour = mutableListOf<SerieUi>()
+                        var quantiteTotaleSoulevee = 0f
+
+                        for (exSeanceSuperset in exercicesDuSuperset) {
+
+                            val exercice = db.exerciceDao()
+                                .getExerciceById(exSeanceSuperset.idExercice)
+
+                            listeExercices = listeExercices + exercice
+
+                            stringExercices = stringExercices + exercice.nom + ", "
+
+                            val previousSerie = lastSeries?.find {
+                                it.idExercice == exSeanceSuperset.idExercice &&
+                                        it.numeroSerie == numeroSerie
+                            }
+
+                            if (exercice.poidsDuCorps) {
+
+                                val reps = previousSerie?.nombreReps ?: 0f
+                                val bitmask = previousSerie?.elastiqueBitMask ?: 0
+
+                                val poidsEffectif = computeEffectiveLoad(
+                                    dernierPoidsUtilisateur,
+                                    decodeElastiques(bitmask, elastiques)
+                                )
+
+                                poidsParExercices.add(exercicesDuSuperset.indexOf(exSeanceSuperset), poidsEffectif * reps)
+                                quantiteTotaleSoulevee += poidsEffectif * reps
+
+                                seriesDuTour.add(
+                                    SerieUi.PoidsDuCorps(
+                                        reps = reps,
+                                        bitmaskElastiques = bitmask,
+                                        flemme = false
+                                    )
+                                )
+
+                            } else {
+
+                                val poids = previousSerie?.poids ?: 0f
+                                val reps = previousSerie?.nombreReps ?: 0f
+
+                                quantiteTotaleSoulevee += poids * reps
+
+                                seriesDuTour.add(
+                                    SerieUi.Fonte(
+                                        poids = poids,
+                                        reps = reps,
+                                        flemme = false
+                                    )
+                                )
+                            }
+                        }
+
+                        val numeroSuperset = supersetsDejaTraites.indexOf(supersetId) + 1
+
+                        // 👉 Item factice représentant UN TOUR DE SUPERSET
+                        items.add(
+                            ExerciceSeanceItem(
+                                exerciceName = "Superset $numeroSuperset — Série $numeroSerie",
+                                muscleName = stringExercices,
+                                series = seriesDuTour,
+                                poidsSouleve = quantiteTotaleSoulevee,
+                                poidsUtilisateur = dernierPoidsUtilisateur ?: 0f,
+                                supersetData = SupersetOrigins(
+                                    exercices = listeExercices,
+                                    idSuperset = supersetId,
+                                    nbTours = nbToursSuperset,
+                                    poidsSouleveParExercices = poidsParExercices
+                                )
+                            )
+                        )
+
+                        listeExercices = emptyList()
                     }
                 }
-
-                for (i in 1..exSeance.nbSeries) {
-                    val previousSerie = lastSeries?.find { it.idExercice == exSeance.idExercice && it.numeroSerie == i }
-
-                    series.add(
-                        if (exercice.poidsDuCorps) {
-                            SerieUi.PoidsDuCorps(
-                                reps = previousSerie?.nombreReps ?: 0f,
-                                bitmaskElastiques = previousSerie?.elastiqueBitMask ?: 0,
-                                flemme = false
-                            )
-                        } else {
-                            SerieUi.Fonte(
-                                poids = previousSerie?.poids ?: 0f,
-                                reps = previousSerie?.nombreReps ?: 0f,
-                                flemme = false
-                            )
-                        }
-                    )
-                }
-
-                items.add(
-                    ExerciceSeanceItem(
-                        exerciceName = exercice.nom,
-                        muscleName = muscleNom,
-                        series = series,
-                        poidsSouleve = quantiteTotaleSoulevee,
-                        poidsUtilisateur = dernierPoidsUtilisateur ?: 0f
-                    )
-                )
             }
 
             exerciceAdapter.submitList(items)
@@ -233,6 +342,8 @@ class EntrainementFragment : Fragment() {
         lifecycleScope.launch {
             val db = AppDatabase.getDatabase(requireContext())
 
+            val dernierPoidsUtilisateur = db.entreePoidsDao().getLatestWeight()?.poids
+
             handler.removeCallbacks(updateRunnable)
 
             val seanceHistorique = SeanceHistorique(
@@ -246,7 +357,56 @@ class EntrainementFragment : Fragment() {
             val items = exerciceAdapter.getItems()
             val seriesToInsert = mutableListOf<Serie>()
 
-            for (item in items) {
+            var itemsToExercices: List<ExerciceSeanceItem> = emptyList()
+            val supersetsDejaTraites = mutableSetOf<Int>()
+
+            for(item in items)
+            {
+                if(item.supersetData == null)
+                {
+                    itemsToExercices = itemsToExercices + item
+                }
+                else
+                {
+                    val superSetId = item.supersetData.idSuperset
+
+                    if(supersetsDejaTraites.contains(superSetId))
+                        continue
+
+                    supersetsDejaTraites.add(superSetId)
+
+                    val toursDuSuperset = items.filter {
+                        it.supersetData != null && it.supersetData.idSuperset == superSetId
+                    }
+
+                    var exercicesSeriesMap: MutableMap<Exercice, MutableList<SerieUi>> = mutableMapOf()
+                    //Pour chaque VRAI exercice du superset...
+                    for(exercice in item.supersetData.exercices) {
+                        //...je boucle sur tous les FAUX items d'exercice
+                        for (tourSuperset in toursDuSuperset) {
+                            //pour en récupérer les séries effectuées
+                            val index = item.supersetData.exercices.indexOf(exercice)
+
+                            val serieUi = tourSuperset.series[index]
+
+                            exercicesSeriesMap
+                                .getOrPut(exercice) { mutableListOf() }
+                                .add(serieUi)
+                        }
+
+                        //A partir de là, j'ai récupéré toutes les séries
+                        itemsToExercices = itemsToExercices + ExerciceSeanceItem(
+                            exerciceName = exercice.nom,
+                            muscleName = item.muscleName,
+                            series = exercicesSeriesMap[exercice] ?: mutableListOf(),
+                            poidsSouleve = item.supersetData.poidsSouleveParExercices[item.supersetData.exercices.indexOf(exercice)],
+                            poidsUtilisateur = dernierPoidsUtilisateur ?: 0f
+                        )
+                    }
+                }
+            }
+
+            for (item in itemsToExercices) {
                 val exercice = db.exerciceDao().getExerciceByName(item.exerciceName)
                 val idExercice = exercice.id
 

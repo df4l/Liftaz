@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.df4l.liftaz.R
 import com.df4l.liftaz.data.Elastique
+import com.df4l.liftaz.data.Exercice
 
 class EntrainementExerciceAdapter(
     private var elastiques: List<Elastique>,
@@ -161,5 +162,13 @@ data class ExerciceSeanceItem(
     val muscleName: String,
     val series: MutableList<SerieUi>,
     val poidsSouleve: Float,
-    val poidsUtilisateur: Float
+    val poidsUtilisateur: Float,
+    val supersetData: SupersetOrigins? = null
+)
+
+data class SupersetOrigins(
+    val exercices: List<Exercice>,
+    val poidsSouleveParExercices: List<Float>,
+    val idSuperset: Int,
+    val nbTours: Int
 )

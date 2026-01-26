@@ -100,6 +100,10 @@ class CreationSeanceFragment : Fragment() {
             addExerciceToSeance(0)
         }
 
+        binding.ajouterExerciceImportBottom.btnAddPlus.setOnClickListener {
+            addExerciceToSeance(exerciceSeanceList.size)
+        }
+
         val radioGroup = view.findViewById<RadioGroup>(R.id.radioGroupFrequence)
         val chipGroup = view.findViewById<ChipGroup>(R.id.chipGroupJours)
         val intervalLayout = view.findViewById<LinearLayout>(R.id.layoutIntervalle)
@@ -322,6 +326,7 @@ class CreationSeanceFragment : Fragment() {
             }
 
             exerciceSeanceAdapter.notifyDataSetChanged()
+            toggleBottomAddButton()
         }
     }
 
