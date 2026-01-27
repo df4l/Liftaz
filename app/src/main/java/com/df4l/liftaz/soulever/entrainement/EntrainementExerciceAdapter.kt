@@ -53,16 +53,25 @@ class EntrainementExerciceAdapter(
             recyclerSeries.layoutManager = LinearLayoutManager(itemView.context)
             recyclerSeries.adapter = seriesAdapter
 
-            btnAddPlus.setOnClickListener {
-                // Ajouter une nouvelle série par défaut
-                val newSerie = if (item.series.firstOrNull() is SerieUi.Fonte) {
-                    SerieUi.Fonte(0f, 0f, false)
-                } else {
-                    SerieUi.PoidsDuCorps(0f, 0, false)
+
+            if(item.supersetData == null || item.supersetData.currentTour == item.supersetData.nbTours)
+            {
+                btnAddPlus.setOnClickListener {
+                    if(item.supersetData == null) {
+                        val newSerie = if (item.series.firstOrNull() is SerieUi.Fonte) {
+                            SerieUi.Fonte(0f, 0f, false)
+                        } else {
+                            SerieUi.PoidsDuCorps(0f, 0, false)
+                        }
+                        item.series.add(newSerie)
+                        seriesAdapter.notifyItemInserted(item.series.size - 1)
+                        onSeriesChanged()
+                    }
                 }
-                item.series.add(newSerie)
-                seriesAdapter.notifyItemInserted(item.series.size - 1)
-                onSeriesChanged()
+            }
+            else
+            {
+                btnAddPlus.visibility = View.GONE
             }
         }
 
@@ -170,5 +179,6 @@ data class SupersetOrigins(
     val exercices: List<Exercice>,
     val poidsSouleveParExercices: List<Float>,
     val idSuperset: Int,
-    val nbTours: Int
+    val nbTours: Int,
+    val currentTour: Int
 )

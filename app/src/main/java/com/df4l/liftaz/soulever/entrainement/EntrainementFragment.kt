@@ -307,7 +307,8 @@ class EntrainementFragment : Fragment() {
                                     exercices = listeExercices,
                                     idSuperset = supersetId,
                                     nbTours = nbToursSuperset,
-                                    poidsSouleveParExercices = poidsParExercices
+                                    poidsSouleveParExercices = poidsParExercices,
+                                    currentTour = numeroSerie
                                 )
                             )
                         )
